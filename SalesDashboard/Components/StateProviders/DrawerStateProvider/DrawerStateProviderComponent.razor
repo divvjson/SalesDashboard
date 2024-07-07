@@ -1,0 +1,38 @@
+﻿<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    public BehaviorSubject<EnumDrawerState> DrawerStateSubject = new(EnumDrawerState.Closed);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public void Toggle()
+    {
+        if (DrawerStateSubject.Value is EnumDrawerState.Open)
+        {
+            Close();
+        }
+        else if (DrawerStateSubject.Value is EnumDrawerState.Closed)
+        {
+            Open();
+        }
+    }
+
+    public void Open()
+    {
+        if (DrawerStateSubject.Value is EnumDrawerState.Closed)
+        {
+            DrawerStateSubject.OnNext(EnumDrawerState.Open);
+        }
+    }
+
+    public void Close()
+    {
+        if (DrawerStateSubject.Value is EnumDrawerState.Open)
+        {
+            DrawerStateSubject.OnNext(EnumDrawerState.Closed);
+        }
+    }
+}

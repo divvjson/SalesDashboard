@@ -1,0 +1,55 @@
+﻿@inject IJSRuntime JSRuntime
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    public BehaviorSubject<EnumBreakpointState?> BreakpointStateSubject = new(null);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("resizeListener", DotNetObjectReference.Create(this));
+
+            var newBreakpointState = await GetBreakpointStateAsync();
+
+            BreakpointStateSubject.OnNext(newBreakpointState);
+
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    public async Task HandleResize()
+    {
+        var oldBreakpointState = BreakpointStateSubject.Value;
+        var newBreakpointState = await GetBreakpointStateAsync();
+
+        if (oldBreakpointState != newBreakpointState)
+        {
+            BreakpointStateSubject.OnNext(newBreakpointState);
+            StateHasChanged();
+        }
+    }
+
+    private async Task<EnumBreakpointState> GetBreakpointStateAsync()
+    {
+        var width = await JSRuntime.InvokeAsync<int>("getScreenWidth");
+
+        // https://getbootstrap.com/docs/5.0/layout/breakpoints/
+        return width switch
+        {
+            int n when (n >= 1400) => EnumBreakpointState.F_XXLarge_1400_Infinity,
+            int n when (n >= 1200) => EnumBreakpointState.E_XLarge_1200_1399,
+            int n when (n >= 992) => EnumBreakpointState.D_Large_992_1199,
+            int n when (n >= 768) => EnumBreakpointState.C_Medium_768_991,
+            int n when (n >= 576) => EnumBreakpointState.B_Small_576_767,
+            _ => EnumBreakpointState.A_XSmall_0_575
+        };
+    }
+}

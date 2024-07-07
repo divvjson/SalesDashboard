@@ -1,0 +1,55 @@
+﻿@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+
+@inject IJSRuntime JSRuntime
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    public BehaviorSubject<(EnumFormFactorState? Previous, EnumFormFactorState? Current)> FormFactorStateSubject { get; set; } = new((null, null));
+
+    public bool? HasFinePointer { get; private set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [CascadingParameter]
+    public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
+
+    public IDisposable? BreakpointStateSubscription { get; set; }
+
+    protected override void OnInitialized()
+    {
+        BreakpointStateSubscription = BreakpointStateProviderComponent.BreakpointStateSubject.Subscribe(breakpointState =>
+        {
+            if (breakpointState is null)
+            {
+                return;
+            }
+
+            var oldFormFactorState = FormFactorStateSubject.Value.Current;
+            var newFormFactorState = breakpointState <= EnumBreakpointState.C_Medium_768_991 ? EnumFormFactorState.Handset : EnumFormFactorState.Desktop;
+
+            if (oldFormFactorState != newFormFactorState)
+            {
+                FormFactorStateSubject.OnNext((oldFormFactorState, newFormFactorState));
+                StateHasChanged();
+            }
+        });
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            HasFinePointer = await JSRuntime.InvokeAsync<bool>("hasFinePointer");
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        BreakpointStateSubscription?.Dispose();
+    }
+}
