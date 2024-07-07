@@ -9,7 +9,7 @@
     <div class="bar-container shadow">
         <BarComponent />
     </div>
-    <div style="@GetDrawerOverlayStyle()" class="drawer-overlay" />
+    <div style="@GetDrawerOverlayStyle()" class="drawer-overlay" @onclick="DrawerStateProviderComponent.Close" />
     <div class="drawer-container">
         <div style="@GetDrawerStyle()" class="drawer shadow">
             <DrawerComponent />
