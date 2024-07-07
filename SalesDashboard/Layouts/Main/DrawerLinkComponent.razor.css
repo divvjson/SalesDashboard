@@ -1,0 +1,28 @@
+﻿.drawer-link {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--bs-gray-100);
+    color: var(--bs-body-color);
+}
+
+@media (pointer: fine) {
+    .drawer-link:hover {
+        background-color: var(--bs-gray-200);
+    }
+}
+
+.drawer-link-title {
+    margin-left: 8px;
+}
+
+.drawer-link-active-indicator {
+    margin-left: auto;
+    border-radius: var(--bs-border-radius);
+    width: 4px;
+    height: 28px;
+}
+
+.drawer-link-active-indicator--active {
+    background-color: var(--bs-gray-500);
+}

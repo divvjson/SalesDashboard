@@ -1,0 +1,62 @@
+﻿@inject NavigationManager NavigationManager
+
+@implements IDisposable
+
+<a class="btn drawer-link" href="@Href" @onclick="HandleClick">
+    <Icon Name="@IconName" />
+    <div class="drawer-link-title">@Title</div>
+    <div class="@GetDrawerLinkActiveIndicatorClass()"></div>
+</a>
+
+@code {
+    [Parameter, EditorRequired]
+    public required string Href { get; set; }
+
+    [Parameter, EditorRequired]
+    public required string Title { get; set; }
+
+    [Parameter, EditorRequired]
+    public required IconName IconName { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    private string GetDrawerLinkActiveIndicatorClass()
+    {
+        var classString = "drawer-link-active-indicator";
+
+        var currentSegment = Href
+            .Split("/", StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault();
+
+        var firstSegment = new Uri(NavigationManager.Uri).AbsolutePath
+            .Split("/", StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault();
+
+        if (currentSegment is null && firstSegment is null)
+        {
+            classString += " drawer-link-active-indicator--active";
+        }
+        else if (currentSegment == firstSegment)
+        {
+            classString += " drawer-link-active-indicator--active";
+        }
+
+        return classString;
+    }
+
+    private void HandleClick()
+    {
+        OnClick.InvokeAsync();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+}
