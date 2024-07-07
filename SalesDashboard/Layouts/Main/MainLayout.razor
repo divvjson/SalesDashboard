@@ -1,0 +1,97 @@
+﻿@using SalesDashboard.Components.StateProviders.DeviceStateProvider
+@using SalesDashboard.Components.StateProviders.DrawerStateProvider
+
+@inherits LayoutComponentBase
+
+@implements IDisposable
+
+<div class="main-layout">
+    <div class="bar-container shadow">
+        <BarComponent />
+    </div>
+    <div style="@GetDrawerOverlayStyle()" class="drawer-overlay" />
+    <div class="drawer-container">
+        <div style="@GetDrawerStyle()" class="drawer shadow">
+            <DrawerComponent />
+        </div>
+        <div style="@GetDrawerContentStyle()" class="drawer-content">
+            @Body
+        </div>
+    </div>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    [CascadingParameter]
+    public DeviceStateProviderComponent DeviceStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
+    public DrawerStateProviderComponent DrawerStateProviderComponent { get; set; } = null!;
+
+    public IDisposable? FormFactorStateSubscription { get; set; }
+
+    protected override void OnInitialized()
+    {
+        FormFactorStateSubscription = DeviceStateProviderComponent.FormFactorStateSubject.Subscribe(formFactorState =>
+        {
+            if (formFactorState.Previous is null && formFactorState.Current is EnumFormFactorState.Desktop)
+            {
+                DrawerStateProviderComponent.Open();
+            }
+            else if (formFactorState.Previous is EnumFormFactorState.Handset && formFactorState.Current is EnumFormFactorState.Desktop)
+            {
+                DrawerStateProviderComponent.Open();
+            }
+            else if (formFactorState.Previous is EnumFormFactorState.Desktop && formFactorState.Current is EnumFormFactorState.Handset)
+            {
+                DrawerStateProviderComponent.Close();
+            }
+        });
+    }
+
+    private string GetDrawerOverlayStyle()
+    {
+        if (DeviceStateProviderComponent.FormFactorStateSubject.Value.Current is EnumFormFactorState.Handset && DrawerStateProviderComponent.DrawerStateSubject.Value is EnumDrawerState.Open)
+        {
+            return "display: unset; opacity: 1; pointer-events: auto;";
+        }
+        else
+        {
+            return "display: unset; opacity: 0; pointer-events: none;";
+        }
+    }
+
+    private string GetDrawerStyle()
+    {
+        if (DrawerStateProviderComponent.DrawerStateSubject.Value is EnumDrawerState.Open)
+        {
+            return "display: unset; left: 0px;";
+        }
+        else
+        {
+            return "display: unset; left: calc(-1 * var(--drawer-width));";
+        }
+    }
+
+    private string GetDrawerContentStyle()
+    {
+        if (DeviceStateProviderComponent.FormFactorStateSubject.Value.Current is EnumFormFactorState.Desktop && DrawerStateProviderComponent.DrawerStateSubject.Value is EnumDrawerState.Open)
+        {
+            return "left: var(--drawer-width); width: calc(100% - var(--drawer-width));";
+        }
+        else
+        {
+            return "left: 0px; width: 100%;";
+        }
+    }
+
+    public void Dispose()
+    {
+        FormFactorStateSubscription?.Dispose();
+    }
+}

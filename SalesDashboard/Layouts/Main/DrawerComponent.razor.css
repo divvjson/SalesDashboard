@@ -1,0 +1,26 @@
+﻿.drawer {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+.drawer-container {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+}
+
+.drawer-title {
+    font-weight: 500;
+    font-size: 14px;
+    margin-left: 4px;
+}
+
+.drawer-links {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+}

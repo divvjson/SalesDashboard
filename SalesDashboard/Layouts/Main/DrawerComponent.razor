@@ -1,0 +1,27 @@
+﻿@using SalesDashboard.Components.StateProviders.DeviceStateProvider
+@using SalesDashboard.Components.StateProviders.DrawerStateProvider
+
+<div class="drawer">
+    <div class="drawer-container">
+        <div class="drawer-title">Analysis</div>
+        <div class="drawer-links">
+            Links here
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public DeviceStateProviderComponent DeviceStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
+    public DrawerStateProviderComponent DrawerStateProviderComponent { get; set; } = null!;
+
+    private void HandleDrawerLinkClicked()
+    {
+        if (DeviceStateProviderComponent.FormFactorStateSubject.Value.Current is EnumFormFactorState.Handset)
+        {
+            DrawerStateProviderComponent.Close();
+        }
+    }
+}

@@ -1,0 +1,21 @@
+﻿@using SalesDashboard.Components.StateProviders.DeviceStateProvider
+@using SalesDashboard.Components.StateProviders.DrawerStateProvider
+
+<div class="bar">
+    <div class="bar-button" @onclick="DrawerStateProviderComponent.Toggle">
+        <Icon Name="IconName.Bars" />
+    </div>
+    <div class="title-container">
+        <div class="title">Adventure Works</div>
+        <div class="sub-title">Sales Dashboard</div>
+    </div>
+    <div></div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public DrawerStateProviderComponent DrawerStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
+    public DeviceStateProviderComponent DeviceStateProviderComponent { get; set; } = null!;
+}
