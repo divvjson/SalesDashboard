@@ -1,6 +1,7 @@
 ﻿@page "/Regional"
 
 @using SalesDashboard.Components.Shared.PageBox
+@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 
 <PageTitle>Regional Analysis</PageTitle>
 
@@ -9,6 +10,16 @@
         <div class="header">
             Regional Analysis
         </div>
+        <Accordion style="@GetFilterSettingsAccordionStyle()">
+            <AccordionItem>
+                <TitleTemplate>
+                    <Icon Name="IconName.Filter" style="margin-right: 6px;" /> Filter Settings
+                </TitleTemplate>
+                <Content>
+                    <p>First content</p>
+                </Content>
+            </AccordionItem>
+        </Accordion>
         <div class="grid">
             <div class="total-sales">
                 <PageBoxComponent Title="Total Sales">
@@ -65,5 +76,22 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
 
+    private string GetFilterSettingsAccordionStyle()
+    {
+        var styleString = "padding-top: 24px;";
+
+        if (BreakpointStateProviderComponent.BreakpointStateSubject.Value <= EnumBreakpointState.B_Small_576_767)
+        {
+            styleString += " padding-left: 12px; padding-right: 12px;";
+        }
+        else
+        {
+            styleString += " padding-left: 24px; padding-right: 24px;";
+        }
+
+        return styleString;
+    }
 }
