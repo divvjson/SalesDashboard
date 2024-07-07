@@ -2,7 +2,7 @@ using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.EntityFrameworkCore;
-using SalesDashboard.Components;
+using SalesDashboard;
 using SalesDashboard.Entities;
 using SalesDashboard.Helpers;
 using SalesDashboard.Services.Scoped.LocalStorage;
