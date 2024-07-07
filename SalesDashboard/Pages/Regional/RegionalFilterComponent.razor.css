@@ -1,0 +1,21 @@
+﻿.regional-filter {
+    display: flex;
+    flex-direction: column;
+}
+
+.regional-filter-item {
+    display: grid;
+    grid-template-columns: auto 1fr min-content;
+    column-gap: 4px;
+    align-items: center;
+}
+
+.regional-filter-item-key {
+    font-weight: 500;
+}
+
+.regional-filter-item-value {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
