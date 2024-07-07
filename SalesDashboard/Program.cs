@@ -1,3 +1,6 @@
+using Blazorise;
+using Blazorise.Bootstrap5;
+using Blazorise.Icons.FontAwesome;
 using Microsoft.EntityFrameworkCore;
 using SalesDashboard.Components;
 using SalesDashboard.Entities;
@@ -20,6 +23,15 @@ builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
 
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+
+builder.Services
+    .AddBlazorise(options =>
+    {
+        options.Immediate = true;
+    })
+    .AddBootstrap5Providers()
+    .AddFontAwesomeIcons();
+
 builder.Services.AddScoped<LocalStorageService>();
 
 var app = builder.Build();
