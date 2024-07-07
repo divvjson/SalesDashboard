@@ -1,8 +1,68 @@
 ﻿@page "/Regional"
 
+@using SalesDashboard.Components.Shared.PageBox
+
 <PageTitle>Regional Analysis</PageTitle>
 
-<h3>RegionalPage</h3>
+<div class="regional">
+    <div class="regional-container shadow">
+        <div class="header">
+            Regional Analysis
+        </div>
+        <div class="grid">
+            <div class="total-sales">
+                <PageBoxComponent Title="Total Sales">
+                    Total Sales
+                </PageBoxComponent>
+            </div>
+            <div class="total-cost">
+                <PageBoxComponent Title="Total Cost">
+                    Total Cost
+                </PageBoxComponent>
+            </div>
+            <div class="gross-profit">
+                <PageBoxComponent Title="Gross Profit">
+                    Gross Profit
+                </PageBoxComponent>
+            </div>
+            <div class="gross-margin">
+                <PageBoxComponent Title="Gross Margin">
+                    Gross Margin
+                </PageBoxComponent>
+            </div>
+            <div class="sales-trend-top-3-countries">
+                <PageBoxComponent Title="Sales Trend Top 3 Countries">
+                    <SalesTrendTop3CountriesComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="internet-vs-reseller">
+                <PageBoxComponent Title="Internet vs Reseller Sales">
+                    <InternetVsResellerComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="distribution-of-sales">
+                <PageBoxComponent Title="Distribution of Sales">
+                    Distribution of Sales
+                </PageBoxComponent>
+            </div>
+            <div class="top-3-states">
+                <PageBoxComponent Title="Top 3 States (Sales)">
+                    Top 3 States
+                </PageBoxComponent>
+            </div>
+            <div class="top-3-cities">
+                <PageBoxComponent Title="Top 3 Cities (Sales)">
+                    Top 3 Cities
+                </PageBoxComponent>
+            </div>
+            <div class="summary-matrix">
+                <PageBoxComponent Title="Summary Matrix">
+                    Summary Matrix
+                </PageBoxComponent>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
 

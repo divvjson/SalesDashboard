@@ -1,0 +1,34 @@
+﻿<div class="page-box">
+    <div class="@GetPageBoxHeaderClass()">
+        @Title
+    </div>
+    @ChildContent
+</div>
+
+@code {
+    [EditorRequired]
+    [Parameter]
+    public required string Title { get; set; }
+
+    [Parameter]
+    public EnumPageBoxSize Size { get; set; } = EnumPageBoxSize.Medium;
+
+    [Parameter]
+    public required RenderFragment ChildContent { get; set; }
+
+    public string GetPageBoxHeaderClass()
+    {
+        var classString = "page-box-header";
+
+        if (Size is EnumPageBoxSize.Small)
+        {
+            classString += " page-box-header--small";
+        }
+        else if (Size is EnumPageBoxSize.Medium)
+        {
+            classString += " page-box-header--medium";
+        }
+
+        return classString;
+    }
+}

@@ -1,2 +1,127 @@
-﻿body {
+﻿.regional {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--gray-100);
+}
+
+.regional-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+.header {
+    padding-top: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+}
+
+.grid {
+    padding-top: 24px;
+    padding-bottom: 24px;
+    display: grid;
+    gap: 12px;
+}
+
+.total-sales {
+    grid-area: total-sales;
+}
+
+.total-cost {
+    grid-area: total-cost;
+}
+
+.gross-profit {
+    grid-area: gross-profit;
+}
+
+.gross-margin {
+    grid-area: gross-margin;
+}
+
+.sales-trend-top-3-countries {
+    grid-area: sales-trend-top-3-countries;
+}
+
+.internet-vs-reseller {
+    grid-area: internet-vs-reseller;
+}
+
+.distribution-of-sales {
+    grid-area: distribution-of-sales;
+}
+
+.top-3-states {
+    grid-area: top-3-states;
+}
+
+.top-3-cities {
+    grid-area: top-3-cities;
+}
+
+.summary-matrix {
+    grid-area: summary-matrix;
+}
+
+@media (min-width: 0px) {
+    .regional {
+        padding: 0px;
+    }
+
+    .header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .grid {
+        padding-left: 12px;
+        padding-right: 12px;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "total-sales total-cost"
+            "gross-profit gross-margin"
+            "sales-trend-top-3-countries sales-trend-top-3-countries"
+            "internet-vs-reseller internet-vs-reseller"
+            "distribution-of-sales distribution-of-sales"
+            "top-3-states top-3-cities"
+            "summary-matrix summary-matrix";
+    }
+}
+
+@media (min-width: 576px) {
+}
+
+@media (min-width: 768px) {
+    .regional {
+        padding: 24px;
+    }
+
+    .header {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .grid {
+        padding-left: 24px;
+        padding-right: 24px;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-areas:
+            "total-sales total-cost gross-profit gross-margin"
+            "sales-trend-top-3-countries sales-trend-top-3-countries internet-vs-reseller internet-vs-reseller"
+            "distribution-of-sales distribution-of-sales distribution-of-sales distribution-of-sales"
+            "top-3-states top-3-cities summary-matrix summary-matrix";
+    }
+}
+
+@media (min-width: 992px) {
+}
+
+@media (min-width: 1200px) {
+}
+
+@media (min-width: 1400px) {
 }
