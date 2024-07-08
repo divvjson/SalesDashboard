@@ -14,9 +14,16 @@
     <Button Color="ButtonColor.Danger" Style="align-self: flex-start;">Reset</Button>
 </div>
 
-<Modal @ref="Modal" Title="Select Country" IsVerticallyCentered="true" IsScrollable="true" UseStaticBackdrop="true" CloseOnEscape="false" ShowCloseButton="false">
+<Modal @ref="Modal" 
+       Title="Select Country" 
+       IsVerticallyCentered="true"
+       IsScrollable="true"
+       UseStaticBackdrop="true"
+       CloseOnEscape="false"
+       ShowCloseButton="false"
+       Size="ModalSize.ExtraLarge">
     <BodyTemplate>
-        <SelectCountryComponent />
+        <SelectCountryComponent SelectedCountryRegions="SelectedCountryRegions" />
     </BodyTemplate>
     <FooterTemplate>
         <Button Color="ButtonColor.Primary" @onclick="HandleSelectCountrySubmittedAsync">Select</Button>
@@ -25,6 +32,8 @@
 </Modal>
 
 @code {
+    public List<CountryRegion> SelectedCountryRegions { get; set; } = new();
+
     private Modal Modal { get; set; } = null!;
 
     private async Task ShowSelectCountryModalAsync()

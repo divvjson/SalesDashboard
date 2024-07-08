@@ -1,5 +1,51 @@
-﻿<h3>SelectCountryComponent</h3>
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Entities
+
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<div class="select-country">
+    <div class="grid-container">
+        <Grid TItem="CountryRegion"
+              Class="table"
+              DataProvider="CountryRegionDataProvider"
+              AllowPaging="true"
+              Responsive="true">
+            <GridColumn TItem="CountryRegion" HeaderText="Country Code" PropertyName="@nameof(CountryRegion.CountryRegionCode)">
+                @context.CountryRegionCode
+            </GridColumn>
+            <GridColumn TItem="CountryRegion" HeaderText="Name" PropertyName="@nameof(CountryRegion.Name)">
+                @context.Name
+            </GridColumn>
+        </Grid>
+    </div>
+    <ul class="list-group border">
+        @foreach (var selectedCountryRegion in SelectedCountryRegions)
+        {
+            <li class="list-group-item">@selectedCountryRegion.Name</li>
+        }
+    </ul>
+</div>
 
 @code {
+    [Parameter, EditorRequired]
+    public List<CountryRegion> SelectedCountryRegions { get; set; } = new();
 
+    private async Task<GridDataProviderResult<CountryRegion>> CountryRegionDataProvider(GridDataProviderRequest<CountryRegion> request)
+    {
+        var context = DbFactory.CreateDbContext();
+
+        var query = context.CountryRegions;
+
+        var totalCount = await query.CountAsync();
+
+        var data = await query.Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize).ToListAsync();
+
+        GridDataProviderResult<CountryRegion> result = new()
+        {
+            TotalCount = totalCount,
+            Data = data
+        };
+
+        return result;
+    }
 }
