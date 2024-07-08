@@ -8,7 +8,10 @@
         <Grid TItem="CountryRegion"
               Class="table"
               DataProvider="CountryRegionDataProvider"
+              FixedHeader="true"
+              Height="510"
               AllowPaging="true"
+              AllowFiltering="true"
               Responsive="true">
             <GridColumn TItem="CountryRegion" HeaderText="Country Code" PropertyName="@nameof(CountryRegion.CountryRegionCode)">
                 @context.CountryRegionCode
@@ -16,6 +19,7 @@
             <GridColumn TItem="CountryRegion" HeaderText="Name" PropertyName="@nameof(CountryRegion.Name)">
                 @context.Name
             </GridColumn>
+            <GridLoadingTemplate TItem="CountryRegion" />
         </Grid>
     </div>
     <ul class="list-group border">
