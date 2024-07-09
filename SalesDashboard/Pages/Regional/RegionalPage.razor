@@ -6,20 +6,15 @@
 <PageTitle>Regional Analysis</PageTitle>
 
 <div class="regional">
-    <div class="regional-container shadow">
+    <div class="regional-container mud-elevation-4">
         <div class="header">
             Regional Analysis
         </div>
-@*         <Accordion style="@GetFilterSettingsAccordionStyle()">
-            <AccordionItem Style="background-color: var(--bs-gray-50);">
-                <TitleTemplate>
-                    <Icon Name="IconName.Filter" style="margin-right: 6px;" /> Filter Settings
-                </TitleTemplate>
-                <Content>
-                    <RegionalFilterComponent />
-                </Content>
-            </AccordionItem>
-        </Accordion> *@
+        <MudExpansionPanels style="@GetMudExpansionPanelsStyle()" Elevation="1">
+            <MudExpansionPanel Text="Filter Settings" style="@GetMudExpansionPanelStyle()">
+                Here goes RegionalFilterComponent
+            </MudExpansionPanel>
+        </MudExpansionPanels>
         <div class="grid">
             <div class="total-sales">
                 <PageBoxComponent Title="Total Sales">
@@ -79,9 +74,9 @@
     [CascadingParameter]
     public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
 
-    private string GetFilterSettingsAccordionStyle()
+    private string GetMudExpansionPanelsStyle()
     {
-        var styleString = "padding-top: 24px;";
+        var styleString = "border-radius: 4px; padding-top: 24px;";
 
         if (BreakpointStateProviderComponent.BreakpointStateSubject.Value <= EnumBreakpointState.B_Small_576_767)
         {
@@ -91,6 +86,13 @@
         {
             styleString += " padding-left: 24px; padding-right: 24px;";
         }
+
+        return styleString;
+    }
+
+    private string GetMudExpansionPanelStyle()
+    {
+        var styleString = "background-color: var(--gray-50);";
 
         return styleString;
     }
