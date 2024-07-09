@@ -1,22 +1,32 @@
 ﻿.dialog {
-    width: calc(100dvw - 32px);
-    max-height: calc(100dvh - 32px);
+    width: calc(100dvw - 24px);
+    max-height: calc(100dvh - 24px);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
 .dialog-header {
-
+    padding-left: 24px;
+    padding-top: 24px;
+    padding-right: 24px;
+    padding-bottom: 12px;
 }
 
 .dialog-body {
     overflow: auto;
     flex-grow: 1;
+    padding-left: 24px;
+    padding-top: 12px;
+    padding-right: 24px;
+    padding-bottom: 12px;
 }
 
 .dialog-footer {
-
+    padding-left: 24px;
+    padding-top: 12px;
+    padding-right: 24px;
+    padding-bottom: 24px;
 }
 
 .dialog--small {
