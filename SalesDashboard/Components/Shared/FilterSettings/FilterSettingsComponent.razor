@@ -1,10 +1,18 @@
 ﻿@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 
 <MudExpansionPanels style="@GetMudExpansionPanelsStyle()">
-    <MudExpansionPanel Text="Filter Settings" style="@GetMudExpansionPanelStyle()">
-        <div class="filter-settings-expansion-panel-container">
-            @ChildContent
-        </div>
+    <MudExpansionPanel style="@GetMudExpansionPanelStyle()">
+        <TitleContent>
+            <div class="filter-settings-title-container">
+                <MudIcon Icon="@Icons.Material.Outlined.FilterAlt" />
+                <div>Filter Settings</div>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <div class="filter-settings-expansion-panel-container">
+                @ChildContent
+            </div>
+        </ChildContent>
     </MudExpansionPanel>
 </MudExpansionPanels>
 
