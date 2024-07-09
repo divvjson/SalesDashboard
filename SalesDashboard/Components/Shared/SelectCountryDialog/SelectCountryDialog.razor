@@ -11,10 +11,18 @@
     <BodyContent>
         <div class="select-country">
             <div class="data-grid-container">
-                <MudDataGrid T="CountryRegion" Items="CountryRegions" RowsPerPage="10">
+                <MudDataGrid T="CountryRegion" 
+                             Items="CountryRegions" 
+                             RowsPerPage="10" 
+                             MultiSelection="true"
+                             @bind-SelectedItems="SelectedCountryRegions"
+                             SelectOnRowClick="false"
+                             Elevation="0"
+                             Striped="true">
                     <Columns>
-                        <PropertyColumn Property="countryRegion => countryRegion.CountryRegionCode" />
-                        <PropertyColumn Property="countryRegion => countryRegion.Name" />
+                        <SelectColumn T="CountryRegion" />
+                        <PropertyColumn Title="Name" Property="countryRegion => countryRegion.Name" />
+                        <PropertyColumn Title="Code" Property="countryRegion => countryRegion.CountryRegionCode" />
                     </Columns>
                     <PagerContent>
                         <MudDataGridPager T="CountryRegion" PageSizeSelector="false" />
@@ -22,12 +30,20 @@
                 </MudDataGrid>
             </div>
             <div class="list-container">
-
+                <MudList T="CountryRegion">
+                    @foreach (var selectedCountryRegion in SelectedCountryRegions)
+                    {
+                        <MudChip T="CountryRegion" 
+                                 OnClose="() => HandleSelectedCountryDeselected(selectedCountryRegion)">
+                            @selectedCountryRegion.Name
+                        </MudChip>
+                    }
+                </MudList>
             </div>
         </div>
     </BodyContent>
     <FooterContent>
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" style="margin-right: auto;">Clear</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" style="margin-right: auto;" OnClick="SelectedCountryRegions.Clear">Clear</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" DropShadow="false">OK</MudButton>
         <MudButton Variant="Variant.Filled" OnClick="MudDialog.Cancel" DropShadow="false">Cancel</MudButton>
     </FooterContent>
@@ -41,17 +57,24 @@
 
     private List<CountryRegion> CountryRegions { get; set; } = new();
 
+    private HashSet<CountryRegion> SelectedCountryRegions { get; set; } = new();
+
     protected override async Task OnInitializedAsync()
     {
         Context = DbFactory.CreateDbContext();
 
-        await Requery();
+        await RequeryAsync();
     }
 
-    private async Task Requery()
+    private async Task RequeryAsync()
     {
         var query = Context.CountryRegions.AsQueryable();
 
         CountryRegions = await query.ToListAsync();
+    }
+
+    private void HandleSelectedCountryDeselected(CountryRegion countryRegion)
+    {
+        SelectedCountryRegions.Remove(countryRegion);
     }
 }

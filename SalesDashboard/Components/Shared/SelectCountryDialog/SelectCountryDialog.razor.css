@@ -9,6 +9,12 @@
 
 .list-container {
     grid-area: list-container;
+    overflow: auto;
+    flex-grow: 1;
+    height: 681px;
+
+    border: 1px solid var(--gray-400);
+    border-radius: 4px;
 }
 
 @media (min-width: 0px) {
