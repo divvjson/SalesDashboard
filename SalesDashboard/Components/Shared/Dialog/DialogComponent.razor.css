@@ -11,6 +11,10 @@
     padding-top: 24px;
     padding-right: 24px;
     padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    font-weight: 500;
 }
 
 .dialog-body {
@@ -27,6 +31,10 @@
     padding-top: 12px;
     padding-right: 24px;
     padding-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    column-gap: 12px;
 }
 
 .dialog--small {
