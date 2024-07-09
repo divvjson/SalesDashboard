@@ -1,11 +1,24 @@
 ﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.Dialog
 @using SalesDashboard.Entities
 
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<div class="select-country-dialog">
+<DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
+    <HeaderContent>
+        <div>Header</div>
+    </HeaderContent>
+    <BodyContent>
+        <div>Body</div>
+    </BodyContent>
+    <FooterContent>
+        <div>Footer</div>
+    </FooterContent>
+</DialogComponent>
+
+@* <div class="select-country-dialog">
     <div>Test</div>
-</div>
+</div> *@
 
 @* <MudDialog>
     <DialogContent style="padding: 0px;">
@@ -70,6 +83,6 @@
     {
         var query = Context.CountryRegions.AsQueryable();
 
-        CountryRegions = await query.ToListAsync();
+        //CountryRegions = await query.ToListAsync();
     }
 }

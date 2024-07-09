@@ -1,0 +1,28 @@
+﻿.dialog {
+    width: calc(100dvw - 32px);
+    max-height: calc(100dvh - 32px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.dialog-body {
+    overflow: auto;
+    flex-grow: 1;
+}
+
+.dialog--small {
+    max-width: 300px;
+}
+
+.dialog--default {
+    max-width: 500px;
+}
+
+.dialog--large {
+    max-width: 800px;
+}
+
+.dialog--extra-large {
+    max-width: 1140px;
+}
