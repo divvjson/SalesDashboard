@@ -6,9 +6,17 @@
     overflow: hidden;
 }
 
+.dialog-header {
+
+}
+
 .dialog-body {
     overflow: auto;
     flex-grow: 1;
+}
+
+.dialog-footer {
+
 }
 
 .dialog--small {
