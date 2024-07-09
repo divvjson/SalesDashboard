@@ -2,11 +2,10 @@
 {
     public enum EnumBreakpointState
     {
-        A_XSmall_0_575,
-        B_Small_576_767,
-        C_Medium_768_991,
-        D_Large_992_1199,
-        E_XLarge_1200_1399,
-        F_XXLarge_1400_Infinity
+        A_XSmall_0_599,
+        B_Small_600_904,
+        C_Medium_905_1239,
+        D_Large_1240_1439,
+        E_XLarge_1440_Infinity
     }
 }

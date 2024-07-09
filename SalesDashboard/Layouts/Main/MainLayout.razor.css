@@ -57,22 +57,19 @@
 @media (min-width: 0px) {
 }
 
-@media (min-width: 576px) {
+@media (min-width: 600px) {
 }
 
-@media (min-width: 768px) {
+@media (min-width: 905px) {
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1240px) {
     .drawer-content {
         transition: left var(--drawer-animation-duration) var(--drawer-animation-easing), width var(--drawer-animation-duration) var(--drawer-animation-easing);
     }
 }
 
-@media (min-width: 1200px) {
-}
-
-@media (min-width: 1400px) {
+@media (min-width: 1440px) {
 }
 
 #blazor-error-ui {

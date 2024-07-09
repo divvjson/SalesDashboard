@@ -10,20 +10,17 @@
     }
 }
 
-@media (min-width: 576px) {
+@media (min-width: 600px) {
 }
 
-@media (min-width: 768px) {
+@media (min-width: 905px) {
 }
 
-@media (min-width: 992px) {
-}
-
-@media (min-width: 1200px) {
+@media (min-width: 1240px) {
     .internet-vs-reseller {
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
 }
 
-@media (min-width: 1400px) {
+@media (min-width: 1440px) {
 }

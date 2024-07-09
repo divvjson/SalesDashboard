@@ -41,15 +41,14 @@
     {
         var width = await JSRuntime.InvokeAsync<int>("getScreenWidth");
 
-        // https://getbootstrap.com/docs/5.0/layout/breakpoints/
+        // https://m2.material.io/design/layout/responsive-layout-grid.html#breakpoints
         return width switch
         {
-            int n when (n >= 1400) => EnumBreakpointState.F_XXLarge_1400_Infinity,
-            int n when (n >= 1200) => EnumBreakpointState.E_XLarge_1200_1399,
-            int n when (n >= 992) => EnumBreakpointState.D_Large_992_1199,
-            int n when (n >= 768) => EnumBreakpointState.C_Medium_768_991,
-            int n when (n >= 576) => EnumBreakpointState.B_Small_576_767,
-            _ => EnumBreakpointState.A_XSmall_0_575
+            int n when (n >= 1440) => EnumBreakpointState.E_XLarge_1440_Infinity,
+            int n when (n >= 1240) => EnumBreakpointState.D_Large_1240_1439,
+            int n when (n >= 905) => EnumBreakpointState.C_Medium_905_1239,
+            int n when (n >= 600) => EnumBreakpointState.B_Small_600_904,
+            _ => EnumBreakpointState.A_XSmall_0_599
         };
     }
 }
