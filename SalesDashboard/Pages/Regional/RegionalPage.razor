@@ -13,7 +13,7 @@
         </div>
         <FilterSettingsComponent>
             <FilterSettingsItemComponent Key="Period" Value="2024-07-02 - 2024-07-09" />
-            <FilterSettingsItemComponent Key="Country" Value="United States, Germany" />
+            <FilterSettingsItemComponent Key="Country" Value="United States, Germany" OnSelect="HandleSelectCountryClickedAsync" />
         </FilterSettingsComponent>
         <div class="grid">
             <div class="total-sales">
@@ -73,6 +73,11 @@
 @code {
     [CascadingParameter]
     public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
+
+    private async Task HandleSelectCountryClickedAsync()
+    {
+        await Task.Delay(0);
+    }
 
     private string GetMudExpansionPanelsStyle()
     {

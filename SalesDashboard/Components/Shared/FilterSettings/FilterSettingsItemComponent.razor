@@ -1,7 +1,7 @@
 ﻿<div class="filter-settings-item">
     <div class="filter-settings-item-key">@(Key + ":")&nbsp;</div>
     <div class="filter-settings-item-value">@Value</div>
-    <MudButton Variant="Variant.Outlined" Color="Color.Primary">Select</MudButton>
+    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="HandleSelect">Select</MudButton>
 </div>
 
 @code {
@@ -10,4 +10,12 @@
 
     [Parameter, EditorRequired]
     public required string Value { get; set; }
+
+    [Parameter]
+    public EventCallback OnSelect { get; set; }
+
+    private async Task HandleSelect()
+    {
+        await OnSelect.InvokeAsync();
+    }
 }
