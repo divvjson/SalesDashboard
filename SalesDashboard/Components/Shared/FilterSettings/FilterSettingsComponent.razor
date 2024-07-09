@@ -1,0 +1,40 @@
+﻿@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+
+<MudExpansionPanels style="@GetMudExpansionPanelsStyle()">
+    <MudExpansionPanel Text="Filter Settings" style="@GetMudExpansionPanelStyle()">
+        <div class="filter-settings-expansion-panel-container">
+            @ChildContent
+        </div>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [CascadingParameter]
+    public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
+
+    private string GetMudExpansionPanelsStyle()
+    {
+        var styleString = "border-radius: 4px; padding-top: 24px;";
+
+        if (BreakpointStateProviderComponent.BreakpointStateSubject.Value <= EnumBreakpointState.B_Small_576_767)
+        {
+            styleString += " padding-left: 12px; padding-right: 12px;";
+        }
+        else
+        {
+            styleString += " padding-left: 24px; padding-right: 24px;";
+        }
+
+        return styleString;
+    }
+
+    private string GetMudExpansionPanelStyle()
+    {
+        var styleString = "background-color: var(--gray-50);";
+
+        return styleString;
+    }
+}

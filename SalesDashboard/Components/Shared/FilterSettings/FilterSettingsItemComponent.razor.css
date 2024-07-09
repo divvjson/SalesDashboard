@@ -1,0 +1,15 @@
+﻿.filter-settings-item {
+    display: grid;
+    grid-template-columns: auto 1fr min-content;
+    align-items: center;
+}
+
+.filter-settings-item-key {
+    font-weight: 500;
+}
+
+.filter-settings-item-value {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}

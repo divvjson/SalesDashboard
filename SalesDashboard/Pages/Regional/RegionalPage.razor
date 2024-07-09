@@ -1,5 +1,6 @@
 ﻿@page "/Regional"
 
+@using SalesDashboard.Components.Shared.FilterSettings
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 
@@ -10,11 +11,10 @@
         <div class="header">
             Regional Analysis
         </div>
-        <MudExpansionPanels style="@GetMudExpansionPanelsStyle()">
-            <MudExpansionPanel Text="Filter Settings" style="@GetMudExpansionPanelStyle()">
-                <RegionalFilterComponent />
-            </MudExpansionPanel>
-        </MudExpansionPanels>
+        <FilterSettingsComponent>
+            <FilterSettingsItemComponent Key="Period" Value="2024-07-02 - 2024-07-09" />
+            <FilterSettingsItemComponent Key="Country" Value="United States, Germany" />
+        </FilterSettingsComponent>
         <div class="grid">
             <div class="total-sales">
                 <PageBoxComponent Title="Total Sales">
