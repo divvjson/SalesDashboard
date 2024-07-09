@@ -3,7 +3,7 @@
 @implements IDisposable
 
 <a class="btn drawer-link" href="@Href" @onclick="HandleClick">
-    <Icon Name="@IconName" />
+    <MudIcon Icon="@Icon" Title="@Title" />
     <div class="drawer-link-title">@Title</div>
     <div class="@GetDrawerLinkActiveIndicatorClass()"></div>
 </a>
@@ -16,7 +16,7 @@
     public required string Title { get; set; }
 
     [Parameter, EditorRequired]
-    public required IconName IconName { get; set; }
+    public required string Icon { get; set; }
 
     [Parameter]
     public EventCallback OnClick { get; set; }

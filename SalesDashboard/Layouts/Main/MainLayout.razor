@@ -5,13 +5,18 @@
 
 @implements IDisposable
 
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
 <div class="main-layout">
-    <div class="bar-container shadow">
+    <div class="bar-container mud-elevation-4">
         <BarComponent />
     </div>
     <div style="@GetDrawerOverlayStyle()" class="drawer-overlay" @onclick="DrawerStateProviderComponent.Close" />
     <div class="drawer-container">
-        <div style="@GetDrawerStyle()" class="drawer shadow">
+        <div style="@GetDrawerStyle()" class="drawer mud-elevation-4">
             <DrawerComponent />
         </div>
         <div style="@GetDrawerContentStyle()" class="drawer-content">
