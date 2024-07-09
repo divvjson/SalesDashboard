@@ -1,1 +1,39 @@
-﻿
+﻿.select-country {
+    display: grid;
+    gap: 12px;
+}
+
+.data-grid-container {
+    grid-area: data-grid-container;
+}
+
+.list-container {
+    grid-area: list-container;
+}
+
+@media (min-width: 0px) {
+    .select-country {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "data-grid-container"
+            "list-container";
+    }
+}
+
+@media (min-width: 600px) {
+}
+
+@media (min-width: 905px) {
+    .select-country {
+        grid-template-columns: 250px 1fr;
+        grid-template-areas:
+            "list-container data-grid-container";
+    }
+}
+
+@media (min-width: 1240px) {
+
+}
+
+@media (min-width: 1440px) {
+}

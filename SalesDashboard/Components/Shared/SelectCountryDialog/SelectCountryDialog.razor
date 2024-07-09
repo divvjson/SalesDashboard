@@ -9,8 +9,21 @@
         Select Country
     </HeaderContent>
     <BodyContent>
-        <div class="select-country-body">
-            Body Content
+        <div class="select-country">
+            <div class="data-grid-container">
+                <MudDataGrid T="CountryRegion" Items="CountryRegions" RowsPerPage="10">
+                    <Columns>
+                        <PropertyColumn Property="countryRegion => countryRegion.CountryRegionCode" />
+                        <PropertyColumn Property="countryRegion => countryRegion.Name" />
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="CountryRegion" PageSizeSelector="false" />
+                    </PagerContent>
+                </MudDataGrid>
+            </div>
+            <div class="list-container">
+
+            </div>
         </div>
     </BodyContent>
     <FooterContent>
@@ -87,6 +100,6 @@
     {
         var query = Context.CountryRegions.AsQueryable();
 
-        //CountryRegions = await query.ToListAsync();
+        CountryRegions = await query.ToListAsync();
     }
 }
