@@ -5,7 +5,7 @@
 
 @implements IDisposable
 
-<MudThemeProvider />
+<MudThemeProvider Theme="Theme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -39,6 +39,17 @@
     public DrawerStateProviderComponent DrawerStateProviderComponent { get; set; } = null!;
 
     public IDisposable? FormFactorStateSubscription { get; set; }
+
+    private MudTheme Theme { get; set; } = new()
+    {
+        Typography = new()
+        {
+            Default = new()
+            {
+                FontFamily = new[] { "Poppins", "Helvetica", "Arial", "sans-serif" }
+            }
+        }
+    };
 
     protected override void OnInitialized()
     {
