@@ -1,0 +1,75 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Entities
+
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<div class="select-country-dialog">
+    <div>Test</div>
+</div>
+
+@* <MudDialog>
+    <DialogContent style="padding: 0px;">
+        <div class="select-country">
+            <div class="data-grid-container">
+                <MudDataGrid T="CountryRegion" Items="CountryRegions" RowsPerPage="10">
+                    <Columns>
+                        <PropertyColumn Property="countryRegion => countryRegion.CountryRegionCode" />
+                        <PropertyColumn Property="countryRegion => countryRegion.Name" />
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="CountryRegion" />
+                    </PagerContent>
+                </MudDataGrid>
+            </div>
+            <div class="list-container">
+            </div>
+        </div>
+    </DialogContent>
+</MudDialog> *@
+
+@* <MudDialog>
+    <DialogContent>
+        <div class="select-country">
+            <div class="data-grid-container">
+                <MudDataGrid T="CountryRegion" Items="CountryRegions" RowsPerPage="10">
+                    <Columns>
+                        <PropertyColumn Title="Code" Property="countryRegion => countryRegion.CountryRegionCode" />
+                        <PropertyColumn Title="Name" Property="countryRegion => countryRegion.Name" />
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="CountryRegion" />
+                    </PagerContent>
+                </MudDataGrid>
+            </div>
+            <div class="list-container">
+
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <div>Actions here</div>
+    </DialogActions>
+</MudDialog> *@
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    private AdventureWorksContext Context { get; set; } = null!;
+
+    private List<CountryRegion> CountryRegions { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Context = DbFactory.CreateDbContext();
+
+        await Requery();
+    }
+
+    private async Task Requery()
+    {
+        var query = Context.CountryRegions.AsQueryable();
+
+        CountryRegions = await query.ToListAsync();
+    }
+}

@@ -2,7 +2,10 @@
 
 @using SalesDashboard.Components.Shared.FilterSettings
 @using SalesDashboard.Components.Shared.PageBox
+@using SalesDashboard.Components.Shared.SelectCountryDialog
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+
+@inject IDialogService DialogService
 
 <PageTitle>Regional Analysis</PageTitle>
 
@@ -76,7 +79,9 @@
 
     private async Task HandleSelectCountryClickedAsync()
     {
-        await Task.Delay(0);
+        var dialog = await DialogService.ShowAsync<SelectCountryDialog>();
+
+        var result = await dialog.Result;
     }
 
     private string GetMudExpansionPanelsStyle()

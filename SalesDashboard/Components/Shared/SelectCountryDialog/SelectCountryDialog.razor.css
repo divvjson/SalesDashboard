@@ -1,0 +1,7 @@
+﻿.select-country-dialog {
+    width: calc(100dvw - 32px);
+    height: calc(100dvh - 32px);
+
+    max-width: 1200px;
+    max-height: 600px;
+}
