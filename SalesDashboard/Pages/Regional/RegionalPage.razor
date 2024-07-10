@@ -107,7 +107,7 @@
 
     private async Task HandleSelectPeriodClickedAsync()
     {
-        var parameters = new DialogParameters<SelectPeriodDialog>
+        DialogParameters<SelectPeriodDialog> parameters = new()
         {
             { selectPeriodDialog => selectPeriodDialog.From, RegionalFilterStateProviderComponent.From.Value },
             { selectPeriodDialog => selectPeriodDialog.Through, RegionalFilterStateProviderComponent.Through.Value }
@@ -145,7 +145,7 @@
 
     private async Task HandleSelectCountryClickedAsync()
     {
-        var parameters = new DialogParameters<SelectCountryDialog>
+        DialogParameters<SelectCountryDialog> parameters = new()
         {
             { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionCodes, RegionalFilterStateProviderComponent.CountryRegionCodes.Value?.ToList() }
         };
