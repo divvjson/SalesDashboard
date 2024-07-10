@@ -21,6 +21,7 @@
         <FilterSettingsComponent>
             <FilterSettingsItemComponent Key="Period" Value="@GetSelectedPeriodString()" OnSelect="HandleSelectPeriodClickedAsync" />
             <FilterSettingsItemComponent Key="Country" Value="@GetSelectedCountryString()" OnSelect="HandleSelectCountryClickedAsync" />
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
         <div class="grid">
             <div class="total-sales">
@@ -118,8 +119,8 @@
 
         if (result?.Data is SelectPeriodDialogResult selectedPeriod)
         {
-            await RegionalFilterStateProviderComponent.SetFrom(selectedPeriod.From);
-            await RegionalFilterStateProviderComponent.SetThrough(selectedPeriod.Through);
+            await RegionalFilterStateProviderComponent.SetFromAsync(selectedPeriod.From);
+            await RegionalFilterStateProviderComponent.SetThroughAsync(selectedPeriod.Through);
         }
     }
 
@@ -155,7 +156,7 @@
 
         if (result?.Data is IEnumerable<string> selectedCountryRegionCodes)
         {
-            await RegionalFilterStateProviderComponent.SetCountryRegionCodes(selectedCountryRegionCodes);
+            await RegionalFilterStateProviderComponent.SetCountryRegionCodesAsync(selectedCountryRegionCodes);
         }
     }
 }
