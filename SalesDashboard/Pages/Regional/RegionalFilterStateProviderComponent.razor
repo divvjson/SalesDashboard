@@ -34,6 +34,20 @@
         }
     }
 
+    public async Task SetFrom(DateTime? from)
+    {
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(From)}", from);
+
+        From.OnNext(from);
+    }
+
+    public async Task SetThrough(DateTime? through)
+    {
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Through)}", through);
+
+        Through.OnNext(through);
+    }
+
     public async Task SetCountryRegionCodes(IEnumerable<string> countryRegionCodes)
     {
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}", countryRegionCodes);

@@ -65,8 +65,6 @@
     [Parameter]
     public List<string>? InitiallySelectedCountryRegionCodes { get; set; }
 
-    private AdventureWorksContext Context { get; set; } = null!;
-
     private IEnumerable<CountryRegion>? CountryRegions { get; set; }
 
     private HashSet<CountryRegion> SelectedCountryRegions { get; set; } = new();

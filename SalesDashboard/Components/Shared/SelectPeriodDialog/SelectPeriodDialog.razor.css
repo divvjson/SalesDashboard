@@ -1,0 +1,39 @@
+﻿.select-period {
+    display: flex;
+    flex-direction: column;
+    row-gap: 24px;
+}
+
+.select-period-value {
+    display: flex;
+    justify-content: center;
+}
+
+.select-period-pickers {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (min-width: 0px) {
+    .select-period-pickers {
+        flex-direction: column;
+    }
+}
+
+@media (min-width: 600px) {
+
+}
+
+@media (min-width: 905px) {
+    .select-period-pickers {
+        flex-direction: row;
+    }
+}
+
+@media (min-width: 1240px) {
+}
+
+@media (min-width: 1440px) {
+}
