@@ -18,8 +18,8 @@
                 }
             </div>
             <div class="select-period-pickers">
-                <MudDatePicker @bind-Date="From" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
-                <MudDatePicker @bind-Date="Through" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
+                <MudDatePicker @ref="FromPicker" @bind-Date="From" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
+                <MudDatePicker @ref="ThroughPicker" @bind-Date="Through" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
             </div>
         </div>
     </BodyContent>
@@ -34,22 +34,47 @@
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
-    [Parameter]
-    public DateTime? From { get; set; }
+    private MudDatePicker FromPicker { get; set; } = null!;
 
+    private DateTime? from;
     [Parameter]
-    public DateTime? Through { get; set; }
-
-    protected override void OnParametersSet()
+    public DateTime? From
     {
-        StateHasChanged();
+        get { return from; }
+        set
+        { 
+            from = value;
+
+            if (from.HasValue && through.HasValue)
+            {
+                if (from.Value > through.Value)
+                {
+                    Through = from;
+                    ThroughPicker.GoToDate(Through.Value);
+                }
+            }
+        }
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    private MudDatePicker ThroughPicker { get; set; } = null!;
+
+    private DateTime? through;
+    [Parameter]
+    public DateTime? Through
     {
-        if (firstRender)
+        get { return through; }
+        set
         {
-            StateHasChanged();
+            through = value;
+
+            if (through.HasValue && from.HasValue)
+            {
+                if (through.Value < from.Value)
+                {
+                    From = through;
+                    FromPicker.GoToDate(From.Value);
+                }
+            }
         }
     }
 

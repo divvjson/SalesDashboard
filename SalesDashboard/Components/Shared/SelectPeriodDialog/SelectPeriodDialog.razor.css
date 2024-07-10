@@ -7,6 +7,7 @@
 .select-period-value {
     display: flex;
     justify-content: center;
+    font-weight: 500;
 }
 
 .select-period-pickers {
