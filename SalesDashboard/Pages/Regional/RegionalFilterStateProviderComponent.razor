@@ -1,0 +1,43 @@
+﻿@using SalesDashboard.Services.Scoped.LocalStorage
+
+@inject LocalStorageService LocalStorageService
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    public BehaviorSubject<DateTime?> From { get; set; } = new(null);
+
+    public BehaviorSubject<DateTime?> Through { get; set; } = new(null);
+
+    public BehaviorSubject<IEnumerable<string>?> CountryRegionCodes { get; set; } = new([]);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var from = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(From)}");
+
+            From.OnNext(from);
+
+            var through = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Through)}");
+
+            Through.OnNext(through);
+
+            var countryRegionCodes = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}");
+
+            CountryRegionCodes.OnNext(countryRegionCodes);
+        }
+    }
+
+    public async Task SetCountryRegionCodes(IEnumerable<string> countryRegionCodes)
+    {
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}", countryRegionCodes);
+
+        CountryRegionCodes.OnNext(countryRegionCodes);
+    }
+}

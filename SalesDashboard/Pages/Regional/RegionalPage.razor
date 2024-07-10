@@ -1,11 +1,16 @@
 ﻿@page "/Regional"
 
+@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.FilterSettings
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Components.Shared.SelectCountryDialog
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+@using SalesDashboard.Entities
+
+@implements IDisposable
 
 @inject IDialogService DialogService
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <PageTitle>Regional Analysis</PageTitle>
 
@@ -16,7 +21,7 @@
         </div>
         <FilterSettingsComponent>
             <FilterSettingsItemComponent Key="Period" Value="2024-07-02 - 2024-07-09" />
-            <FilterSettingsItemComponent Key="Country" Value="United States, Germany" OnSelect="HandleSelectCountryClickedAsync" />
+            <FilterSettingsItemComponent Key="Country" Value="@SelectedCountries" OnSelect="HandleSelectCountryClickedAsync" />
         </FilterSettingsComponent>
         <div class="grid">
             <div class="total-sales">
@@ -75,12 +80,58 @@
 
 @code {
     [CascadingParameter]
-    public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? CountryRegionCodesSubscription { get; set; }
+
+    private string SelectedCountries { get; set; } = string.Empty;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            CountryRegionCodesSubscription = RegionalFilterStateProviderComponent.CountryRegionCodes.Subscribe(countryRegionCodes => HandleSelectedCountryChanged(countryRegionCodes));
+        }
+    }
+
+    private void HandleSelectedCountryChanged(IEnumerable<string>? countryRegionCodes)
+    {
+        if (countryRegionCodes?.Any() is true)
+        {
+            var selectedCountries = DbFactory
+                .CreateDbContext()
+                .CountryRegions
+                .Where(countryRegion => countryRegionCodes.Contains(countryRegion.CountryRegionCode))
+                .OrderBy(countryRegion => countryRegion.Name)
+                .Select(countryRegion => countryRegion.Name);
+
+            SelectedCountries = string.Join(", ", selectedCountries);
+        }
+        else
+        {
+            SelectedCountries = string.Empty;
+        }
+    }
 
     private async Task HandleSelectCountryClickedAsync()
     {
-        var dialog = await DialogService.ShowAsync<SelectCountryDialog>();
+        var parameters = new DialogParameters<SelectCountryDialog>
+        {
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionCodes, RegionalFilterStateProviderComponent.CountryRegionCodes.Value?.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
 
         var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedCountryRegionCodes)
+        {
+            await RegionalFilterStateProviderComponent.SetCountryRegionCodes(selectedCountryRegionCodes);
+        }
+    }
+
+    public void Dispose()
+    {
+        CountryRegionCodesSubscription?.Dispose();
     }
 }
