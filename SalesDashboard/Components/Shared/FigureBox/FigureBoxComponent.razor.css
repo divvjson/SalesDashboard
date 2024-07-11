@@ -1,0 +1,19 @@
+﻿.figure-box {
+    width: 100%;
+    height: 100px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+::deep .mud-progress-linear {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.figure-box-value {
+    font-size: 30px;
+    font-weight: 500;
+}
