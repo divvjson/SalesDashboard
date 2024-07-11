@@ -107,10 +107,24 @@
 
     private async Task HandleSelectPeriodClickedAsync()
     {
+        var from = RegionalFilterStateProviderComponent.From.Value;
+
+        if (from is null)
+        {
+            from = DbFactory.CreateDbContext().SalesOrderHeaders.Min(salesOrderHeader => salesOrderHeader.OrderDate);
+        }
+
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+
+        if (through is null)
+        {
+            through = DateTime.Now.Date;
+        }
+
         DialogParameters<SelectPeriodDialog> parameters = new()
         {
-            { selectPeriodDialog => selectPeriodDialog.From, RegionalFilterStateProviderComponent.From.Value },
-            { selectPeriodDialog => selectPeriodDialog.Through, RegionalFilterStateProviderComponent.Through.Value }
+            { selectPeriodDialog => selectPeriodDialog.From, from },
+            { selectPeriodDialog => selectPeriodDialog.Through, through }
         };
 
         var dialog = await DialogService.ShowAsync<SelectPeriodDialog>("Select Period", parameters);

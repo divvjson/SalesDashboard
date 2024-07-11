@@ -78,6 +78,22 @@
         }
     }
 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (From.HasValue)
+            {
+                FromPicker.GoToDate(From.Value);
+            }
+
+            if (Through.HasValue)
+            {
+                ThroughPicker.GoToDate(Through.Value);
+            }
+        }
+    }
+
     private void HandleClear()
     {
         From = null;
