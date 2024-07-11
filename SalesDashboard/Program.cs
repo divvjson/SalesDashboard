@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 using SalesDashboard;
 using SalesDashboard.Entities;
 using SalesDashboard.Helpers;
@@ -19,8 +20,8 @@ builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
 });
 
 // Add services to the container.
-builder.Services.AddBlazorBootstrap();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+builder.Services.AddMudServices();
 builder.Services.AddScoped<LocalStorageService>();
 
 var app = builder.Build();

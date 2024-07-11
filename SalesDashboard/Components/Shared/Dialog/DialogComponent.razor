@@ -1,0 +1,36 @@
+﻿<div class="dialog @GetDialogSizeClass()">
+    <div class="dialog-header">
+        @HeaderContent
+    </div>
+    <div class="dialog-body">
+        @BodyContent
+    </div>
+    <div class="dialog-footer">
+        @FooterContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EnumDialogSize DialogSize { get; set; } = EnumDialogSize.Default;
+
+    [Parameter]
+    public RenderFragment? HeaderContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? BodyContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? FooterContent { get; set; }
+
+    private string GetDialogSizeClass()
+    {
+        return DialogSize switch
+        {
+            EnumDialogSize.Small => "dialog--small",
+            EnumDialogSize.Large => "dialog--large",
+            EnumDialogSize.ExtraLarge => "dialog--extra-large",
+            _ => "dialog--default"
+        };
+    }
+}

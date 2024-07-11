@@ -1,0 +1,66 @@
+﻿@using SalesDashboard.Services.Scoped.LocalStorage
+
+@inject LocalStorageService LocalStorageService
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    public BehaviorSubject<DateTime?> From { get; set; } = new(null);
+
+    public BehaviorSubject<DateTime?> Through { get; set; } = new(null);
+
+    public BehaviorSubject<IEnumerable<string>?> CountryRegionCodes { get; set; } = new([]);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var from = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(From)}");
+
+            From.OnNext(from);
+
+            var through = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Through)}");
+
+            Through.OnNext(through);
+
+            var countryRegionCodes = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}");
+
+            CountryRegionCodes.OnNext(countryRegionCodes);
+        }
+    }
+
+    public async Task SetFromAsync(DateTime? from)
+    {
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(From)}", from);
+
+        From.OnNext(from);
+    }
+
+    public async Task SetThroughAsync(DateTime? through)
+    {
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Through)}", through);
+
+        Through.OnNext(through);
+    }
+
+    public async Task SetCountryRegionCodesAsync(IEnumerable<string> countryRegionCodes)
+    {
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}", countryRegionCodes);
+
+        CountryRegionCodes.OnNext(countryRegionCodes);
+    }
+
+    public async Task ResetAsync()
+    {
+        await Task.WhenAll([
+            SetFromAsync(null),
+            SetThroughAsync(null),
+            SetCountryRegionCodesAsync(new List<string>())
+        ]);
+    }
+}

@@ -1,0 +1,105 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.Dialog
+@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+@using SalesDashboard.Entities
+
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
+    <HeaderContent>
+        @MudDialog.Title
+    </HeaderContent>
+    <BodyContent>
+        <div class="select-country">
+            <div class="data-grid-container">
+                <MudDataGrid T="CountryRegion" 
+                             Items="CountryRegions"
+                             Virtualize="true"
+                             FixedHeader="true"
+                             Height="@GetDataGridHeight()"
+                             MultiSelection="true"
+                             @bind-SelectedItems="SelectedCountryRegions"
+                             SelectOnRowClick="false"
+                             Filterable="true"
+                             FilterMode="DataGridFilterMode.ColumnFilterRow"
+                             FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+                             Breakpoint="Breakpoint.None"
+                             Elevation="0"
+                             Dense="true"
+                             Outlined="true"
+                             Striped="true">
+                    <Columns>
+                        <SelectColumn T="CountryRegion" />
+                        <PropertyColumn Title="Name" Property="countryRegion => countryRegion.Name" />
+                        <PropertyColumn Title="Code" Property="countryRegion => countryRegion.CountryRegionCode" />
+                    </Columns>
+                </MudDataGrid>
+            </div>
+            <div class="list-container">
+                <MudList T="CountryRegion">
+                    @foreach (var selectedCountryRegion in SelectedCountryRegions)
+                    {
+                        <MudChip T="CountryRegion" 
+                                 OnClose="() => HandleSelectedCountryDeselected(selectedCountryRegion)">
+                            @selectedCountryRegion.Name
+                        </MudChip>
+                    }
+                </MudList>
+            </div>
+        </div>
+    </BodyContent>
+    <FooterContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" style="margin-right: auto;" OnClick="SelectedCountryRegions.Clear">Clear</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleOk" DropShadow="false">OK</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="MudDialog.Cancel" DropShadow="false">Cancel</MudButton>
+    </FooterContent>
+</DialogComponent>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    [CascadingParameter]
+    public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
+
+    [Parameter]
+    public List<string>? InitiallySelectedCountryRegionCodes { get; set; }
+
+    private IEnumerable<CountryRegion>? CountryRegions { get; set; }
+
+    private HashSet<CountryRegion> SelectedCountryRegions { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        CountryRegions = DbFactory.CreateDbContext().CountryRegions.OrderBy(countryRegion => countryRegion.Name);
+
+        if (InitiallySelectedCountryRegionCodes?.Any() is true)
+        {
+            SelectedCountryRegions = CountryRegions
+                .Where(countryRegion => InitiallySelectedCountryRegionCodes.Contains(countryRegion.CountryRegionCode))
+                .ToHashSet();
+        }
+    }
+
+    private void HandleSelectedCountryDeselected(CountryRegion countryRegion)
+    {
+        SelectedCountryRegions.Remove(countryRegion);
+    }
+
+    private void HandleOk()
+    {
+        MudDialog.Close(DialogResult.Ok(SelectedCountryRegions.Select(countryRegion => countryRegion.CountryRegionCode)));
+    }
+
+    private string GetDataGridHeight()
+    {
+        if (BreakpointStateProviderComponent.BreakpointStateSubject.Value <= EnumBreakpointState.B_Small_600_904)
+        {
+            return "300px";
+        }
+        else
+        {
+            return "600px";
+        }
+    }
+}

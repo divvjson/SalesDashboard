@@ -1,0 +1,11 @@
+﻿.filter-settings-title-container {
+    display: flex;
+    align-items: center;
+    column-gap: 4px;
+}
+
+.filter-settings-expansion-panel-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 16px;
+}

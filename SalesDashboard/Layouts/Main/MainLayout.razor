@@ -5,13 +5,21 @@
 
 @implements IDisposable
 
+<MudThemeProvider Theme="Theme" />
+<MudPopoverProvider />
+<MudDialogProvider
+    BackdropClick="false"
+    NoHeader="true"
+    MaxWidth="MaxWidth.ExtraExtraLarge" />
+<MudSnackbarProvider />
+
 <div class="main-layout">
-    <div class="bar-container shadow">
+    <div class="bar-container mud-elevation-4">
         <BarComponent />
     </div>
     <div style="@GetDrawerOverlayStyle()" class="drawer-overlay" @onclick="DrawerStateProviderComponent.Close" />
     <div class="drawer-container">
-        <div style="@GetDrawerStyle()" class="drawer shadow">
+        <div style="@GetDrawerStyle()" class="drawer mud-elevation-4">
             <DrawerComponent />
         </div>
         <div style="@GetDrawerContentStyle()" class="drawer-content">
@@ -34,6 +42,17 @@
     public DrawerStateProviderComponent DrawerStateProviderComponent { get; set; } = null!;
 
     public IDisposable? FormFactorStateSubscription { get; set; }
+
+    private MudTheme Theme { get; set; } = new()
+    {
+        Typography = new()
+        {
+            Default = new()
+            {
+                FontFamily = new[] { "Poppins", "Helvetica", "Arial", "sans-serif" }
+            }
+        }
+    };
 
     protected override void OnInitialized()
     {

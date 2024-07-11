@@ -1,25 +1,30 @@
 ﻿@page "/Regional"
 
+@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.FilterSettings
 @using SalesDashboard.Components.Shared.PageBox
+@using SalesDashboard.Components.Shared.SelectCountryDialog
+@using SalesDashboard.Components.Shared.SelectPeriodDialog
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+@using SalesDashboard.Entities
+
+@inject IDialogService DialogService
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <PageTitle>Regional Analysis</PageTitle>
 
 <div class="regional">
-    <div class="regional-container shadow">
+    <div class="regional-container mud-elevation-4">
         <div class="header">
             Regional Analysis
         </div>
-        <Accordion style="@GetFilterSettingsAccordionStyle()">
-            <AccordionItem Style="background-color: var(--bs-gray-50);">
-                <TitleTemplate>
-                    <Icon Name="IconName.Filter" style="margin-right: 6px;" /> Filter Settings
-                </TitleTemplate>
-                <Content>
-                    <RegionalFilterComponent />
-                </Content>
-            </AccordionItem>
-        </Accordion>
+        <FilterSettingsComponent>
+            <FilterSettingsItemComponent Key="Period" Value="@GetSelectedPeriodString()" OnSelect="HandleSelectPeriodClickedAsync" />
+            <MudDivider />
+            <FilterSettingsItemComponent Key="Country" Value="@GetSelectedCountryString()" OnSelect="HandleSelectCountryClickedAsync" />
+            <MudDivider />
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
+        </FilterSettingsComponent>
         <div class="grid">
             <div class="total-sales">
                 <PageBoxComponent Title="Total Sales">
@@ -77,21 +82,97 @@
 
 @code {
     [CascadingParameter]
-    public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
-    private string GetFilterSettingsAccordionStyle()
+    private string GetSelectedPeriodString()
     {
-        var styleString = "padding-top: 24px;";
+        var from = RegionalFilterStateProviderComponent.From.Value;
+        var through = RegionalFilterStateProviderComponent.Through.Value;
 
-        if (BreakpointStateProviderComponent.BreakpointStateSubject.Value <= EnumBreakpointState.B_Small_576_767)
+        if (from is not null && through is not null)
         {
-            styleString += " padding-left: 12px; padding-right: 12px;";
-        }
-        else
-        {
-            styleString += " padding-left: 24px; padding-right: 24px;";
+            return $"{from.Value.Date.ToShortDateString()} - {through.Value.Date.ToShortDateString()}";
         }
 
-        return styleString;
+        if (from is not null && through is null)
+        {
+            return $"{from.Value.Date.ToShortDateString()} and onwards";
+        }
+
+        if (from is null && through is not null)
+        {
+            return $"up until {through.Value.Date.ToShortDateString()}";
+        }
+
+        return string.Empty;
+    }
+
+    private async Task HandleSelectPeriodClickedAsync()
+    {
+        var from = RegionalFilterStateProviderComponent.From.Value;
+
+        if (from is null)
+        {
+            from = DbFactory.CreateDbContext().SalesOrderHeaders.Min(salesOrderHeader => salesOrderHeader.OrderDate);
+        }
+
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+
+        if (through is null)
+        {
+            through = DateTime.Now.Date;
+        }
+
+        DialogParameters<SelectPeriodDialog> parameters = new()
+        {
+            { selectPeriodDialog => selectPeriodDialog.From, from },
+            { selectPeriodDialog => selectPeriodDialog.Through, through }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectPeriodDialog>("Select Period", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is SelectPeriodDialogResult selectedPeriod)
+        {
+            await RegionalFilterStateProviderComponent.SetFromAsync(selectedPeriod.From);
+            await RegionalFilterStateProviderComponent.SetThroughAsync(selectedPeriod.Through);
+        }
+    }
+
+    private string GetSelectedCountryString()
+    {
+        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+
+        if (countryRegionCodes is null || countryRegionCodes.Any() is false)
+        {
+            return string.Empty;
+        }
+
+        var selectedCountryNames = DbFactory
+            .CreateDbContext()
+            .CountryRegions
+            .Where(countryRegion => countryRegionCodes.Contains(countryRegion.CountryRegionCode))
+            .OrderBy(countryRegion => countryRegion.Name)
+            .Select(countryRegion => countryRegion.Name);
+
+        return string.Join(", ", selectedCountryNames);
+    }
+
+    private async Task HandleSelectCountryClickedAsync()
+    {
+        DialogParameters<SelectCountryDialog> parameters = new()
+        {
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionCodes, RegionalFilterStateProviderComponent.CountryRegionCodes.Value?.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedCountryRegionCodes)
+        {
+            await RegionalFilterStateProviderComponent.SetCountryRegionCodesAsync(selectedCountryRegionCodes);
+        }
     }
 }

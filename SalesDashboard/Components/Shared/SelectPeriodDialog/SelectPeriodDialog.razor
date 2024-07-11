@@ -1,0 +1,113 @@
+﻿@using SalesDashboard.Components.Shared.Dialog
+
+<DialogComponent DialogSize="EnumDialogSize.Large">
+    <HeaderContent>
+        @MudDialog.Title
+    </HeaderContent>
+    <BodyContent>
+        <div class="select-period">
+            <div class="select-period-value">
+                @if (From.HasValue)
+                {
+                    @From.Value.Date.ToShortDateString()
+                }
+                -
+                @if (Through.HasValue)
+                {
+                    @Through.Value.Date.ToShortDateString()
+                }
+            </div>
+            <div class="select-period-pickers">
+                <MudDatePicker @ref="FromPicker" @bind-Date="From" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
+                <MudDatePicker @ref="ThroughPicker" @bind-Date="Through" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
+            </div>
+        </div>
+    </BodyContent>
+    <FooterContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleClear" DropShadow="false" style="margin-right: auto;">Clear</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleOk" DropShadow="false">OK</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="MudDialog.Cancel" DropShadow="false">Cancel</MudButton>
+    </FooterContent>
+</DialogComponent>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    private MudDatePicker FromPicker { get; set; } = null!;
+
+    private DateTime? from;
+    [Parameter]
+    public DateTime? From
+    {
+        get { return from; }
+        set
+        { 
+            from = value;
+
+            if (from.HasValue && through.HasValue)
+            {
+                if (from.Value > through.Value)
+                {
+                    Through = from;
+                    ThroughPicker.GoToDate(Through.Value);
+                }
+            }
+        }
+    }
+
+    private MudDatePicker ThroughPicker { get; set; } = null!;
+
+    private DateTime? through;
+    [Parameter]
+    public DateTime? Through
+    {
+        get { return through; }
+        set
+        {
+            through = value;
+
+            if (through.HasValue && from.HasValue)
+            {
+                if (through.Value < from.Value)
+                {
+                    From = through;
+                    FromPicker.GoToDate(From.Value);
+                }
+            }
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (From.HasValue)
+            {
+                FromPicker.GoToDate(From.Value);
+            }
+
+            if (Through.HasValue)
+            {
+                ThroughPicker.GoToDate(Through.Value);
+            }
+        }
+    }
+
+    private void HandleClear()
+    {
+        From = null;
+        Through = null;
+    }
+
+    private void HandleOk()
+    {
+        SelectPeriodDialogResult dialogResult = new()
+        {
+            From = From,
+            Through = Through
+        };
+
+        MudDialog.Close(DialogResult.Ok(dialogResult));
+    }
+}
