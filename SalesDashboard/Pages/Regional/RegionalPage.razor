@@ -20,7 +20,9 @@
         </div>
         <FilterSettingsComponent>
             <FilterSettingsItemComponent Key="Period" Value="@GetSelectedPeriodString()" OnSelect="HandleSelectPeriodClickedAsync" />
+            <MudDivider />
             <FilterSettingsItemComponent Key="Country" Value="@GetSelectedCountryString()" OnSelect="HandleSelectCountryClickedAsync" />
+            <MudDivider />
             <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
         <div class="grid">
