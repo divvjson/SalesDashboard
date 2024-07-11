@@ -2,9 +2,9 @@
 {
     public static class DecimalExtensions
     {
-        public static string ToMillionDollarsWithTwoDecimals(this decimal value)
+        public static string ToMillionsWithTwoDecimals(this decimal value)
         {
-            return $"${value / 1_000_000:0.00}M";
+            return $"{value / 1_000_000:0.00}M";
         }
     }
 }

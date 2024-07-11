@@ -1,5 +1,8 @@
-﻿@using SalesDashboard.Components.StateProviders.DeviceStateProvider
+﻿@using SalesDashboard.Components.Shared.SelectCurrencyDialog
+@using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
+
+@inject IDialogService DialogService
 
 <div class="bar">
     <div class="bar-button" @onclick="DrawerStateProviderComponent.Toggle">
@@ -9,7 +12,9 @@
         <div class="title">Adventure Works</div>
         <div class="sub-title">Sales Dashboard</div>
     </div>
-    <div></div>
+    <div class="bar-button" @onclick="OpenCurrencySelectorAsync">
+        <MudIcon Icon="@Icons.Material.Outlined.Money" Title="Currency" />
+    </div>
 </div>
 
 @code {
@@ -18,4 +23,9 @@
 
     [CascadingParameter]
     public DeviceStateProviderComponent DeviceStateProviderComponent { get; set; } = null!;
+
+    private async Task OpenCurrencySelectorAsync()
+    {
+        await DialogService.ShowAsync<SelectCurrencyDialog>("Select Currency");
+    }
 }

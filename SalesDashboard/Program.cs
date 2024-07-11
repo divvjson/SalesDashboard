@@ -4,7 +4,6 @@ using SalesDashboard;
 using SalesDashboard.Entities;
 using SalesDashboard.Helpers;
 using SalesDashboard.Services.Scoped.LocalStorage;
-using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,10 +44,5 @@ if (app.Environment.IsDevelopment())
     app.Urls.Add("https://localhost:4200");
     app.Urls.Add("https://0.0.0.0:4200");
 }
-
-// We set the culture info to en-US since AdventureWorks database is in that context.
-CultureInfo cultureInfo = new("en-US");
-CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 app.Run();
