@@ -263,49 +263,69 @@
         var through = RegionalFilterStateProviderComponent.Through.Value;
         var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
 
-        var query = DbFactory.CreateDbContext().SalesOrderHeaders.AsQueryable();
+        var query = @"
+            SELECT SUM(sod.OrderQty * pch.StandardCost) AS TotalCost
+            FROM Sales.SalesOrderHeader soh
+            JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+            JOIN Production.Product p ON sod.ProductID = p.ProductID
+            JOIN Person.Address a ON soh.BillToAddressID = a.AddressID
+            JOIN StateProvince sp ON a.StateProvinceID = sp.StateProvinceID
+            CROSS APPLY (
+                SELECT TOP 1 StandardCost
+                FROM Production.ProductCostHistory
+                WHERE ProductID = p.ProductID
+                ORDER BY ModifiedDate DESC
+            ) pch
+        ";
 
-        if (from is not null)
-        {
-            query = query.Where(soh => soh.OrderDate >= from);
-        }
+        var context = DbFactory
+            .CreateDbContext()
+            .SalesOrderHeaders
+            .FromSql(query);
 
-        if (through is not null)
-        {
-            query = query.Where(soh => soh.OrderDate <= through);
-        }
+        // var query = DbFactory.CreateDbContext().SalesOrderHeaders.AsQueryable();
 
-        if (countryRegionCodes is not null && countryRegionCodes.Any())
-        {
-            query = query.Where(soh => countryRegionCodes.Contains(soh.BillToAddress.StateProvince.CountryRegionCode));
-        }
+        // if (from is not null)
+        // {
+        //     query = query.Where(soh => soh.OrderDate >= from);
+        // }
 
-        decimal totalCost = 0.00M;
+        // if (through is not null)
+        // {
+        //     query = query.Where(soh => soh.OrderDate <= through);
+        // }
 
-        var sohs = await query.Include(soh => soh.SalesOrderDetails).ToListAsync();
+        // if (countryRegionCodes is not null && countryRegionCodes.Any())
+        // {
+        //     query = query.Where(soh => countryRegionCodes.Contains(soh.BillToAddress.StateProvince.CountryRegionCode));
+        // }
 
-        foreach (var soh in sohs)
-        {
-            decimal totalCostPerOrder = 0.00M;
+        // decimal totalCost = 0.00M;
 
-            foreach (var sod in soh.SalesOrderDetails)
-            {
-                var pch = sod.Product.ProductCostHistories
-                    .OrderByDescending(pch => pch.ModifiedDate)
-                    .FirstOrDefault();
+        // var sohs = await query.Include(soh => soh.SalesOrderDetails).ToListAsync();
 
-                if (pch is null)
-                {
-                    continue;
-                }
+        // foreach (var soh in sohs)
+        // {
+        //     decimal totalCostPerOrder = 0.00M;
 
-                totalCostPerOrder += sod.OrderQty * pch.StandardCost;
-            }
+        //     foreach (var sod in soh.SalesOrderDetails)
+        //     {
+        //         var pch = sod.Product.ProductCostHistories
+        //             .OrderByDescending(pch => pch.ModifiedDate)
+        //             .FirstOrDefault();
 
-            totalCost += totalCostPerOrder;
-        }
+        //         if (pch is null)
+        //         {
+        //             continue;
+        //         }
 
-        return totalCost;
+        //         totalCostPerOrder += sod.OrderQty * pch.StandardCost;
+        //     }
+
+        //     totalCost += totalCostPerOrder;
+        // }
+
+        // return totalCost;
     }
 
     public void Dispose()
