@@ -10,6 +10,8 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
 
+@implements IDisposable
+
 @inject IDialogService DialogService
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
@@ -86,6 +88,8 @@
     [CascadingParameter]
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
+    private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
     private bool IsFiguresLoading { get; set; } = true;
 
     private decimal TotalSales { get; set; }
@@ -95,6 +99,16 @@
     private decimal GrossProfit { get; set; }
 
     private decimal GrossMargin { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(250))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -212,7 +226,7 @@
 
         IsFiguresLoading = false;
 
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task<decimal> GetTotalSalesAsync()
@@ -272,5 +286,10 @@
         var totalCost = await query.SumAsync(pod => pod.LineTotal);
 
         return totalCost;
+    }
+
+    public void Dispose()
+    {
+        RegionalFilterChangedSubscription?.Dispose();
     }
 }
