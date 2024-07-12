@@ -35,7 +35,7 @@
             </div>
             <div class="total-cost">
                 <PageBoxComponent Title="Total Cost">
-                    Total Cost
+                    <FigureBoxComponent Value="@TotalCost.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-profit">
@@ -89,6 +89,8 @@
     public bool IsFiguresLoading { get; set; } = true;
 
     private decimal TotalSales { get; set; }
+
+    private decimal TotalCost { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -194,7 +196,10 @@
     {
         IsFiguresLoading = true;
 
-        TotalSales = await GetTotalSalesAsync();
+        await Task.WhenAll([
+            GetTotalSalesAsync(),
+            GetTotalCostAsync()
+        ]);
 
         IsFiguresLoading = false;
 
@@ -227,5 +232,36 @@
         var totalSales = await query.SumAsync(salesOrderHeader => salesOrderHeader.TotalDue);
 
         return totalSales;
+    }
+
+    private async Task<decimal> GetTotalCostAsync()
+    {
+        var from = RegionalFilterStateProviderComponent.From.Value;
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+
+        var query = DbFactory.CreateDbContext().PurchaseOrderDetails.AsQueryable();
+
+        if (from is not null)
+        {
+            query = query.Where(purchaseOrderDetail => purchaseOrderDetail.PurchaseOrder.OrderDate >= from);
+        }
+
+        if (through is not null)
+        {
+            query = query.Where(purchaseOrderDetail => purchaseOrderDetail.PurchaseOrder.OrderDate <= through);
+        }
+
+        if (countryRegionCodes is not null && countryRegionCodes.Any())
+        {
+            query = query.Where(pod =>
+                pod.PurchaseOrder.Vendor.BusinessEntity.BusinessEntityAddresses
+                    .Select(bea => bea.Address.StateProvince.CountryRegionCode)
+                    .All(crc => countryRegionCodes.Contains(crc)));
+        }
+
+        var totalCost = await query.SumAsync(pod => pod.LineTotal);
+
+        return totalCost;
     }
 }
