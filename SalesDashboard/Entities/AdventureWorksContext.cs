@@ -1819,6 +1819,10 @@ public partial class AdventureWorksContext : DbContext
                 .HasComment("Discount amount.")
                 .HasColumnType("money");
 
+            entity.HasOne(d => d.Product).WithMany(p => p.SalesOrderDetails)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
             entity.HasOne(d => d.SalesOrder).WithMany(p => p.SalesOrderDetails).HasForeignKey(d => d.SalesOrderId);
 
             entity.HasOne(d => d.SpecialOfferProduct).WithMany(p => p.SalesOrderDetails)
