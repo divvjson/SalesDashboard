@@ -40,12 +40,12 @@
             </div>
             <div class="gross-profit">
                 <PageBoxComponent Title="Gross Profit">
-                    Gross Profit
+                    <FigureBoxComponent Value="@GrossProfit.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-margin">
                 <PageBoxComponent Title="Gross Margin">
-                    Gross Margin
+                    <FigureBoxComponent Value="@GrossMargin.ToPercentageWithTwoDecimals()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="sales-trend-top-3-countries">
@@ -86,11 +86,15 @@
     [CascadingParameter]
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
-    public bool IsFiguresLoading { get; set; } = true;
+    private bool IsFiguresLoading { get; set; } = true;
 
     private decimal TotalSales { get; set; }
 
     private decimal TotalCost { get; set; }
+
+    private decimal GrossProfit { get; set; }
+
+    private decimal GrossMargin { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -196,10 +200,15 @@
     {
         IsFiguresLoading = true;
 
-        await Task.WhenAll([
+        var result = await Task.WhenAll([
             GetTotalSalesAsync(),
             GetTotalCostAsync()
         ]);
+
+        TotalSales = result[0];
+        TotalCost = result[1];
+        GrossProfit = TotalSales - TotalCost;
+        GrossMargin = GrossProfit / TotalSales;
 
         IsFiguresLoading = false;
 
@@ -216,20 +225,20 @@
 
         if (from is not null)
         {
-            query = query.Where(salesOrderHeader => salesOrderHeader.OrderDate >= from);
+            query = query.Where(soh => soh.OrderDate >= from);
         }
 
         if (through is not null)
         {
-            query = query.Where(salesOrderHeader => salesOrderHeader.OrderDate <= through);
+            query = query.Where(soh => soh.OrderDate <= through);
         }
 
         if (countryRegionCodes is not null && countryRegionCodes.Any())
         {
-            query = query.Where(salesOrderHeader => countryRegionCodes.Contains(salesOrderHeader.BillToAddress.StateProvince.CountryRegionCode));
+            query = query.Where(soh => countryRegionCodes.Contains(soh.BillToAddress.StateProvince.CountryRegionCode));
         }
 
-        var totalSales = await query.SumAsync(salesOrderHeader => salesOrderHeader.TotalDue);
+        var totalSales = await query.SumAsync(soh => soh.TotalDue);
 
         return totalSales;
     }
@@ -244,12 +253,12 @@
 
         if (from is not null)
         {
-            query = query.Where(purchaseOrderDetail => purchaseOrderDetail.PurchaseOrder.OrderDate >= from);
+            query = query.Where(pod => pod.PurchaseOrder.OrderDate >= from);
         }
 
         if (through is not null)
         {
-            query = query.Where(purchaseOrderDetail => purchaseOrderDetail.PurchaseOrder.OrderDate <= through);
+            query = query.Where(pod => pod.PurchaseOrder.OrderDate <= through);
         }
 
         if (countryRegionCodes is not null && countryRegionCodes.Any())

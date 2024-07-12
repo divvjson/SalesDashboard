@@ -6,5 +6,10 @@
         {
             return $"${value / 1_000_000:0.00}M";
         }
+
+        public static string ToPercentageWithTwoDecimals(this decimal value)
+        {
+            return value.ToString("0.00" + "%");
+        }
     }
 }
