@@ -105,7 +105,7 @@
         if (firstRender)
         {
             RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
-                .Throttle(TimeSpan.FromMilliseconds(250))
+                .Throttle(TimeSpan.FromMilliseconds(125))
                 .Subscribe(async _ => await RequeryFiguresAsync());
         }
     }
