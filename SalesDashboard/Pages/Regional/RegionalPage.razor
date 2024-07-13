@@ -11,6 +11,7 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
 @using SalesDashboard.Helpers
+@using System.Text
 
 @implements IDisposable
 
@@ -277,10 +278,6 @@
         {
             await connection.OpenAsync();
 
-            var from = RegionalFilterStateProviderComponent.From.Value;
-            var through = RegionalFilterStateProviderComponent.Through.Value;
-            var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
-
             var cmdText = @"
                 SELECT SUM(sod.OrderQty * pch.StandardCost)
                 FROM Sales.SalesOrderHeader soh
@@ -296,7 +293,38 @@
                 ) pch
             ";
 
+            var from = RegionalFilterStateProviderComponent.From.Value;
+            var through = RegionalFilterStateProviderComponent.Through.Value;
+            var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+
+            List<string> conditions = new();
+
+            if (from.HasValue)
+            {
+                conditions.Add("soh.OrderDate >= @from");
+            }
+
+            if (through.HasValue)
+            {
+                conditions.Add("soh.OrderDate <= @through");
+            }
+
+            if (conditions.Any())
+            {
+                cmdText += " WHERE " + string.Join(" AND ", conditions);
+            }
+
             using SqlCommand command = new(cmdText, connection);
+
+            if (from.HasValue)
+            {
+                command.Parameters.AddWithValue("@from", from.Value);
+            }
+
+            if (through.HasValue)
+            {
+                command.Parameters.AddWithValue("@through", through.Value);
+            }
 
             var result = (decimal?)await command.ExecuteScalarAsync();
 
@@ -311,50 +339,6 @@
         }
 
         return totalCost;
-
-        // var query = DbFactory.CreateDbContext().SalesOrderHeaders.AsQueryable();
-
-        // if (from is not null)
-        // {
-        //     query = query.Where(soh => soh.OrderDate >= from);
-        // }
-
-        // if (through is not null)
-        // {
-        //     query = query.Where(soh => soh.OrderDate <= through);
-        // }
-
-        // if (countryRegionCodes is not null && countryRegionCodes.Any())
-        // {
-        //     query = query.Where(soh => countryRegionCodes.Contains(soh.BillToAddress.StateProvince.CountryRegionCode));
-        // }
-
-        // decimal totalCost = 0.00M;
-
-        // var sohs = await query.Include(soh => soh.SalesOrderDetails).ToListAsync();
-
-        // foreach (var soh in sohs)
-        // {
-        //     decimal totalCostPerOrder = 0.00M;
-
-        //     foreach (var sod in soh.SalesOrderDetails)
-        //     {
-        //         var pch = sod.Product.ProductCostHistories
-        //             .OrderByDescending(pch => pch.ModifiedDate)
-        //             .FirstOrDefault();
-
-        //         if (pch is null)
-        //         {
-        //             continue;
-        //         }
-
-        //         totalCostPerOrder += sod.OrderQty * pch.StandardCost;
-        //     }
-
-        //     totalCost += totalCostPerOrder;
-        // }
-
-        // return totalCost;
     }
 
     public void Dispose()
