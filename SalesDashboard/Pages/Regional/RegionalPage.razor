@@ -282,7 +282,7 @@
             var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
 
             var cmdText = @"
-                SELECT SUM(sod.OrderQty * pch.StandardCost) AS TotalCost
+                SELECT SUM(sod.OrderQty * pch.StandardCost)
                 FROM Sales.SalesOrderHeader soh
                 JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
                 JOIN Production.Product p ON sod.ProductID = p.ProductID
