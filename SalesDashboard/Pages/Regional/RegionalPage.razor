@@ -1,5 +1,6 @@
 ﻿@page "/Regional"
 
+@using Microsoft.Data.SqlClient
 @using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.FigureBox
 @using SalesDashboard.Components.Shared.FilterSettings
@@ -9,11 +10,13 @@
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
+@using SalesDashboard.Helpers
 
 @implements IDisposable
 
 @inject IDialogService DialogService
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject IConfiguration Configuration
 
 <PageTitle>Regional Analysis</PageTitle>
 
@@ -259,29 +262,55 @@
 
     private async Task<decimal> GetTotalCostAsync()
     {
-        var from = RegionalFilterStateProviderComponent.From.Value;
-        var through = RegionalFilterStateProviderComponent.Through.Value;
-        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var dataSource = Configuration["DbDataSource"];
+        var initialCatalog = Configuration["DbInitialCatalog"];
+        var userId = Configuration["DbUserID"];
+        var password = SecretsHelper.GetValue("DbPassword");
 
-        var query = @"
-            SELECT SUM(sod.OrderQty * pch.StandardCost) AS TotalCost
-            FROM Sales.SalesOrderHeader soh
-            JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
-            JOIN Production.Product p ON sod.ProductID = p.ProductID
-            JOIN Person.Address a ON soh.BillToAddressID = a.AddressID
-            JOIN StateProvince sp ON a.StateProvinceID = sp.StateProvinceID
-            CROSS APPLY (
-                SELECT TOP 1 StandardCost
-                FROM Production.ProductCostHistory
-                WHERE ProductID = p.ProductID
-                ORDER BY ModifiedDate DESC
-            ) pch
-        ";
+        var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False";
 
-        var context = DbFactory
-            .CreateDbContext()
-            .SalesOrderHeaders
-            .FromSql(query);
+        using SqlConnection connection = new(connectionString);
+
+        decimal totalCost = 0.00M;
+
+        try
+        {
+            await connection.OpenAsync();
+
+            var from = RegionalFilterStateProviderComponent.From.Value;
+            var through = RegionalFilterStateProviderComponent.Through.Value;
+            var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+
+            var cmdText = @"
+                SELECT SUM(sod.OrderQty * pch.StandardCost) AS TotalCost
+                FROM Sales.SalesOrderHeader soh
+                JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+                JOIN Production.Product p ON sod.ProductID = p.ProductID
+                JOIN Person.Address a ON soh.BillToAddressID = a.AddressID
+                JOIN Person.StateProvince sp ON a.StateProvinceID = sp.StateProvinceID
+                CROSS APPLY (
+                    SELECT TOP 1 StandardCost
+                    FROM Production.ProductCostHistory
+                    WHERE ProductID = p.ProductID
+                    ORDER BY ModifiedDate DESC
+                ) pch
+            ";
+
+            using SqlCommand command = new(cmdText, connection);
+
+            var result = (decimal?)await command.ExecuteScalarAsync();
+
+            if (result.HasValue)
+            {
+                totalCost = result.Value;
+            }
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
+
+        return totalCost;
 
         // var query = DbFactory.CreateDbContext().SalesOrderHeaders.AsQueryable();
 

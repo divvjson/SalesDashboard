@@ -9,9 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
 {
-    var dataSource = builder.Environment.IsDevelopment() ? SecretsHelper.GetValue("DbDataSource") : "localhost";
-    var initialCatalog = SecretsHelper.GetValue("DbInitialCatalog");
-    var userId = SecretsHelper.GetValue("DbUserID");
+    var dataSource = builder.Configuration["DbDataSource"];
+    var initialCatalog = builder.Configuration["DbInitialCatalog"];
+    var userId = builder.Configuration["DbUserID"];
     var password = SecretsHelper.GetValue("DbPassword");
 
     options
