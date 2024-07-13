@@ -220,7 +220,7 @@
 
         var result = await Task.WhenAll([
             GetTotalSalesAsync(),
-    GetTotalCostAsync()
+            GetTotalCostAsync()
         ]);
 
         TotalSales = result[0];
