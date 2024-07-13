@@ -285,6 +285,7 @@
                 JOIN Production.Product p ON sod.ProductID = p.ProductID
                 JOIN Person.Address a ON soh.BillToAddressID = a.AddressID
                 JOIN Person.StateProvince sp ON a.StateProvinceID = sp.StateProvinceID
+                JOIN Person.CountryRegion cr ON sp.CountryRegionCode = cr.CountryRegionCode
                 CROSS APPLY (
                     SELECT TOP 1 StandardCost
                     FROM Production.ProductCostHistory
@@ -292,6 +293,8 @@
                     ORDER BY ModifiedDate DESC
                 ) pch
             ";
+
+            using SqlCommand command = new(cmdText, connection);
 
             var from = RegionalFilterStateProviderComponent.From.Value;
             var through = RegionalFilterStateProviderComponent.Through.Value;
@@ -302,28 +305,37 @@
             if (from.HasValue)
             {
                 conditions.Add("soh.OrderDate >= @from");
-            }
 
-            if (through.HasValue)
-            {
-                conditions.Add("soh.OrderDate <= @through");
-            }
-
-            if (conditions.Any())
-            {
-                cmdText += " WHERE " + string.Join(" AND ", conditions);
-            }
-
-            using SqlCommand command = new(cmdText, connection);
-
-            if (from.HasValue)
-            {
                 command.Parameters.AddWithValue("@from", from.Value);
             }
 
             if (through.HasValue)
             {
+                conditions.Add("soh.OrderDate <= @through");
+
                 command.Parameters.AddWithValue("@through", through.Value);
+            }
+
+            if (countryRegionCodes is not null && countryRegionCodes.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < countryRegionCodes.Count(); i++)
+                {
+                    var parameterName = $"@countryRegionCode{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, countryRegionCodes.ElementAt(i));
+                }
+
+                conditions.Add($"cr.CountryRegionCode IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (conditions.Any())
+            {
+                cmdText += " WHERE " + string.Join(" AND ", conditions);
+                command.CommandText = cmdText;
             }
 
             var result = (decimal?)await command.ExecuteScalarAsync();
