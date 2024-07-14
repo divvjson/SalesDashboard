@@ -7,6 +7,7 @@
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Components.Shared.SelectCountryDialog
 @using SalesDashboard.Components.Shared.SelectPeriodDialog
+@using SalesDashboard.Components.Shared.SelectProductCategoryDialog
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
@@ -30,6 +31,8 @@
             <FilterSettingsItemComponent Key="Period" Value="@GetSelectedPeriodString()" OnSelect="HandleSelectPeriodClickedAsync" />
             <MudDivider />
             <FilterSettingsItemComponent Key="Country" Value="@GetSelectedCountryString()" OnSelect="HandleSelectCountryClickedAsync" />
+            <MudDivider />
+            <FilterSettingsItemComponent Key="Product Category" Value="@GetSelectedProductCategoryString()" OnSelect="HandleSelectProductCategoryClickedAsync" />
             <MudDivider />
             <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
@@ -197,6 +200,18 @@
         return string.Join(", ", selectedCountryNames);
     }
 
+    private string GetSelectedProductCategoryString()
+    {
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+
+        if (productCategoryNames is null || productCategoryNames.Any() is false)
+        {
+            return "All";
+        }
+
+        return string.Join(", ", productCategoryNames);
+    }
+
     private async Task HandleSelectCountryClickedAsync()
     {
         DialogParameters<SelectCountryDialog> parameters = new()
@@ -211,6 +226,23 @@
         if (result?.Data is IEnumerable<string> selectedCountryRegionCodes)
         {
             await RegionalFilterStateProviderComponent.SetCountryRegionCodesAsync(selectedCountryRegionCodes);
+        }
+    }
+
+    private async Task HandleSelectProductCategoryClickedAsync()
+    {
+        DialogParameters<SelectProductCategoryDialog> parameters = new()
+        {
+            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalFilterStateProviderComponent.ProductCategoryNames.Value?.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectProductCategoryDialog>("Select Product Category", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedProductCategoryNames)
+        {
+            await RegionalFilterStateProviderComponent.SetProductCategoryNamesAsync(selectedProductCategoryNames);
         }
     }
 

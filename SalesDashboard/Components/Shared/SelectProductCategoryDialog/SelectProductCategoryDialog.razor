@@ -1,0 +1,104 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.Dialog
+@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+@using SalesDashboard.Entities
+
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
+    <HeaderContent>
+        @MudDialog.Title
+    </HeaderContent>
+    <BodyContent>
+        <div class="select-product-category">
+            <div class="data-grid-container">
+                <MudDataGrid T="ProductCategory" 
+                             Items="ProductCategories"
+                             Virtualize="true"
+                             FixedHeader="true"
+                             Height="@GetDataGridHeight()"
+                             MultiSelection="true"
+                             @bind-SelectedItems="SelectedProductCategories"
+                             SelectOnRowClick="false"
+                             Filterable="true"
+                             FilterMode="DataGridFilterMode.ColumnFilterRow"
+                             FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+                             Breakpoint="Breakpoint.None"
+                             Elevation="0"
+                             Dense="true"
+                             Outlined="true"
+                             Striped="true">
+                    <Columns>
+                        <SelectColumn T="ProductCategory" />
+                        <PropertyColumn Title="Name" Property="productCategory => productCategory.Name" />
+                    </Columns>
+                </MudDataGrid>
+            </div>
+            <div class="list-container">
+                <MudList T="ProductCategory">
+                    @foreach (var selectedProductCategory in SelectedProductCategories)
+                    {
+                        <MudChip T="ProductCategory"
+                                 OnClose="() => HandleSelectedProductCategoryDeselected(selectedProductCategory)">
+                            @selectedProductCategory.Name
+                        </MudChip>
+                    }
+                </MudList>
+            </div>
+        </div>
+    </BodyContent>
+    <FooterContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" style="margin-right: auto;" OnClick="SelectedProductCategories.Clear">Clear</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleOk" DropShadow="false">OK</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="MudDialog.Cancel" DropShadow="false">Cancel</MudButton>
+    </FooterContent>
+</DialogComponent>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    [CascadingParameter]
+    public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
+
+    [Parameter]
+    public List<string>? InitiallySelectedProductCategoryNames { get; set; }
+
+    private IEnumerable<ProductCategory>? ProductCategories { get; set; }
+
+    private HashSet<ProductCategory> SelectedProductCategories { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        ProductCategories = DbFactory.CreateDbContext().ProductCategories.OrderBy(productCategory => productCategory.Name);
+
+        if (InitiallySelectedProductCategoryNames?.Any() is true)
+        {
+            SelectedProductCategories = ProductCategories
+                .Where(productCategory => InitiallySelectedProductCategoryNames.Contains(productCategory.Name))
+                .ToHashSet();
+        }
+    }
+
+    private void HandleSelectedProductCategoryDeselected(ProductCategory productCategory)
+    {
+        SelectedProductCategories.Remove(productCategory);
+    }
+
+    private void HandleOk()
+    {
+        MudDialog.Close(DialogResult.Ok(SelectedProductCategories.Select(productCategory => productCategory.Name)));
+    }
+
+    private string GetDataGridHeight()
+    {
+        if (BreakpointStateProviderComponent.BreakpointStateSubject.Value <= EnumBreakpointState.B_Small_600_904)
+        {
+            return "300px";
+        }
+        else
+        {
+            return "600px";
+        }
+    }
+}
