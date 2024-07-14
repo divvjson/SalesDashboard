@@ -1,0 +1,19 @@
+﻿<div class="figure-box">
+    @if (IsLoading)
+    {
+        <MudProgressLinear Color="Color.Secondary" Indeterminate="true" />
+        <MudSkeleton SkeletonType="SkeletonType.Circle" Width="50px" Height="50px" />
+    }
+    else
+    {
+        <div class="figure-box-value">@Value</div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool IsLoading { get; set; }
+}

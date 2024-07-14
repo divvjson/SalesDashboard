@@ -65,6 +65,8 @@ public partial class SalesOrderDetail
     /// </summary>
     public DateTime ModifiedDate { get; set; }
 
+    public virtual Product Product { get; set; } = null!;
+
     public virtual SalesOrderHeader SalesOrder { get; set; } = null!;
 
     public virtual SpecialOfferProduct SpecialOfferProduct { get; set; } = null!;

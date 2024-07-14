@@ -1,15 +1,27 @@
 ﻿@page "/Regional"
 
+@using Microsoft.Data.SqlClient
 @using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.FigureBox
 @using SalesDashboard.Components.Shared.FilterSettings
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Components.Shared.SelectCountryDialog
 @using SalesDashboard.Components.Shared.SelectPeriodDialog
+@using SalesDashboard.Components.Shared.SelectProductCategoryDialog
+@using SalesDashboard.Components.Shared.SelectProductDialog
+@using SalesDashboard.Components.Shared.SelectProductSubcategoryDialog
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
+@using SalesDashboard.Extensions
+@using SalesDashboard.Helpers
+@using System.Text
+@using System.Data.Common
+
+@implements IDisposable
 
 @inject IDialogService DialogService
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject IConfiguration Configuration
 
 <PageTitle>Regional Analysis</PageTitle>
 
@@ -23,27 +35,33 @@
             <MudDivider />
             <FilterSettingsItemComponent Key="Country" Value="@GetSelectedCountryString()" OnSelect="HandleSelectCountryClickedAsync" />
             <MudDivider />
+            <FilterSettingsItemComponent Key="Product Category" Value="@GetSelectedProductCategoryString()" OnSelect="HandleSelectProductCategoryClickedAsync" />
+            <MudDivider />
+            <FilterSettingsItemComponent Key="Product Subcategory" Value="@GetSelectedProductSubcategoryString()" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
+            <MudDivider />
+            <FilterSettingsItemComponent Key="Product" Value="@GetSelectedProductString()" OnSelect="HandleSelectProductClickedAsync" />
+            <MudDivider />
             <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
         <div class="grid">
             <div class="total-sales">
                 <PageBoxComponent Title="Total Sales">
-                    Total Sales
+                    <FigureBoxComponent Value="@TotalSales.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="total-cost">
                 <PageBoxComponent Title="Total Cost">
-                    Total Cost
+                    <FigureBoxComponent Value="@TotalCost.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-profit">
                 <PageBoxComponent Title="Gross Profit">
-                    Gross Profit
+                    <FigureBoxComponent Value="@GrossProfit.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-margin">
                 <PageBoxComponent Title="Gross Margin">
-                    Gross Margin
+                    <FigureBoxComponent Value="@GrossMargin.ToPercentageWithTwoDecimals()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="sales-trend-top-3-countries">
@@ -84,6 +102,36 @@
     [CascadingParameter]
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
+    private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private bool IsFiguresLoading { get; set; } = true;
+
+    private decimal TotalSales { get; set; }
+
+    private decimal TotalCost { get; set; }
+
+    private decimal GrossProfit { get; set; }
+
+    private decimal GrossMargin { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RequeryFiguresAsync();
+        }
+    }
+
     private string GetSelectedPeriodString()
     {
         var from = RegionalFilterStateProviderComponent.From.Value;
@@ -104,7 +152,7 @@
             return $"up until {through.Value.Date.ToShortDateString()}";
         }
 
-        return string.Empty;
+        return "All";
     }
 
     private async Task HandleSelectPeriodClickedAsync()
@@ -146,7 +194,7 @@
 
         if (countryRegionCodes is null || countryRegionCodes.Any() is false)
         {
-            return string.Empty;
+            return "All";
         }
 
         var selectedCountryNames = DbFactory
@@ -157,6 +205,42 @@
             .Select(countryRegion => countryRegion.Name);
 
         return string.Join(", ", selectedCountryNames);
+    }
+
+    private string GetSelectedProductCategoryString()
+    {
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+
+        if (productCategoryNames is null || productCategoryNames.Any() is false)
+        {
+            return "All";
+        }
+
+        return string.Join(", ", productCategoryNames);
+    }
+
+    private string GetSelectedProductSubcategoryString()
+    {
+        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+
+        if (productSubcategoryNames is null || productSubcategoryNames.Any() is false)
+        {
+            return "All";
+        }
+
+        return string.Join(", ", productSubcategoryNames);
+    }
+
+    private string GetSelectedProductString()
+    {
+        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+        if (productNames is null || productNames.Any() is false)
+        {
+            return "All";
+        }
+
+        return string.Join(", ", productNames);
     }
 
     private async Task HandleSelectCountryClickedAsync()
@@ -174,5 +258,276 @@
         {
             await RegionalFilterStateProviderComponent.SetCountryRegionCodesAsync(selectedCountryRegionCodes);
         }
+    }
+
+    private async Task HandleSelectProductCategoryClickedAsync()
+    {
+        DialogParameters<SelectProductCategoryDialog> parameters = new()
+        {
+            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalFilterStateProviderComponent.ProductCategoryNames.Value?.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectProductCategoryDialog>("Select Product Category", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedProductCategoryNames)
+        {
+            await RegionalFilterStateProviderComponent.SetProductCategoryNamesAsync(selectedProductCategoryNames);
+        }
+    }
+
+    private async Task HandleSelectProductSubcategoryClickedAsync()
+    {
+        DialogParameters<SelectProductSubcategoryDialog> parameters = new()
+        {
+            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value?.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectProductSubcategoryDialog>("Select Product Subcategory", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedProductSubcategoryNames)
+        {
+            await RegionalFilterStateProviderComponent.SetProductSubcategoryNamesAsync(selectedProductSubcategoryNames);
+        }
+    }
+
+    private async Task HandleSelectProductClickedAsync()
+    {
+        DialogParameters<SelectProductDialog> parameters = new()
+        {
+            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, RegionalFilterStateProviderComponent.ProductNames.Value?.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectProductDialog>("Select Product", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedProductNames)
+        {
+            await RegionalFilterStateProviderComponent.SetProductNamesAsync(selectedProductNames);
+        }
+    }
+
+    private async Task RequeryFiguresAsync()
+    {
+        IsFiguresLoading = true;
+
+        var result = await Task.WhenAll([GetTotalSalesAsync(),GetTotalCostAsync()]);
+
+        TotalSales = result[0];
+        TotalCost = result[1];
+        GrossProfit = TotalSales - TotalCost;
+
+        if (TotalSales != 0)
+        {
+            GrossMargin = GrossProfit / TotalSales;
+        }
+        else
+        {
+            GrossMargin = 0;
+        }
+
+        IsFiguresLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<decimal> GetTotalSalesAsync()
+    {
+        var from = RegionalFilterStateProviderComponent.From.Value;
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+        var query = DbFactory.CreateDbContext().SalesOrderDetails.AsQueryable();
+
+        if (from is not null)
+        {
+            query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
+        }
+
+        if (through is not null)
+        {
+            query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
+        }
+
+        if (countryRegionCodes is not null && countryRegionCodes.Any())
+        {
+            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
+        }
+
+        if (productCategoryNames is not null && productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames is not null && productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames is not null && productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        var totalSales = await query.SumAsync(sod => sod.LineTotal);
+
+        return totalSales;
+    }
+
+    private async Task<decimal> GetTotalCostAsync()
+    {
+        var dataSource = Configuration["DbDataSource"];
+        var initialCatalog = Configuration["DbInitialCatalog"];
+        var userId = Configuration["DbUserID"];
+        var password = SecretsHelper.GetValue("DbPassword");
+
+        var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true";
+
+        using SqlConnection connection = new(connectionString);
+
+        decimal totalCost = 0.00M;
+
+        try
+        {
+            await connection.OpenAsync();
+
+            var cmdText = @"
+                SELECT SUM(sod.OrderQty * pch.StandardCost)
+                FROM Sales.SalesOrderHeader soh
+                JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+                JOIN Production.Product p ON sod.ProductID = p.ProductID
+                JOIN Production.ProductSubcategory ps ON p.ProductSubcategoryID = ps.ProductSubcategoryID
+                JOIN Production.ProductCategory pc ON ps.ProductCategoryID = pc.ProductCategoryID
+                JOIN Person.Address a ON soh.BillToAddressID = a.AddressID
+                JOIN Person.StateProvince sp ON a.StateProvinceID = sp.StateProvinceID
+                JOIN Person.CountryRegion cr ON sp.CountryRegionCode = cr.CountryRegionCode
+                CROSS APPLY (
+                    SELECT TOP 1 StandardCost
+                    FROM Production.ProductCostHistory
+                    WHERE ProductID = p.ProductID
+                    ORDER BY ModifiedDate DESC
+                ) pch
+            ";
+
+            using SqlCommand command = new(cmdText, connection);
+
+            var from = RegionalFilterStateProviderComponent.From.Value;
+            var through = RegionalFilterStateProviderComponent.Through.Value;
+            var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+            var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+            var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+            var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+            List<string> conditions = new();
+
+            if (from.HasValue)
+            {
+                conditions.Add("soh.OrderDate >= @from");
+
+                command.Parameters.AddWithValue("@from", from.Value);
+            }
+
+            if (through.HasValue)
+            {
+                conditions.Add("soh.OrderDate <= @through");
+
+                command.Parameters.AddWithValue("@through", through.Value);
+            }
+
+            if (countryRegionCodes is not null && countryRegionCodes.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < countryRegionCodes.Count(); i++)
+                {
+                    var parameterName = $"@countryRegionCode{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, countryRegionCodes.ElementAt(i));
+                }
+
+                conditions.Add($"cr.CountryRegionCode IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productCategoryNames is not null && productCategoryNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productCategoryNames.Count(); i++)
+                {
+                    var parameterName = $"@productCategoryName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productCategoryNames.ElementAt(i));
+                }
+
+                conditions.Add($"pc.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productSubcategoryNames is not null && productSubcategoryNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productSubcategoryNames.Count(); i++)
+                {
+                    var parameterName = $"@productSubcategoryName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productSubcategoryNames.ElementAt(i));
+                }
+
+                conditions.Add($"ps.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productNames is not null && productNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productNames.Count(); i++)
+                {
+                    var parameterName = $"@productName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productNames.ElementAt(i));
+                }
+
+                conditions.Add($"p.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (conditions.Any())
+            {
+                cmdText += " WHERE " + string.Join(" AND ", conditions);
+                command.CommandText = cmdText;
+            }
+
+            object? result = await command.ExecuteScalarAsync();
+
+            if (result is decimal resultAsDecimal)
+            {
+                totalCost = resultAsDecimal;
+            }
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
+
+        return totalCost;
+    }
+
+    public void Dispose()
+    {
+        RegionalFilterChangedSubscription?.Dispose();
     }
 }

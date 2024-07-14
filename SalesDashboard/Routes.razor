@@ -1,4 +1,5 @@
 ﻿@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+@using SalesDashboard.Components.StateProviders.CurrencyStateProvider
 @using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
 @using SalesDashboard.Pages.Regional
@@ -8,9 +9,11 @@
         <BreakpointStateProviderComponent>
             <DeviceStateProviderComponent>
                 <DrawerStateProviderComponent>
-                    <RegionalFilterStateProviderComponent>
-                        <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
-                    </RegionalFilterStateProviderComponent>
+                    <CurrencyStateProviderComponent>
+                        <RegionalFilterStateProviderComponent>
+                            <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
+                        </RegionalFilterStateProviderComponent>
+                    </CurrencyStateProviderComponent>
                 </DrawerStateProviderComponent>
             </DeviceStateProviderComponent>
         </BreakpointStateProviderComponent>

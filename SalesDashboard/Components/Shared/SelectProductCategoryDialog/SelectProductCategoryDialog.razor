@@ -10,16 +10,16 @@
         @MudDialog.Title
     </HeaderContent>
     <BodyContent>
-        <div class="select-country">
+        <div class="select-product-category">
             <div class="data-grid-container">
-                <MudDataGrid T="CountryRegion" 
-                             Items="CountryRegions"
+                <MudDataGrid T="ProductCategory" 
+                             Items="ProductCategories"
                              Virtualize="true"
                              OverscanCount="25"
                              FixedHeader="true"
                              Height="@GetDataGridHeight()"
                              MultiSelection="true"
-                             @bind-SelectedItems="SelectedCountryRegions"
+                             @bind-SelectedItems="SelectedProductCategories"
                              SelectOnRowClick="false"
                              Filterable="true"
                              FilterMode="DataGridFilterMode.ColumnFilterRow"
@@ -30,19 +30,18 @@
                              Outlined="true"
                              Striped="true">
                     <Columns>
-                        <SelectColumn T="CountryRegion" />
-                        <PropertyColumn Title="Name" Property="countryRegion => countryRegion.Name" />
-                        <PropertyColumn Title="Code" Property="countryRegion => countryRegion.CountryRegionCode" />
+                        <SelectColumn T="ProductCategory" />
+                        <PropertyColumn Title="Name" Property="productCategory => productCategory.Name" />
                     </Columns>
                 </MudDataGrid>
             </div>
             <div class="list-container">
-                <MudList T="CountryRegion">
-                    @foreach (var selectedCountryRegion in SelectedCountryRegions)
+                <MudList T="ProductCategory">
+                    @foreach (var selectedProductCategory in SelectedProductCategories)
                     {
-                        <MudChip T="CountryRegion" 
-                                 OnClose="() => HandleSelectedCountryDeselected(selectedCountryRegion)">
-                            @selectedCountryRegion.Name
+                        <MudChip T="ProductCategory"
+                                 OnClose="() => HandleSelectedProductCategoryDeselected(selectedProductCategory)">
+                            @selectedProductCategory.Name
                         </MudChip>
                     }
                 </MudList>
@@ -50,7 +49,7 @@
         </div>
     </BodyContent>
     <FooterContent>
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" style="margin-right: auto;" OnClick="SelectedCountryRegions.Clear">Clear</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" style="margin-right: auto;" OnClick="SelectedProductCategories.Clear">Clear</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleOk" DropShadow="false">OK</MudButton>
         <MudButton Variant="Variant.Filled" OnClick="MudDialog.Cancel" DropShadow="false">Cancel</MudButton>
     </FooterContent>
@@ -64,32 +63,32 @@
     public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
 
     [Parameter]
-    public List<string>? InitiallySelectedCountryRegionCodes { get; set; }
+    public List<string>? InitiallySelectedProductCategoryNames { get; set; }
 
-    private IEnumerable<CountryRegion>? CountryRegions { get; set; }
+    private IEnumerable<ProductCategory>? ProductCategories { get; set; }
 
-    private HashSet<CountryRegion> SelectedCountryRegions { get; set; } = new();
+    private HashSet<ProductCategory> SelectedProductCategories { get; set; } = new();
 
     protected override void OnInitialized()
     {
-        CountryRegions = DbFactory.CreateDbContext().CountryRegions.OrderBy(countryRegion => countryRegion.Name);
+        ProductCategories = DbFactory.CreateDbContext().ProductCategories.OrderBy(productCategory => productCategory.Name);
 
-        if (InitiallySelectedCountryRegionCodes?.Any() is true)
+        if (InitiallySelectedProductCategoryNames?.Any() is true)
         {
-            SelectedCountryRegions = CountryRegions
-                .Where(countryRegion => InitiallySelectedCountryRegionCodes.Contains(countryRegion.CountryRegionCode))
+            SelectedProductCategories = ProductCategories
+                .Where(productCategory => InitiallySelectedProductCategoryNames.Contains(productCategory.Name))
                 .ToHashSet();
         }
     }
 
-    private void HandleSelectedCountryDeselected(CountryRegion countryRegion)
+    private void HandleSelectedProductCategoryDeselected(ProductCategory productCategory)
     {
-        SelectedCountryRegions.Remove(countryRegion);
+        SelectedProductCategories.Remove(productCategory);
     }
 
     private void HandleOk()
     {
-        MudDialog.Close(DialogResult.Ok(SelectedCountryRegions.Select(countryRegion => countryRegion.CountryRegionCode)));
+        MudDialog.Close(DialogResult.Ok(SelectedProductCategories.Select(productCategory => productCategory.Name)));
     }
 
     private string GetDataGridHeight()

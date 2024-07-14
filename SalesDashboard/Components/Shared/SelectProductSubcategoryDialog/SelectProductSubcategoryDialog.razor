@@ -1,0 +1,121 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.Dialog
+@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+@using SalesDashboard.Entities
+@using SalesDashboard.Pages.Regional
+
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
+    <HeaderContent>
+        @MudDialog.Title
+    </HeaderContent>
+    <BodyContent>
+        <div class="select-product-subcategory">
+            <div class="data-grid-container">
+                <MudDataGrid T="ProductSubcategory" 
+                             Items="ProductSubcategories"
+                             Virtualize="true"
+                             OverscanCount="25"
+                             FixedHeader="true"
+                             Height="@GetDataGridHeight()"
+                             MultiSelection="true"
+                             @bind-SelectedItems="SelectedProductSubcategories"
+                             SelectOnRowClick="false"
+                             Filterable="true"
+                             FilterMode="DataGridFilterMode.ColumnFilterRow"
+                             FilterCaseSensitivity="DataGridFilterCaseSensitivity.CaseInsensitive"
+                             Breakpoint="Breakpoint.None"
+                             Elevation="0"
+                             Dense="true"
+                             Outlined="true"
+                             Striped="true">
+                    <Columns>
+                        <SelectColumn T="ProductSubcategory" />
+                        <PropertyColumn Title="Name" Property="productSubcategory => productSubcategory.Name" />
+                        <PropertyColumn Title="Product Category" Property="productSubcategory => productSubcategory.ProductCategory.Name" />
+                    </Columns>
+                </MudDataGrid>
+            </div>
+            <div class="list-container">
+                <MudList T="ProductSubcategory">
+                    @foreach (var selectedProductSubcategory in SelectedProductSubcategories)
+                    {
+                        <MudChip T="ProductSubcategory"
+                                 OnClose="() => HandleSelectedProductSubcategoryDeselected(selectedProductSubcategory)">
+                            @selectedProductSubcategory.Name
+                        </MudChip>
+                    }
+                </MudList>
+            </div>
+        </div>
+    </BodyContent>
+    <FooterContent>
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" DropShadow="false" style="margin-right: auto;" OnClick="SelectedProductSubcategories.Clear">Clear</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleOk" DropShadow="false">OK</MudButton>
+        <MudButton Variant="Variant.Filled" OnClick="MudDialog.Cancel" DropShadow="false">Cancel</MudButton>
+    </FooterContent>
+</DialogComponent>
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    [CascadingParameter]
+    public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+
+    [Parameter]
+    public List<string>? InitiallySelectedProductSubcategoryNames { get; set; }
+
+    private IEnumerable<ProductSubcategory>? ProductSubcategories { get; set; }
+
+    private HashSet<ProductSubcategory> SelectedProductSubcategories { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        var query = DbFactory.CreateDbContext().ProductSubcategories.AsQueryable();
+
+        query = query.OrderBy(productSubcategory => productSubcategory.Name);
+
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+
+        if (productCategoryNames is not null && productCategoryNames.Any())
+        {
+            query = query.Where(productSubcategory => productCategoryNames.Contains(productSubcategory.ProductCategory.Name));
+        }
+
+        ProductSubcategories = query;
+
+        if (InitiallySelectedProductSubcategoryNames?.Any() is true)
+        {
+            SelectedProductSubcategories = ProductSubcategories
+                .Where(productSubcategory => InitiallySelectedProductSubcategoryNames.Contains(productSubcategory.Name))
+                .ToHashSet();
+        }
+    }
+
+    private void HandleSelectedProductSubcategoryDeselected(ProductSubcategory productSubcategory)
+    {
+        SelectedProductSubcategories.Remove(productSubcategory);
+    }
+
+    private void HandleOk()
+    {
+        MudDialog.Close(DialogResult.Ok(SelectedProductSubcategories.Select(productSubcategory => productSubcategory.Name)));
+    }
+
+    private string GetDataGridHeight()
+    {
+        if (BreakpointStateProviderComponent.BreakpointStateSubject.Value <= EnumBreakpointState.B_Small_600_904)
+        {
+            return "300px";
+        }
+        else
+        {
+            return "600px";
+        }
+    }
+}
