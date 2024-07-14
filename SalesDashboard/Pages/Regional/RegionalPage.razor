@@ -382,7 +382,7 @@
         var userId = Configuration["DbUserID"];
         var password = SecretsHelper.GetValue("DbPassword");
 
-        var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False";
+        var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true";
 
         using SqlConnection connection = new(connectionString);
 

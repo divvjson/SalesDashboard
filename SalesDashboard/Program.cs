@@ -16,7 +16,7 @@ builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
 
     options
         .UseLazyLoadingProxies()
-        .UseSqlServer($"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False");
+        .UseSqlServer($"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true");
 });
 
 // Add services to the container.
