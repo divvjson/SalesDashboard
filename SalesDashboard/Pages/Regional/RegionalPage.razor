@@ -252,7 +252,7 @@
 
         var result = await Task.WhenAll([
             GetTotalSalesAsync(),
-            GetTotalCostAsync()
+    GetTotalCostAsync()
         ]);
 
         TotalSales = result[0];
@@ -270,25 +270,31 @@
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
         var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
 
-        var query = DbFactory.CreateDbContext().SalesOrderHeaders.AsQueryable();
+        var query = DbFactory.CreateDbContext().SalesOrderDetails.AsQueryable();
 
         if (from is not null)
         {
-            query = query.Where(soh => soh.OrderDate >= from);
+            query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
         }
 
         if (through is not null)
         {
-            query = query.Where(soh => soh.OrderDate <= through);
+            query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
         }
 
         if (countryRegionCodes is not null && countryRegionCodes.Any())
         {
-            query = query.Where(soh => countryRegionCodes.Contains(soh.BillToAddress.StateProvince.CountryRegionCode));
+            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
         }
 
-        var totalSales = await query.SumAsync(soh => soh.TotalDue);
+        if (productCategoryNames is not null && productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        var totalSales = await query.SumAsync(sod => sod.LineTotal);
 
         return totalSales;
     }
