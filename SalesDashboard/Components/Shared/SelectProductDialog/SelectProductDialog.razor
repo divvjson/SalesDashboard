@@ -13,9 +13,10 @@
     <BodyContent>
         <div class="select-product">
             <div class="data-grid-container">
-                <MudDataGrid T="Product" 
+                <MudDataGrid T="Product"
                              Items="Products"
                              Virtualize="true"
+                             OverscanCount="25"
                              FixedHeader="true"
                              Height="@GetDataGridHeight()"
                              MultiSelection="true"
