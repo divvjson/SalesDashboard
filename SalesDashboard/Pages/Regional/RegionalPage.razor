@@ -8,6 +8,7 @@
 @using SalesDashboard.Components.Shared.SelectCountryDialog
 @using SalesDashboard.Components.Shared.SelectPeriodDialog
 @using SalesDashboard.Components.Shared.SelectProductCategoryDialog
+@using SalesDashboard.Components.Shared.SelectProductSubcategoryDialog
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
@@ -33,6 +34,8 @@
             <FilterSettingsItemComponent Key="Country" Value="@GetSelectedCountryString()" OnSelect="HandleSelectCountryClickedAsync" />
             <MudDivider />
             <FilterSettingsItemComponent Key="Product Category" Value="@GetSelectedProductCategoryString()" OnSelect="HandleSelectProductCategoryClickedAsync" />
+            <MudDivider />
+            <FilterSettingsItemComponent Key="Product Subcategory" Value="@GetSelectedProductSubcategoryString()" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
             <MudDivider />
             <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
@@ -212,6 +215,18 @@
         return string.Join(", ", productCategoryNames);
     }
 
+    private string GetSelectedProductSubcategoryString()
+    {
+        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+
+        if (productSubcategoryNames is null || productSubcategoryNames.Any() is false)
+        {
+            return "All";
+        }
+
+        return string.Join(", ", productSubcategoryNames);
+    }
+
     private async Task HandleSelectCountryClickedAsync()
     {
         DialogParameters<SelectCountryDialog> parameters = new()
@@ -246,13 +261,30 @@
         }
     }
 
+    private async Task HandleSelectProductSubcategoryClickedAsync()
+    {
+        DialogParameters<SelectProductSubcategoryDialog> parameters = new()
+        {
+            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value?.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectProductSubcategoryDialog>("Select Product Subcategory", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedProductSubcategoryNames)
+        {
+            await RegionalFilterStateProviderComponent.SetProductSubcategoryNamesAsync(selectedProductSubcategoryNames);
+        }
+    }
+
     private async Task RequeryFiguresAsync()
     {
         IsFiguresLoading = true;
 
         var result = await Task.WhenAll([
             GetTotalSalesAsync(),
-    GetTotalCostAsync()
+            GetTotalCostAsync()
         ]);
 
         TotalSales = result[0];
