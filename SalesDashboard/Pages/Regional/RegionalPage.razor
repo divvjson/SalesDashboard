@@ -15,6 +15,7 @@
 @using SalesDashboard.Extensions
 @using SalesDashboard.Helpers
 @using System.Text
+@using System.Data.Common
 
 @implements IDisposable
 
@@ -314,15 +315,20 @@
     {
         IsFiguresLoading = true;
 
-        var result = await Task.WhenAll([
-        GetTotalSalesAsync(),
-    GetTotalCostAsync()
-        ]);
+        var result = await Task.WhenAll([GetTotalSalesAsync(),GetTotalCostAsync()]);
 
         TotalSales = result[0];
         TotalCost = result[1];
         GrossProfit = TotalSales - TotalCost;
-        GrossMargin = GrossProfit / TotalSales;
+
+        if (TotalSales != 0)
+        {
+            GrossMargin = GrossProfit / TotalSales;
+        }
+        else
+        {
+            GrossMargin = 0;
+        }
 
         IsFiguresLoading = false;
 
@@ -505,11 +511,11 @@
                 command.CommandText = cmdText;
             }
 
-            var result = (decimal?)await command.ExecuteScalarAsync();
+            object? result = await command.ExecuteScalarAsync();
 
-            if (result.HasValue)
+            if (result is decimal resultAsDecimal)
             {
-                totalCost = result.Value;
+                totalCost = resultAsDecimal;
             }
         }
         finally
