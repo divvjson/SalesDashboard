@@ -284,7 +284,7 @@
 
         var result = await Task.WhenAll([
             GetTotalSalesAsync(),
-            GetTotalCostAsync()
+    GetTotalCostAsync()
         ]);
 
         TotalSales = result[0];
@@ -303,6 +303,7 @@
         var through = RegionalFilterStateProviderComponent.Through.Value;
         var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
 
         var query = DbFactory.CreateDbContext().SalesOrderDetails.AsQueryable();
 
@@ -324,6 +325,11 @@
         if (productCategoryNames is not null && productCategoryNames.Any())
         {
             query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames is not null && productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
         }
 
         var totalSales = await query.SumAsync(sod => sod.LineTotal);
