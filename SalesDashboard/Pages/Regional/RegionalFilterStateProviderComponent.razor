@@ -77,6 +77,8 @@
 
     public async Task SetProductCategoryNamesAsync(IEnumerable<string> productCategoryNames)
     {
+        await SetProductSubcategoryNamesAsync(new List<string>());
+
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductCategoryNames)}", productCategoryNames);
 
         ProductCategoryNames.OnNext(productCategoryNames);

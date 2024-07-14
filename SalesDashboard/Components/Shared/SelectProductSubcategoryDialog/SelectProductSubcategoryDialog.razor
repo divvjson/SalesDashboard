@@ -2,6 +2,7 @@
 @using SalesDashboard.Components.Shared.Dialog
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
+@using SalesDashboard.Pages.Regional
 
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
@@ -62,6 +63,9 @@
     [CascadingParameter]
     public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
 
+    [CascadingParameter]
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+
     [Parameter]
     public List<string>? InitiallySelectedProductSubcategoryNames { get; set; }
 
@@ -71,7 +75,18 @@
 
     protected override void OnInitialized()
     {
-        ProductSubcategories = DbFactory.CreateDbContext().ProductSubcategories.OrderBy(productSubcategory => productSubcategory.Name);
+        var query = DbFactory.CreateDbContext().ProductSubcategories.AsQueryable();
+
+        query = query.OrderBy(productSubcategory => productSubcategory.Name);
+
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+
+        if (productCategoryNames is not null && productCategoryNames.Any())
+        {
+            query = query.Where(productSubcategory => productCategoryNames.Contains(productSubcategory.ProductCategory.Name));
+        }
+
+        ProductSubcategories = query;
 
         if (InitiallySelectedProductSubcategoryNames?.Any() is true)
         {
