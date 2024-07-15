@@ -154,14 +154,14 @@
 
         if (from is null)
         {
-            from = DbFactory.CreateDbContext().SalesOrderHeaders.Min(salesOrderHeader => salesOrderHeader.OrderDate);
+            from = DbFactory.CreateDbContext().SalesOrderHeaders.Min(soh => soh.OrderDate);
         }
 
         var through = RegionalFilterStateProviderComponent.Through.Value;
 
         if (through is null)
         {
-            through = DateTime.Now.Date;
+            through = DbFactory.CreateDbContext().SalesOrderHeaders.Max(soh => soh.OrderDate);
         }
 
         DialogParameters<SelectPeriodDialog> parameters = new()
