@@ -1,0 +1,235 @@
+﻿@using Microsoft.Data.SqlClient
+@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Entities
+@using SalesDashboard.Enums
+@using SalesDashboard.Helpers
+
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject IConfiguration Configuration
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [CascadingParameter]
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+
+    public async Task<decimal> GetTotalSalesAsync(EnumSalesChannel? salesChannel = null)
+    {
+        var from = RegionalFilterStateProviderComponent.From.Value;
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+        var query = DbFactory.CreateDbContext().SalesOrderDetails.AsQueryable();
+
+        if (from is not null)
+        {
+            query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
+        }
+
+        if (through is not null)
+        {
+            query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
+        }
+
+        if (countryRegionCodes is not null && countryRegionCodes.Any())
+        {
+            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
+        }
+
+        if (productCategoryNames is not null && productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames is not null && productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames is not null && productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        if (salesChannel is not null)
+        {
+            if (salesChannel is EnumSalesChannel.Internet)
+            {
+                query = query.Where(sod => sod.SalesOrder.OnlineOrderFlag == true);
+            }
+            else if (salesChannel is EnumSalesChannel.Reseller)
+            {
+                query = query.Where(sod => sod.SalesOrder.OnlineOrderFlag == false);
+            }
+        }
+
+        var totalSales = await query.SumAsync(sod => sod.LineTotal);
+
+        return totalSales;
+    }
+
+    public async Task<decimal> GetTotalCostAsync(EnumSalesChannel? salesChannel = null)
+    {
+        var dataSource = Configuration["DbDataSource"];
+        var initialCatalog = Configuration["DbInitialCatalog"];
+        var userId = Configuration["DbUserID"];
+        var password = SecretsHelper.GetValue("DbPassword");
+
+        var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true";
+
+        using SqlConnection connection = new(connectionString);
+
+        decimal totalCost = 0.00M;
+
+        try
+        {
+            await connection.OpenAsync();
+
+            var cmdText = @"
+                SELECT SUM(sod.OrderQty * pch.StandardCost)
+                FROM Sales.SalesOrderHeader soh
+                JOIN Sales.SalesOrderDetail sod ON soh.SalesOrderID = sod.SalesOrderID
+                JOIN Production.Product p ON sod.ProductID = p.ProductID
+                JOIN Production.ProductSubcategory ps ON p.ProductSubcategoryID = ps.ProductSubcategoryID
+                JOIN Production.ProductCategory pc ON ps.ProductCategoryID = pc.ProductCategoryID
+                JOIN Person.Address a ON soh.BillToAddressID = a.AddressID
+                JOIN Person.StateProvince sp ON a.StateProvinceID = sp.StateProvinceID
+                JOIN Person.CountryRegion cr ON sp.CountryRegionCode = cr.CountryRegionCode
+                CROSS APPLY (
+                    SELECT TOP 1 StandardCost
+                    FROM Production.ProductCostHistory
+                    WHERE ProductID = p.ProductID
+                    ORDER BY ModifiedDate DESC
+                ) pch
+            ";
+
+            using SqlCommand command = new(cmdText, connection);
+
+            var from = RegionalFilterStateProviderComponent.From.Value;
+            var through = RegionalFilterStateProviderComponent.Through.Value;
+            var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+            var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+            var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+            var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+            List<string> conditions = new();
+
+            if (from.HasValue)
+            {
+                conditions.Add("soh.OrderDate >= @from");
+
+                command.Parameters.AddWithValue("@from", from.Value);
+            }
+
+            if (through.HasValue)
+            {
+                conditions.Add("soh.OrderDate <= @through");
+
+                command.Parameters.AddWithValue("@through", through.Value);
+            }
+
+            if (countryRegionCodes is not null && countryRegionCodes.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < countryRegionCodes.Count(); i++)
+                {
+                    var parameterName = $"@countryRegionCode{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, countryRegionCodes.ElementAt(i));
+                }
+
+                conditions.Add($"cr.CountryRegionCode IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productCategoryNames is not null && productCategoryNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productCategoryNames.Count(); i++)
+                {
+                    var parameterName = $"@productCategoryName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productCategoryNames.ElementAt(i));
+                }
+
+                conditions.Add($"pc.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productSubcategoryNames is not null && productSubcategoryNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productSubcategoryNames.Count(); i++)
+                {
+                    var parameterName = $"@productSubcategoryName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productSubcategoryNames.ElementAt(i));
+                }
+
+                conditions.Add($"ps.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productNames is not null && productNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productNames.Count(); i++)
+                {
+                    var parameterName = $"@productName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productNames.ElementAt(i));
+                }
+
+                conditions.Add($"p.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (salesChannel is not null)
+            {
+                if (salesChannel is EnumSalesChannel.Internet)
+                {
+                    conditions.Add("soh.OnlineOrderFlag = 1");
+                }
+                else if (salesChannel is EnumSalesChannel.Reseller)
+                {
+                    conditions.Add("soh.OnlineOrderFlag = 0");
+                }
+            }
+
+            if (conditions.Any())
+            {
+                cmdText += " WHERE " + string.Join(" AND ", conditions);
+                command.CommandText = cmdText;
+            }
+
+            object? result = await command.ExecuteScalarAsync();
+
+            if (result is decimal resultAsDecimal)
+            {
+                totalCost = resultAsDecimal;
+            }
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
+
+        return totalCost;
+    }
+}
