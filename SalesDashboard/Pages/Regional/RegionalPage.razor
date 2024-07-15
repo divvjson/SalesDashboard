@@ -113,20 +113,14 @@
 
     private decimal GrossMargin { get; set; }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(100))
                 .Subscribe(async _ => await RequeryFiguresAsync());
-        }
-    }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
             await RequeryFiguresAsync();
         }
     }
