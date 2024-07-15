@@ -18,8 +18,8 @@
                 }
             </div>
             <div class="select-period-pickers">
-                <MudDatePicker @ref="FromPicker" @bind-Date="From" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
-                <MudDatePicker @ref="ThroughPicker" @bind-Date="Through" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
+                <MudDatePicker @ref="FromPicker" @bind-Date="From" MinDate="MinDate" MaxDate="MaxDate" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
+                <MudDatePicker @ref="ThroughPicker" @bind-Date="Through" MinDate="MinDate" MaxDate="MaxDate" PickerVariant="PickerVariant.Static" ShowToolbar="false" />
             </div>
         </div>
     </BodyContent>
@@ -35,6 +35,12 @@
     private MudDialogInstance MudDialog { get; set; } = null!;
 
     private MudDatePicker FromPicker { get; set; } = null!;
+
+    [Parameter]
+    public DateTime? MinDate { get; set; }
+
+    [Parameter]
+    public DateTime? MaxDate { get; set; }
 
     private DateTime? from;
     [Parameter]

@@ -1,6 +1,9 @@
-﻿@using SalesDashboard.Services.Scoped.LocalStorage
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Entities
+@using SalesDashboard.Services.Scoped.LocalStorage
 
 @inject LocalStorageService LocalStorageService
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <CascadingValue Value="this">
     @ChildContent
@@ -56,6 +59,11 @@
 
     public async Task SetFromAsync(DateTime? from)
     {
+        if (from is null)
+        {
+            from = await DbFactory.CreateDbContext().SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
+        }
+
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(From)}", from);
 
         From.OnNext(from);
@@ -65,6 +73,11 @@
 
     public async Task SetThroughAsync(DateTime? through)
     {
+        if (through is null)
+        {
+            through = await DbFactory.CreateDbContext().SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
+        }
+
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Through)}", through);
 
         Through.OnNext(through);

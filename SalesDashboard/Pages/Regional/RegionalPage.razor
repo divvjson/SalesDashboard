@@ -150,22 +150,29 @@
 
     private async Task HandleSelectPeriodClickedAsync()
     {
+        var context = DbFactory.CreateDbContext();
+
+        var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
+        var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
+
         var from = RegionalFilterStateProviderComponent.From.Value;
 
         if (from is null)
         {
-            from = DbFactory.CreateDbContext().SalesOrderHeaders.Min(soh => soh.OrderDate);
+            from = firstOrderDate;
         }
 
         var through = RegionalFilterStateProviderComponent.Through.Value;
 
         if (through is null)
         {
-            through = DbFactory.CreateDbContext().SalesOrderHeaders.Max(soh => soh.OrderDate);
+            through = lastOrderDate;
         }
 
         DialogParameters<SelectPeriodDialog> parameters = new()
         {
+            { selectPeriodDialog => selectPeriodDialog.MinDate, firstOrderDate },
+            { selectPeriodDialog => selectPeriodDialog.MaxDate, lastOrderDate },
             { selectPeriodDialog => selectPeriodDialog.From, from },
             { selectPeriodDialog => selectPeriodDialog.Through, through }
         };
