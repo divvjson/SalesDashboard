@@ -1,37 +1,43 @@
-﻿@using SalesDashboard.Components.Shared.PageBox
+﻿@using SalesDashboard.Components.Shared.FigureBox
+@using SalesDashboard.Components.Shared.PageBox
+@using SalesDashboard.Enums
+@using SalesDashboard.Extensions
 
 @implements IDisposable
 
 <div class="internet-vs-reseller">
     <PageBoxComponent Title="Total Sales IS" Size="EnumPageBoxSize.Small">
-        Total Sales IS
+        <FigureBoxComponent Value="@TotalSalesIs.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
     </PageBoxComponent>
     <PageBoxComponent Title="Total Cost IS" Size="EnumPageBoxSize.Small">
-        Total Cost IS
+        <FigureBoxComponent Value="@TotalCostIs.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
     </PageBoxComponent>
     <PageBoxComponent Title="Gross Profit IS" Size="EnumPageBoxSize.Small">
-        Gross Profit IS
+        <FigureBoxComponent Value="@GrossProfitIs.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
     </PageBoxComponent>
     <PageBoxComponent Title="Gross Margin IS" Size="EnumPageBoxSize.Small">
-        Gross Margin IS
+        <FigureBoxComponent Value="@GrossMarginIs.ToPercentageWithTwoDecimals()" IsLoading="IsFiguresLoading" />
     </PageBoxComponent>
     <PageBoxComponent Title="Total Sales RS" Size="EnumPageBoxSize.Small">
-        Total Sales RS
+        <FigureBoxComponent Value="@TotalSalesRs.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
     </PageBoxComponent>
     <PageBoxComponent Title="Total Cost RS" Size="EnumPageBoxSize.Small">
-        Total Cost RS
+        <FigureBoxComponent Value="@TotalCostRs.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
     </PageBoxComponent>
     <PageBoxComponent Title="Gross Profit RS" Size="EnumPageBoxSize.Small">
-        Gross Profit RS
+        <FigureBoxComponent Value="@GrossProfitRs.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
     </PageBoxComponent>
     <PageBoxComponent Title="Gross Margin RS" Size="EnumPageBoxSize.Small">
-        Gross Margin RS
+        <FigureBoxComponent Value="@GrossMarginRs.ToPercentageWithTwoDecimals()" IsLoading="IsFiguresLoading" />
     </PageBoxComponent>
 </div>
 
 @code {
     [CascadingParameter]
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
+    public RegionalFinancialFiguresStateProviderComponent RegionalFinancialFiguresStateProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
@@ -53,13 +59,15 @@
 
     private decimal GrossMarginRs { get; set; }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(100))
                 .Subscribe(async _ => await RequeryFiguresAsync());
+
+            await RequeryFiguresAsync();
         }
     }
 
@@ -67,7 +75,38 @@
     {
         IsFiguresLoading = true;
 
+        var getTotalSalesIsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Internet);
+        var getTotalCostIsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalCostAsync(EnumSalesChannel.Internet);
+        var getTotalSalesRsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Reseller);
+        var getTotalCostRsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalCostAsync(EnumSalesChannel.Reseller);
 
+        var result = await Task.WhenAll([getTotalSalesIsAsyncTask, getTotalCostIsAsyncTask, getTotalSalesRsAsyncTask, getTotalCostRsAsyncTask]);
+
+        TotalSalesIs = result[0];
+        TotalCostIs = result[1];
+        GrossProfitIs = TotalSalesIs - TotalCostIs;
+
+        if (TotalSalesIs != 0)
+        {
+            GrossMarginIs = GrossProfitIs / TotalSalesIs;
+        }
+        else
+        {
+            GrossMarginIs = 0;
+        }
+
+        TotalSalesRs = result[2];
+        TotalCostRs = result[3];
+        GrossProfitRs = TotalSalesRs - TotalCostRs;
+
+        if (TotalSalesRs != 0)
+        {
+            GrossMarginRs = GrossProfitRs / TotalSalesRs;
+        }
+        else
+        {
+            GrossMarginRs = 0;
+        }
 
         IsFiguresLoading = false;
 
@@ -76,6 +115,6 @@
 
     public void Dispose()
     {
-        
+        RegionalFilterChangedSubscription?.Dispose();
     }
 }
