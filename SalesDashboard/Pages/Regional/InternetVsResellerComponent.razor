@@ -1,5 +1,7 @@
 ﻿@using SalesDashboard.Components.Shared.PageBox
 
+@implements IDisposable
+
 <div class="internet-vs-reseller">
     <PageBoxComponent Title="Total Sales IS" Size="EnumPageBoxSize.Small">
         Total Sales IS
@@ -28,5 +30,52 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
+    private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private bool IsFiguresLoading { get; set; } = true;
+
+    private decimal TotalSalesIs { get; set; }
+
+    private decimal TotalCostIs { get; set; }
+
+    private decimal GrossProfitIs { get; set; }
+
+    private decimal GrossMarginIs { get; set; }
+
+    private decimal TotalSalesRs { get; set; }
+
+    private decimal TotalCostRs { get; set; }
+
+    private decimal GrossProfitRs { get; set; }
+
+    private decimal GrossMarginRs { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+        }
+    }
+
+    private async Task RequeryFiguresAsync()
+    {
+        IsFiguresLoading = true;
+
+
+
+        IsFiguresLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        
+    }
 }

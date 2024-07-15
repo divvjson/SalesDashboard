@@ -11,7 +11,9 @@
                 <DrawerStateProviderComponent>
                     <CurrencyStateProviderComponent>
                         <RegionalFilterStateProviderComponent>
-                            <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
+                            <RegionalFinancialFiguresStateProviderComponent>
+                                <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
+                            </RegionalFinancialFiguresStateProviderComponent>
                         </RegionalFilterStateProviderComponent>
                     </CurrencyStateProviderComponent>
                 </DrawerStateProviderComponent>
