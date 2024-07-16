@@ -3,7 +3,7 @@
     flex-direction: column;
     align-self: flex-start;
     border: 1px solid var(--gray-300);
-    background-color: var(--gray-100);
+    background-color: var(--gray-50);
     border-radius: 4px;
     overflow: hidden;
 }
