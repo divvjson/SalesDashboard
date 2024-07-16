@@ -24,7 +24,7 @@
         if (firstRender)
         {
             RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
-                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryChartSeriesAsync());
 
             await RequeryChartSeriesAsync();
