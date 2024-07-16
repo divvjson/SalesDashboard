@@ -35,7 +35,21 @@
     {
         IsChartSeriesLoading = true;
 
-        var sales = await DbFactory.CreateDbContext().SalesOrderHeaders
+        var from = RegionalFilterStateProviderComponent.From.Value;
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+
+        var query = DbFactory.CreateDbContext().SalesOrderHeaders.AsQueryable();
+
+        query = query.Where(soh => soh.OrderDate >= from);
+        query = query.Where(soh => soh.OrderDate <= through);
+
+        if (countryRegionCodes.Any())
+        {
+            query = query.Where(soh => countryRegionCodes.Contains(soh.BillToAddress.StateProvince.CountryRegionCode));
+        }
+
+        var sales = await query
             .GroupBy(soh => new { soh.OrderDate.Year, soh.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name })
             .Select(g => new Sale
                 {
