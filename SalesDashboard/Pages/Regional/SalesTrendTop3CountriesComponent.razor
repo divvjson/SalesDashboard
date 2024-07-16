@@ -1,30 +1,82 @@
-﻿<div class="sales-trend-top-3-countries">
+﻿@implements IDisposable
 
+<div class="sales-trend-top-3-countries">
+    <MudChart ChartType="ChartType.Line" ChartSeries="ChartSeries" XAxisLabels="GetXAxisLabels()" Width="100%" Height="300px" />
 </div>
 
 @code {
     [CascadingParameter]
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
-    private List<string> XAxisLabels { get; set; } = new();
+    private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private bool IsChartSeriesLoading { get; set; } = true;
+
+    private List<ChartSeries> ChartSeries { get; set; } = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await Task.Delay(0);
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Subscribe(async _ => await RequeryChartSeriesAsync());
 
-
+            await RequeryChartSeriesAsync();
         }
     }
 
-    private List<string> SetXAxisLabels()
+    private async Task RequeryChartSeriesAsync()
     {
-        List<string> years = new();
+        IsChartSeriesLoading = true;
 
+        List<ChartSeries> chartSeries = new()
+        {
+            new()
+            {
+                Name = "Australia",
+                Data = new double[] { 30, 24, 39, 54 } 
+            },
+            new()
+            {
+                Name = "United Kingdom",
+                Data = new double[] { 45, 79, 80, 69 }
+            },
+            new()
+            {
+                Name = "United States",
+                Data = new double[] { 90, 82, 100, 76 }
+            }
+        };
+
+        ChartSeries = chartSeries;
+
+        IsChartSeriesLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private string[] GetXAxisLabels()
+    {
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
 
+        int startYear = from.Year;
+        int endYear = through.Year;
+        int numberOfYears = endYear - startYear + 1;
+
+        string[] years = new string[numberOfYears];
+
+        for (int i = 0; i < numberOfYears; i++)
+        {
+            years[i] = (startYear + i).ToString();
+        }
+
         return years;
+    }
+
+    public void Dispose()
+    {
+        RegionalFilterChangedSubscription?.Dispose();
     }
 }
