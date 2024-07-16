@@ -1,3 +1,36 @@
 ﻿.sales-trend-top-3-countries {
+    min-height: 225px;
+    display: flex;
+    justify-content: center;
+    container-type: inline-size;
+}
 
+@container (min-width: 0px) {
+    ::deep .mud-chart {
+        height: 225px;
+    }
+}
+
+@container (min-width: 450px) {
+    ::deep .mud-chart {
+        height: 250px;
+    }
+}
+
+@container (min-width: 500px) {
+    ::deep .mud-chart {
+        height: 275px;
+    }
+}
+
+@container (min-width: 550px) {
+    ::deep .mud-chart {
+        height: 300px;
+    }
+}
+
+@container (min-width: 600px) {
+    ::deep .mud-chart {
+        height: 325px;
+    }
 }

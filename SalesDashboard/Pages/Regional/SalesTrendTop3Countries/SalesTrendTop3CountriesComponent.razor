@@ -6,11 +6,26 @@
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <div class="sales-trend-top-3-countries">
-    <MudChart ChartType="ChartType.Line"
-              ChartSeries="ChartSeries"
-              XAxisLabels="GetXAxisLabels()"
-              Width="100%"
-              Height="275px" />
+    @if (IsChartDataLoading)
+    {
+        <div>Loading...</div>
+    }
+    else
+    {
+        @if (Years.Count() is 1)
+        {
+            <div>N/A</div>
+        }
+        else
+        {
+            <MudChart ChartType="ChartType.Line"
+                      ChartSeries="ChartSeries"
+                      XAxisLabels="Years"
+                      Width="100%"
+                      Height="100%" />
+        }
+    }
+
 </div>
 
 @code {
@@ -19,7 +34,9 @@
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
-    private bool IsChartSeriesLoading { get; set; } = true;
+    private bool IsChartDataLoading { get; set; } = true;
+
+    private string[] Years { get; set; } = [];
 
     private List<ChartSeries> ChartSeries { get; set; } = new();
 
@@ -29,15 +46,15 @@
         {
             RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
-                .Subscribe(async _ => await RequeryChartSeriesAsync());
+                .Subscribe(async _ => await RequeryChartDataAsync());
 
-            await RequeryChartSeriesAsync();
+            await RequeryChartDataAsync();
         }
     }
 
-    private async Task RequeryChartSeriesAsync()
+    private async Task RequeryChartDataAsync()
     {
-        IsChartSeriesLoading = true;
+        IsChartDataLoading = true;
 
         await InvokeAsync(StateHasChanged);
 
@@ -92,10 +109,10 @@
         var top3Countries = sales
             .GroupBy(sale => sale.CountryName)
             .Select(g => new
-                {
-                    CountryName = g.Key,
-                    TotalSales = g.Sum(sale => sale.TotalSales)
-                })
+            {
+                CountryName = g.Key,
+                TotalSales = g.Sum(sale => sale.TotalSales)
+            })
             .OrderByDescending(x => x.TotalSales)
             .Take(3)
             .Select(x => x.CountryName)
@@ -114,30 +131,15 @@
                 })
             .ToList();
 
+        Years = years
+            .Select(year => year.ToString())
+            .ToArray();
+
         ChartSeries = chartSeries;
 
-        IsChartSeriesLoading = false;
+        IsChartDataLoading = false;
 
         await InvokeAsync(StateHasChanged);
-    }
-
-    private string[] GetXAxisLabels()
-    {
-        var from = RegionalFilterStateProviderComponent.From.Value;
-        var through = RegionalFilterStateProviderComponent.Through.Value;
-
-        int startYear = from.Year;
-        int endYear = through.Year;
-        int numberOfYears = endYear - startYear + 1;
-
-        string[] years = new string[numberOfYears];
-
-        for (int i = 0; i < numberOfYears; i++)
-        {
-            years[i] = (startYear + i).ToString();
-        }
-
-        return years;
     }
 
     public void Dispose()
