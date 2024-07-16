@@ -35,6 +35,8 @@
     {
         IsChartSeriesLoading = true;
 
+        await InvokeAsync(StateHasChanged);
+
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
         var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;

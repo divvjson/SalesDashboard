@@ -75,6 +75,8 @@
     {
         IsFiguresLoading = true;
 
+        await InvokeAsync(StateHasChanged);
+
         var getTotalSalesIsAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Internet);
         var getTotalCostIsAsyncTask = RegionalDataProviderComponent.GetTotalCostAsync(EnumSalesChannel.Internet);
         var getTotalSalesRsAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Reseller);
