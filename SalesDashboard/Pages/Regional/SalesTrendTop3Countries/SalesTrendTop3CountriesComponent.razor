@@ -38,24 +38,42 @@
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
         var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
 
-        var query = DbFactory.CreateDbContext().SalesOrderHeaders.AsQueryable();
+        var query = DbFactory.CreateDbContext().SalesOrderDetails.AsQueryable();
 
-        query = query.Where(soh => soh.OrderDate >= from);
-        query = query.Where(soh => soh.OrderDate <= through);
+        query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
+        query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
 
         if (countryRegionCodes.Any())
         {
-            query = query.Where(soh => countryRegionCodes.Contains(soh.BillToAddress.StateProvince.CountryRegionCode));
+            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
         }
 
         var sales = await query
-            .GroupBy(soh => new { soh.OrderDate.Year, soh.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name })
+            .GroupBy(sod => new { sod.SalesOrder.OrderDate.Year, sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name })
             .Select(g => new Sale
                 {
                     Year = g.Key.Year,
                     CountryName = g.Key.Name,
-                    TotalSales = g.Sum(soh => soh.SubTotal)
+                    TotalSales = g.Sum(sod => sod.SalesOrder.SubTotal)
                 })
             .ToListAsync();
 
