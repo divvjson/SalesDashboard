@@ -6,7 +6,11 @@
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <div class="sales-trend-top-3-countries">
-    <MudChart ChartType="ChartType.Line" ChartSeries="ChartSeries" XAxisLabels="GetXAxisLabels()" Width="100%" Height="275px" />
+    <MudChart ChartType="ChartType.Line"
+              ChartSeries="ChartSeries"
+              XAxisLabels="GetXAxisLabels()"
+              Width="100%"
+              Height="275px" />
 </div>
 
 @code {
@@ -75,7 +79,7 @@
                 {
                     Year = g.Key.Year,
                     CountryName = g.Key.Name,
-                    TotalSales = g.Sum(sod => sod.SalesOrder.SubTotal)
+                    TotalSales = g.Sum(sod => sod.LineTotal)
                 })
             .ToListAsync();
 
