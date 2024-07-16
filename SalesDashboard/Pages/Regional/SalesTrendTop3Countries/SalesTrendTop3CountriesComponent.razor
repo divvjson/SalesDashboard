@@ -1,4 +1,9 @@
-﻿@implements IDisposable
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Entities
+
+@implements IDisposable
+
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <div class="sales-trend-top-3-countries">
     <MudChart ChartType="ChartType.Line" ChartSeries="ChartSeries" XAxisLabels="GetXAxisLabels()" Width="100%" Height="275px" />
@@ -30,24 +35,46 @@
     {
         IsChartSeriesLoading = true;
 
-        List<ChartSeries> chartSeries = new()
-        {
-            new()
-            {
-                Name = "Australia",
-                Data = new double[] { 30, 24, 39, 54 } 
-            },
-            new()
-            {
-                Name = "United Kingdom",
-                Data = new double[] { 45, 79, 80, 69 }
-            },
-            new()
-            {
-                Name = "United States",
-                Data = new double[] { 90, 82, 100, 76 }
-            }
-        };
+        var sales = await DbFactory.CreateDbContext().SalesOrderHeaders
+            .GroupBy(soh => new { soh.OrderDate.Year, soh.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name })
+            .Select(g => new Sale
+                {
+                    Year = g.Key.Year,
+                    CountryName = g.Key.Name,
+                    TotalSales = g.Sum(soh => soh.SubTotal)
+                })
+            .ToListAsync();
+
+        var years = sales
+            .Select(sale => sale.Year)
+            .Distinct()
+            .OrderBy(year => year)
+            .ToArray();
+
+        var top3Countries = sales
+            .GroupBy(sale => sale.CountryName)
+            .Select(g => new
+                {
+                    CountryName = g.Key,
+                    TotalSales = g.Sum(sale => sale.TotalSales)
+                })
+            .OrderByDescending(x => x.TotalSales)
+            .Take(3)
+            .Select(x => x.CountryName)
+            .ToList();
+
+        var filteredSales = sales
+            .Where(sale => top3Countries.Contains(sale.CountryName))
+            .ToList();
+
+        var chartSeries = filteredSales
+            .GroupBy(c => c.CountryName)
+            .Select(g => new ChartSeries
+                {
+                    Name = g.Key,
+                    Data = years.Select(year => Convert.ToDouble(g.FirstOrDefault(x => x.Year == year)?.TotalSales ?? 0)).ToArray()
+                })
+            .ToList();
 
         ChartSeries = chartSeries;
 
