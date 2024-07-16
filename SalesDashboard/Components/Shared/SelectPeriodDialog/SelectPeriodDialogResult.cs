@@ -2,8 +2,8 @@
 {
     public class SelectPeriodDialogResult
     {
-        public DateTime? From { get; set; }
+        public required DateTime From { get; set; }
 
-        public DateTime? Through { get; set; }
+        public required DateTime Through { get; set; }
     }
 }

@@ -12,9 +12,9 @@
 @code {
     public Subject<Unit> RegionalFilterChanged { get; set; } = new();
 
-    public BehaviorSubject<DateTime?> From { get; set; } = new(null);
+    public BehaviorSubject<DateTime> From { get; set; } = new(DateTime.Now);
 
-    public BehaviorSubject<DateTime?> Through { get; set; } = new(null);
+    public BehaviorSubject<DateTime> Through { get; set; } = new(DateTime.Now);
 
     public BehaviorSubject<IEnumerable<string>?> CountryRegionCodes { get; set; } = new([]);
 
@@ -66,7 +66,7 @@
 
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(From)}", from);
 
-        From.OnNext(from);
+        From.OnNext(from ?? DateTime.Now);
 
         RegionalFilterChanged.OnNext(Unit.Default);
     }
@@ -80,7 +80,7 @@
 
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Through)}", through);
 
-        Through.OnNext(through);
+        Through.OnNext(through ?? DateTime.Now);
 
         RegionalFilterChanged.OnNext(Unit.Default);
     }

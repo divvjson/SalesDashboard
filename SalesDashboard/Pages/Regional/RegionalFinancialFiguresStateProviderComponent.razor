@@ -29,15 +29,8 @@
 
         var query = DbFactory.CreateDbContext().SalesOrderDetails.AsQueryable();
 
-        if (from is not null)
-        {
-            query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
-        }
-
-        if (through is not null)
-        {
-            query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
-        }
+        query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
+        query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
 
         if (countryRegionCodes is not null && countryRegionCodes.Any())
         {
@@ -122,19 +115,11 @@
 
             List<string> conditions = new();
 
-            if (from.HasValue)
-            {
-                conditions.Add("soh.OrderDate >= @from");
+            conditions.Add("soh.OrderDate >= @from");
+            command.Parameters.AddWithValue("@from", from);
 
-                command.Parameters.AddWithValue("@from", from.Value);
-            }
-
-            if (through.HasValue)
-            {
-                conditions.Add("soh.OrderDate <= @through");
-
-                command.Parameters.AddWithValue("@through", through.Value);
-            }
+            conditions.Add("soh.OrderDate <= @through");
+            command.Parameters.AddWithValue("@through", through);
 
             if (countryRegionCodes is not null && countryRegionCodes.Any())
             {

@@ -1,5 +1,30 @@
-﻿
+﻿<div class="sales-trend-top-3-countries">
+
+</div>
 
 @code {
+    [CascadingParameter]
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
+    private List<string> XAxisLabels { get; set; } = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await Task.Delay(0);
+
+
+        }
+    }
+
+    private List<string> SetXAxisLabels()
+    {
+        List<string> years = new();
+
+        var from = RegionalFilterStateProviderComponent.From.Value;
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+
+        return years;
+    }
 }

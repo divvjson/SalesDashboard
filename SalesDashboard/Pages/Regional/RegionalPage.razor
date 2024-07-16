@@ -130,22 +130,7 @@
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
 
-        if (from is not null && through is not null)
-        {
-            return $"{from.Value.Date.ToShortDateString()} - {through.Value.Date.ToShortDateString()}";
-        }
-
-        if (from is not null && through is null)
-        {
-            return $"{from.Value.Date.ToShortDateString()} and onwards";
-        }
-
-        if (from is null && through is not null)
-        {
-            return $"up until {through.Value.Date.ToShortDateString()}";
-        }
-
-        return "All";
+        return $"{from.Date.ToShortDateString()} - {through.Date.ToShortDateString()}";
     }
 
     private async Task HandleSelectPeriodClickedAsync()
@@ -154,20 +139,8 @@
 
         var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
         var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
-
         var from = RegionalFilterStateProviderComponent.From.Value;
-
-        if (from is null)
-        {
-            from = firstOrderDate;
-        }
-
         var through = RegionalFilterStateProviderComponent.Through.Value;
-
-        if (through is null)
-        {
-            through = lastOrderDate;
-        }
 
         DialogParameters<SelectPeriodDialog> parameters = new()
         {
