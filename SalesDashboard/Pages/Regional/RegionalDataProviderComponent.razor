@@ -32,22 +32,22 @@
         query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
         query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
 
-        if (countryRegionCodes is not null && countryRegionCodes.Any())
+        if (countryRegionCodes.Any())
         {
             query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
         }
 
-        if (productCategoryNames is not null && productCategoryNames.Any())
+        if (productCategoryNames.Any())
         {
             query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
         }
 
-        if (productSubcategoryNames is not null && productSubcategoryNames.Any())
+        if (productSubcategoryNames.Any())
         {
             query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
         }
 
-        if (productNames is not null && productNames.Any())
+        if (productNames.Any())
         {
             query = query.Where(sod => productNames.Contains(sod.Product.Name));
         }
@@ -121,7 +121,7 @@
             conditions.Add("soh.OrderDate <= @through");
             command.Parameters.AddWithValue("@through", through);
 
-            if (countryRegionCodes is not null && countryRegionCodes.Any())
+            if (countryRegionCodes.Any())
             {
                 List<string> parameterNames = new();
 
@@ -137,7 +137,7 @@
                 conditions.Add($"cr.CountryRegionCode IN ({string.Join(", ", parameterNames)})");
             }
 
-            if (productCategoryNames is not null && productCategoryNames.Any())
+            if (productCategoryNames.Any())
             {
                 List<string> parameterNames = new();
 
@@ -153,7 +153,7 @@
                 conditions.Add($"pc.Name IN ({string.Join(", ", parameterNames)})");
             }
 
-            if (productSubcategoryNames is not null && productSubcategoryNames.Any())
+            if (productSubcategoryNames.Any())
             {
                 List<string> parameterNames = new();
 
@@ -169,7 +169,7 @@
                 conditions.Add($"ps.Name IN ({string.Join(", ", parameterNames)})");
             }
 
-            if (productNames is not null && productNames.Any())
+            if (productNames.Any())
             {
                 List<string> parameterNames = new();
 

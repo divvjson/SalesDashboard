@@ -166,7 +166,7 @@
     {
         var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
 
-        if (countryRegionCodes is null || countryRegionCodes.Any() is false)
+        if (countryRegionCodes.Any() is false)
         {
             return "All";
         }
@@ -185,7 +185,7 @@
     {
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
 
-        if (productCategoryNames is null || productCategoryNames.Any() is false)
+        if (productCategoryNames.Any() is false)
         {
             return "All";
         }
@@ -197,7 +197,7 @@
     {
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
 
-        if (productSubcategoryNames is null || productSubcategoryNames.Any() is false)
+        if (productSubcategoryNames.Any() is false)
         {
             return "All";
         }
@@ -209,7 +209,7 @@
     {
         var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
 
-        if (productNames is null || productNames.Any() is false)
+        if (productNames.Any() is false)
         {
             return "All";
         }
