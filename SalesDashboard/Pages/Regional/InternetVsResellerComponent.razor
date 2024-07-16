@@ -37,7 +37,7 @@
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
-    public RegionalFinancialFiguresStateProviderComponent RegionalFinancialFiguresStateProviderComponent { get; set; } = null!;
+    public RegionalDataProviderComponent RegionalDataProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
@@ -75,10 +75,10 @@
     {
         IsFiguresLoading = true;
 
-        var getTotalSalesIsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Internet);
-        var getTotalCostIsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalCostAsync(EnumSalesChannel.Internet);
-        var getTotalSalesRsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Reseller);
-        var getTotalCostRsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalCostAsync(EnumSalesChannel.Reseller);
+        var getTotalSalesIsAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Internet);
+        var getTotalCostIsAsyncTask = RegionalDataProviderComponent.GetTotalCostAsync(EnumSalesChannel.Internet);
+        var getTotalSalesRsAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Reseller);
+        var getTotalCostRsAsyncTask = RegionalDataProviderComponent.GetTotalCostAsync(EnumSalesChannel.Reseller);
 
         var result = await Task.WhenAll([getTotalSalesIsAsyncTask, getTotalCostIsAsyncTask, getTotalSalesRsAsyncTask, getTotalCostRsAsyncTask]);
 

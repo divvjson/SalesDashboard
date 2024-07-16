@@ -99,7 +99,7 @@
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
-    public RegionalFinancialFiguresStateProviderComponent RegionalFinancialFiguresStateProviderComponent { get; set; } = null!;
+    public RegionalDataProviderComponent RegionalDataProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
@@ -288,8 +288,8 @@
     {
         IsFiguresLoading = true;
 
-        var getTotalSalesAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalSalesAsync();
-        var getTotalCostAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalCostAsync();
+        var getTotalSalesAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync();
+        var getTotalCostAsyncTask = RegionalDataProviderComponent.GetTotalCostAsync();
 
         var result = await Task.WhenAll([getTotalSalesAsyncTask, getTotalCostAsyncTask]);
 
