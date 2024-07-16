@@ -10,19 +10,19 @@
 </CascadingValue>
 
 @code {
-    public Subject<Unit> RegionalFilterChanged { get; set; } = new();
+    public Subject<Unit> RegionalFilterChanged { get; private set; } = new();
 
-    public BehaviorSubject<DateTime> From { get; set; } = new(DateTime.Now);
+    public BehaviorSubject<DateTime> From { get; private set; } = new(DateTime.Now);
 
-    public BehaviorSubject<DateTime> Through { get; set; } = new(DateTime.Now);
+    public BehaviorSubject<DateTime> Through { get; private set; } = new(DateTime.Now);
 
-    public BehaviorSubject<IEnumerable<string>> CountryRegionCodes { get; set; } = new([]);
+    public BehaviorSubject<IEnumerable<string>> CountryRegionCodes { get; private set; } = new([]);
 
-    public BehaviorSubject<IEnumerable<string>> ProductCategoryNames { get; set; } = new([]);
+    public BehaviorSubject<IEnumerable<string>> ProductCategoryNames { get; private set; } = new([]);
 
-    public BehaviorSubject<IEnumerable<string>> ProductSubcategoryNames { get; set; } = new([]);
+    public BehaviorSubject<IEnumerable<string>> ProductSubcategoryNames { get; private set; } = new([]);
 
-    public BehaviorSubject<IEnumerable<string>> ProductNames { get; set; } = new([]);
+    public BehaviorSubject<IEnumerable<string>> ProductNames { get; private set; } = new([]);
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
