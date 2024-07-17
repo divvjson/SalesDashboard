@@ -61,7 +61,9 @@
     {
         if (from is null)
         {
-            from = await DbFactory.CreateDbContext().SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
+            using var context = DbFactory.CreateDbContext();
+
+            from = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
         }
 
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(From)}", from);
@@ -75,7 +77,9 @@
     {
         if (through is null)
         {
-            through = await DbFactory.CreateDbContext().SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
+            using var context = DbFactory.CreateDbContext();
+
+            through = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
         }
 
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Through)}", through);

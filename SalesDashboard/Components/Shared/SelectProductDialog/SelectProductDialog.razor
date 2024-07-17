@@ -4,6 +4,7 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Regional
 
+@implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
@@ -60,6 +61,8 @@
 </DialogComponent>
 
 @code {
+    private AdventureWorksContext Context { get; set; } = null!;
+
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
@@ -78,7 +81,9 @@
 
     protected override void OnInitialized()
     {
-        var query = DbFactory.CreateDbContext().Products.AsQueryable();
+        Context = DbFactory.CreateDbContext();
+
+        var query = Context.Products.AsQueryable();
 
         query = query.OrderBy(product => product.Name);
 
@@ -125,5 +130,10 @@
         {
             return "600px";
         }
+    }
+
+    public void Dispose()
+    {
+        Context.Dispose();
     }
 }

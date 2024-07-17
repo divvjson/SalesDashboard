@@ -136,7 +136,7 @@
 
     private async Task HandleSelectPeriodClickedAsync()
     {
-        var context = DbFactory.CreateDbContext();
+        using var context = DbFactory.CreateDbContext();
 
         var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
         var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
@@ -171,12 +171,13 @@
             return "All";
         }
 
-        var selectedCountryNames = DbFactory
-            .CreateDbContext()
-            .CountryRegions
+        using var context = DbFactory.CreateDbContext();
+
+        var selectedCountryNames = context.CountryRegions
             .Where(countryRegion => countryRegionCodes.Contains(countryRegion.CountryRegionCode))
             .OrderBy(countryRegion => countryRegion.Name)
-            .Select(countryRegion => countryRegion.Name);
+            .Select(countryRegion => countryRegion.Name)
+            .ToList();
 
         return string.Join(", ", selectedCountryNames);
     }

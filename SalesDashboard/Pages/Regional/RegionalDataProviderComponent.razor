@@ -27,7 +27,9 @@
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
         var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
 
-        var query = DbFactory.CreateDbContext().SalesOrderDetails.AsQueryable();
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
 
         query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
         query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
