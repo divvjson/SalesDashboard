@@ -3,6 +3,7 @@
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
 
+@implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
@@ -56,6 +57,8 @@
 </DialogComponent>
 
 @code {
+    private AdventureWorksContext Context { get; set; } = null!;
+
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
@@ -63,7 +66,7 @@
     public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
 
     [Parameter]
-    public List<string>? InitiallySelectedProductCategoryNames { get; set; }
+    public List<string> InitiallySelectedProductCategoryNames { get; set; } = [];
 
     private IEnumerable<ProductCategory>? ProductCategories { get; set; }
 
@@ -71,9 +74,11 @@
 
     protected override void OnInitialized()
     {
-        ProductCategories = DbFactory.CreateDbContext().ProductCategories.OrderBy(productCategory => productCategory.Name);
+        Context = DbFactory.CreateDbContext();
 
-        if (InitiallySelectedProductCategoryNames?.Any() is true)
+        ProductCategories = Context.ProductCategories.OrderBy(productCategory => productCategory.Name);
+
+        if (InitiallySelectedProductCategoryNames.Any())
         {
             SelectedProductCategories = ProductCategories
                 .Where(productCategory => InitiallySelectedProductCategoryNames.Contains(productCategory.Name))
@@ -101,5 +106,10 @@
         {
             return "600px";
         }
+    }
+
+    public void Dispose()
+    {
+        Context.Dispose();
     }
 }

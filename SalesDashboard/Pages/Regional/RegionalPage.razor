@@ -12,6 +12,7 @@
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
+@using SalesDashboard.Pages.Regional.SalesTrendTop3Countries
 
 @implements IDisposable
 
@@ -24,7 +25,11 @@
 <div class="regional">
     <div class="regional-container mud-elevation-4">
         <div class="header">
-            Regional Analysis
+            <div></div>
+            <div class="header-title">Regional Analysis</div>
+            <MudTooltip Text="Refresh">
+                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
+            </MudTooltip>
         </div>
         <FilterSettingsComponent>
             <FilterSettingsItemComponent Key="Period" Value="@GetSelectedPeriodString()" OnSelect="HandleSelectPeriodClickedAsync" />
@@ -99,7 +104,7 @@
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
-    public RegionalFinancialFiguresStateProviderComponent RegionalFinancialFiguresStateProviderComponent { get; set; } = null!;
+    public RegionalDataProviderComponent RegionalDataProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
@@ -118,11 +123,16 @@
         if (firstRender)
         {
             RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
-                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
             await RequeryFiguresAsync();
         }
+    }
+
+    private void HandleRefreshClicked()
+    {
+        RegionalFilterStateProviderComponent.RegionalFilterChanged.OnNext(Unit.Default);
     }
 
     private string GetSelectedPeriodString()
@@ -130,44 +140,17 @@
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
 
-        if (from is not null && through is not null)
-        {
-            return $"{from.Value.Date.ToShortDateString()} - {through.Value.Date.ToShortDateString()}";
-        }
-
-        if (from is not null && through is null)
-        {
-            return $"{from.Value.Date.ToShortDateString()} and onwards";
-        }
-
-        if (from is null && through is not null)
-        {
-            return $"up until {through.Value.Date.ToShortDateString()}";
-        }
-
-        return "All";
+        return $"{from.Date.ToShortDateString()} - {through.Date.ToShortDateString()}";
     }
 
     private async Task HandleSelectPeriodClickedAsync()
     {
-        var context = DbFactory.CreateDbContext();
+        using var context = DbFactory.CreateDbContext();
 
         var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
         var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
-
         var from = RegionalFilterStateProviderComponent.From.Value;
-
-        if (from is null)
-        {
-            from = firstOrderDate;
-        }
-
         var through = RegionalFilterStateProviderComponent.Through.Value;
-
-        if (through is null)
-        {
-            through = lastOrderDate;
-        }
 
         DialogParameters<SelectPeriodDialog> parameters = new()
         {
@@ -192,17 +175,18 @@
     {
         var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
 
-        if (countryRegionCodes is null || countryRegionCodes.Any() is false)
+        if (countryRegionCodes.Any() is false)
         {
             return "All";
         }
 
-        var selectedCountryNames = DbFactory
-            .CreateDbContext()
-            .CountryRegions
+        using var context = DbFactory.CreateDbContext();
+
+        var selectedCountryNames = context.CountryRegions
             .Where(countryRegion => countryRegionCodes.Contains(countryRegion.CountryRegionCode))
             .OrderBy(countryRegion => countryRegion.Name)
-            .Select(countryRegion => countryRegion.Name);
+            .Select(countryRegion => countryRegion.Name)
+            .ToList();
 
         return string.Join(", ", selectedCountryNames);
     }
@@ -211,7 +195,7 @@
     {
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
 
-        if (productCategoryNames is null || productCategoryNames.Any() is false)
+        if (productCategoryNames.Any() is false)
         {
             return "All";
         }
@@ -223,7 +207,7 @@
     {
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
 
-        if (productSubcategoryNames is null || productSubcategoryNames.Any() is false)
+        if (productSubcategoryNames.Any() is false)
         {
             return "All";
         }
@@ -235,7 +219,7 @@
     {
         var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
 
-        if (productNames is null || productNames.Any() is false)
+        if (productNames.Any() is false)
         {
             return "All";
         }
@@ -247,7 +231,7 @@
     {
         DialogParameters<SelectCountryDialog> parameters = new()
         {
-            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionCodes, RegionalFilterStateProviderComponent.CountryRegionCodes.Value?.ToList() }
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionCodes, RegionalFilterStateProviderComponent.CountryRegionCodes.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
@@ -264,7 +248,7 @@
     {
         DialogParameters<SelectProductCategoryDialog> parameters = new()
         {
-            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalFilterStateProviderComponent.ProductCategoryNames.Value?.ToList() }
+            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalFilterStateProviderComponent.ProductCategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductCategoryDialog>("Select Product Category", parameters);
@@ -281,7 +265,7 @@
     {
         DialogParameters<SelectProductSubcategoryDialog> parameters = new()
         {
-            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value?.ToList() }
+            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductSubcategoryDialog>("Select Product Subcategory", parameters);
@@ -298,7 +282,7 @@
     {
         DialogParameters<SelectProductDialog> parameters = new()
         {
-            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, RegionalFilterStateProviderComponent.ProductNames.Value?.ToList() }
+            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, RegionalFilterStateProviderComponent.ProductNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductDialog>("Select Product", parameters);
@@ -315,8 +299,10 @@
     {
         IsFiguresLoading = true;
 
-        var getTotalSalesAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalSalesAsync();
-        var getTotalCostAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalCostAsync();
+        await InvokeAsync(StateHasChanged);
+
+        var getTotalSalesAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync();
+        var getTotalCostAsyncTask = RegionalDataProviderComponent.GetTotalCostAsync();
 
         var result = await Task.WhenAll([getTotalSalesAsyncTask, getTotalCostAsyncTask]);
 

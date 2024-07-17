@@ -1,0 +1,16 @@
+﻿<div class="overlay-container">
+    <div class="overlay @(IsLoading ? "visible" : "")">
+        <MudProgressCircular Color="Color.Inherit" Indeterminate="true" />
+    </div>
+    <div class="content">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public bool IsLoading { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

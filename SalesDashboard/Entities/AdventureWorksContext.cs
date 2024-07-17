@@ -3,10 +3,12 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ThreadSafe;
 
 namespace SalesDashboard.Entities;
 
-public partial class AdventureWorksContext : DbContext
+// https://rhenache.medium.com/a-threadsafe-implementation-of-dbcontext-bbd9959cdc30
+public partial class AdventureWorksContext : ThreadSafeDbContext
 {
     public AdventureWorksContext(DbContextOptions<AdventureWorksContext> options)
         : base(options)

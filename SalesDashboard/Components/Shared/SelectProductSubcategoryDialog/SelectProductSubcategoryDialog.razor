@@ -4,6 +4,7 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Regional
 
+@implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
@@ -58,6 +59,8 @@
 </DialogComponent>
 
 @code {
+    private AdventureWorksContext Context { get; set; } = null!;
+
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
@@ -68,7 +71,7 @@
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
     [Parameter]
-    public List<string>? InitiallySelectedProductSubcategoryNames { get; set; }
+    public List<string> InitiallySelectedProductSubcategoryNames { get; set; } = [];
 
     private IEnumerable<ProductSubcategory>? ProductSubcategories { get; set; }
 
@@ -76,20 +79,22 @@
 
     protected override void OnInitialized()
     {
-        var query = DbFactory.CreateDbContext().ProductSubcategories.AsQueryable();
+        Context = DbFactory.CreateDbContext();
+
+        var query = Context.ProductSubcategories.AsQueryable();
 
         query = query.OrderBy(productSubcategory => productSubcategory.Name);
 
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
 
-        if (productCategoryNames is not null && productCategoryNames.Any())
+        if (productCategoryNames.Any())
         {
             query = query.Where(productSubcategory => productCategoryNames.Contains(productSubcategory.ProductCategory.Name));
         }
 
         ProductSubcategories = query;
 
-        if (InitiallySelectedProductSubcategoryNames?.Any() is true)
+        if (InitiallySelectedProductSubcategoryNames.Any())
         {
             SelectedProductSubcategories = ProductSubcategories
                 .Where(productSubcategory => InitiallySelectedProductSubcategoryNames.Contains(productSubcategory.Name))
@@ -117,5 +122,10 @@
         {
             return "600px";
         }
+    }
+
+    public void Dispose()
+    {
+        Context.Dispose();
     }
 }

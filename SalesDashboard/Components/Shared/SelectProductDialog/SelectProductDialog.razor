@@ -4,6 +4,7 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Regional
 
+@implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
@@ -60,6 +61,8 @@
 </DialogComponent>
 
 @code {
+    private AdventureWorksContext Context { get; set; } = null!;
+
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
@@ -70,7 +73,7 @@
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
     [Parameter]
-    public List<string>? InitiallySelectedProductNames { get; set; }
+    public List<string> InitiallySelectedProductNames { get; set; } = [];
 
     private IEnumerable<Product>? Products { get; set; }
 
@@ -78,26 +81,28 @@
 
     protected override void OnInitialized()
     {
-        var query = DbFactory.CreateDbContext().Products.AsQueryable();
+        Context = DbFactory.CreateDbContext();
+
+        var query = Context.Products.AsQueryable();
 
         query = query.OrderBy(product => product.Name);
 
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
 
-        if (productSubcategoryNames is not null && productSubcategoryNames.Any())
+        if (productSubcategoryNames.Any())
         {
             query = query.Where(product => product.ProductSubcategory != null && productSubcategoryNames.Contains(product.ProductSubcategory.Name));
         }
 
-        if (productCategoryNames is not null && productCategoryNames.Any())
+        if (productCategoryNames.Any())
         {
             query = query.Where(product => product.ProductSubcategory != null && productCategoryNames.Contains(product.ProductSubcategory.ProductCategory.Name));
         }
 
         Products = query;
 
-        if (InitiallySelectedProductNames?.Any() is true)
+        if (InitiallySelectedProductNames.Any())
         {
             SelectedProducts = Products
                 .Where(product => InitiallySelectedProductNames.Contains(product.Name))
@@ -125,5 +130,10 @@
         {
             return "600px";
         }
+    }
+
+    public void Dispose()
+    {
+        Context.Dispose();
     }
 }

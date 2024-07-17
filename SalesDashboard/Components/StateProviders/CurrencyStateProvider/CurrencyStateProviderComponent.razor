@@ -57,9 +57,9 @@
             return 1;
         }
 
-        var averageRate = await DbFactory
-            .CreateDbContext()
-            .CurrencyRates
+        using var context = DbFactory.CreateDbContext();
+
+        var averageRate = await context.CurrencyRates
             .Where(currencyRate => currencyRate.ToCurrencyCode == currency.ToString())
             .OrderByDescending(currencyRate => currencyRate.CurrencyRateDate)
             .Select(currencyRate => currencyRate.AverageRate)

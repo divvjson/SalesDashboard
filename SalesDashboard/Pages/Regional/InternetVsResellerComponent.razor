@@ -37,7 +37,7 @@
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
-    public RegionalFinancialFiguresStateProviderComponent RegionalFinancialFiguresStateProviderComponent { get; set; } = null!;
+    public RegionalDataProviderComponent RegionalDataProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
@@ -64,7 +64,7 @@
         if (firstRender)
         {
             RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
-                .Throttle(TimeSpan.FromMilliseconds(100))
+                .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
             await RequeryFiguresAsync();
@@ -75,10 +75,12 @@
     {
         IsFiguresLoading = true;
 
-        var getTotalSalesIsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Internet);
-        var getTotalCostIsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalCostAsync(EnumSalesChannel.Internet);
-        var getTotalSalesRsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Reseller);
-        var getTotalCostRsAsyncTask = RegionalFinancialFiguresStateProviderComponent.GetTotalCostAsync(EnumSalesChannel.Reseller);
+        await InvokeAsync(StateHasChanged);
+
+        var getTotalSalesIsAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Internet);
+        var getTotalCostIsAsyncTask = RegionalDataProviderComponent.GetTotalCostAsync(EnumSalesChannel.Internet);
+        var getTotalSalesRsAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync(EnumSalesChannel.Reseller);
+        var getTotalCostRsAsyncTask = RegionalDataProviderComponent.GetTotalCostAsync(EnumSalesChannel.Reseller);
 
         var result = await Task.WhenAll([getTotalSalesIsAsyncTask, getTotalCostIsAsyncTask, getTotalSalesRsAsyncTask, getTotalCostRsAsyncTask]);
 

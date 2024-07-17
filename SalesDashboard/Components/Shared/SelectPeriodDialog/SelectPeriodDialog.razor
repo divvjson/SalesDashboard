@@ -24,8 +24,7 @@
         </div>
     </BodyContent>
     <FooterContent>
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="HandleClear" DropShadow="false" style="margin-right: auto;">Clear</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleOk" DropShadow="false">OK</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleOk" DropShadow="false" Disabled="From is null || Through is null">OK</MudButton>
         <MudButton Variant="Variant.Filled" OnClick="MudDialog.Cancel" DropShadow="false">Cancel</MudButton>
     </FooterContent>
 </DialogComponent>
@@ -100,18 +99,17 @@
         }
     }
 
-    private void HandleClear()
-    {
-        From = null;
-        Through = null;
-    }
-
     private void HandleOk()
     {
+        if (From is null || Through is null)
+        {
+            return;
+        }
+
         SelectPeriodDialogResult dialogResult = new()
         {
-            From = From,
-            Through = Through
+            From = From.Value,
+            Through = Through.Value
         };
 
         MudDialog.Close(DialogResult.Ok(dialogResult));

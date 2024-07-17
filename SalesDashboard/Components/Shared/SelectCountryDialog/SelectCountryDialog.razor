@@ -3,6 +3,7 @@
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
 
+@implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
@@ -57,6 +58,8 @@
 </DialogComponent>
 
 @code {
+    private AdventureWorksContext Context { get; set; } = null!;
+
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
@@ -64,7 +67,7 @@
     public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
 
     [Parameter]
-    public List<string>? InitiallySelectedCountryRegionCodes { get; set; }
+    public List<string> InitiallySelectedCountryRegionCodes { get; set; } = [];
 
     private IEnumerable<CountryRegion>? CountryRegions { get; set; }
 
@@ -72,9 +75,11 @@
 
     protected override void OnInitialized()
     {
-        CountryRegions = DbFactory.CreateDbContext().CountryRegions.OrderBy(countryRegion => countryRegion.Name);
+        Context = DbFactory.CreateDbContext();
 
-        if (InitiallySelectedCountryRegionCodes?.Any() is true)
+        CountryRegions = Context.CountryRegions.OrderBy(countryRegion => countryRegion.Name);
+
+        if (InitiallySelectedCountryRegionCodes.Any())
         {
             SelectedCountryRegions = CountryRegions
                 .Where(countryRegion => InitiallySelectedCountryRegionCodes.Contains(countryRegion.CountryRegionCode))
@@ -102,5 +107,10 @@
         {
             return "600px";
         }
+    }
+
+    public void Dispose()
+    {
+        Context.Dispose();
     }
 }
