@@ -7,9 +7,13 @@
 
 <div class="sales-trend-top-3-countries">
     <SpinnerOverlayComponent IsLoading="IsChartDataLoading">
-        @if (Years.Count() is 1)
+        @if (ChartSeries.Any() is false)
         {
-            <div>N/A</div>
+            <div class="no-data-or-trend">NO DATA</div>
+        }
+        else if (Years.Count() is 1)
+        {
+            <div class="no-data-or-trend">NO TREND</div>
         }
         else
         {
