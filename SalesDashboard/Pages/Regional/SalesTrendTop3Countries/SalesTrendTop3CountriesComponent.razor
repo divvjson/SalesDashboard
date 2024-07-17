@@ -19,6 +19,7 @@
         {
             <MudChart ChartType="ChartType.Line"
                       ChartSeries="ChartSeries"
+                      ChartOptions="ChartOptions"
                       XAxisLabels="Years"
                       Width="100%"
                       Height="100%" />
@@ -38,6 +39,12 @@
     private string[] Years { get; set; } = [];
 
     private List<ChartSeries> ChartSeries { get; set; } = new();
+
+    private ChartOptions ChartOptions { get; set; } = new()
+    {
+        YAxisTicks = 2,
+        YAxisFormat = "0M"
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -128,7 +135,7 @@
             .Select(g => new ChartSeries
                 {
                     Name = g.Key,
-                    Data = years.Select(year => Convert.ToDouble(g.FirstOrDefault(x => x.Year == year)?.TotalSales ?? 0)).ToArray()
+                    Data = years.Select(year => Convert.ToDouble(g.FirstOrDefault(x => x.Year == year)?.TotalSales / 1000000 ?? 0)).ToArray()
                 })
             .ToList();
 
