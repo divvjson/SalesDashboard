@@ -1,16 +1,12 @@
 ﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <div class="sales-trend-top-3-countries">
-    @if (IsChartDataLoading)
-    {
-        <div>Loading...</div>
-    }
-    else
-    {
+    <SpinnerOverlayComponent IsLoading="IsChartDataLoading">
         @if (Years.Count() is 1)
         {
             <div>N/A</div>
@@ -24,8 +20,7 @@
                       Width="100%"
                       Height="100%" />
         }
-    }
-
+    </SpinnerOverlayComponent>
 </div>
 
 @code {
@@ -34,7 +29,7 @@
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
-    private bool IsChartDataLoading { get; set; } = true;
+    private bool IsChartDataLoading { get; set; } = false;
 
     private string[] Years { get; set; } = [];
 
