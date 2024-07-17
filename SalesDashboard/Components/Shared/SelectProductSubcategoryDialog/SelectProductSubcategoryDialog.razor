@@ -71,7 +71,7 @@
     public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
     [Parameter]
-    public List<string>? InitiallySelectedProductSubcategoryNames { get; set; }
+    public List<string> InitiallySelectedProductSubcategoryNames { get; set; } = [];
 
     private IEnumerable<ProductSubcategory>? ProductSubcategories { get; set; }
 
@@ -94,7 +94,7 @@
 
         ProductSubcategories = query;
 
-        if (InitiallySelectedProductSubcategoryNames?.Any() is true)
+        if (InitiallySelectedProductSubcategoryNames.Any())
         {
             SelectedProductSubcategories = ProductSubcategories
                 .Where(productSubcategory => InitiallySelectedProductSubcategoryNames.Contains(productSubcategory.Name))

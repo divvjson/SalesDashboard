@@ -222,7 +222,7 @@
     {
         DialogParameters<SelectCountryDialog> parameters = new()
         {
-            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionCodes, RegionalFilterStateProviderComponent.CountryRegionCodes.Value?.ToList() }
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionCodes, RegionalFilterStateProviderComponent.CountryRegionCodes.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
@@ -239,7 +239,7 @@
     {
         DialogParameters<SelectProductCategoryDialog> parameters = new()
         {
-            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalFilterStateProviderComponent.ProductCategoryNames.Value?.ToList() }
+            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalFilterStateProviderComponent.ProductCategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductCategoryDialog>("Select Product Category", parameters);
@@ -256,7 +256,7 @@
     {
         DialogParameters<SelectProductSubcategoryDialog> parameters = new()
         {
-            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value?.ToList() }
+            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductSubcategoryDialog>("Select Product Subcategory", parameters);
@@ -273,7 +273,7 @@
     {
         DialogParameters<SelectProductDialog> parameters = new()
         {
-            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, RegionalFilterStateProviderComponent.ProductNames.Value?.ToList() }
+            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, RegionalFilterStateProviderComponent.ProductNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductDialog>("Select Product", parameters);

@@ -67,7 +67,7 @@
     public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
 
     [Parameter]
-    public List<string>? InitiallySelectedCountryRegionCodes { get; set; }
+    public List<string> InitiallySelectedCountryRegionCodes { get; set; } = [];
 
     private IEnumerable<CountryRegion>? CountryRegions { get; set; }
 
@@ -79,7 +79,7 @@
 
         CountryRegions = Context.CountryRegions.OrderBy(countryRegion => countryRegion.Name);
 
-        if (InitiallySelectedCountryRegionCodes?.Any() is true)
+        if (InitiallySelectedCountryRegionCodes.Any())
         {
             SelectedCountryRegions = CountryRegions
                 .Where(countryRegion => InitiallySelectedCountryRegionCodes.Contains(countryRegion.CountryRegionCode))
