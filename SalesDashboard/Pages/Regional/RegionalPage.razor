@@ -25,7 +25,11 @@
 <div class="regional">
     <div class="regional-container mud-elevation-4">
         <div class="header">
-            Regional Analysis
+            <div></div>
+            <div class="header-title">Regional Analysis</div>
+            <MudTooltip Text="Refresh">
+                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
+            </MudTooltip>
         </div>
         <FilterSettingsComponent>
             <FilterSettingsItemComponent Key="Period" Value="@GetSelectedPeriodString()" OnSelect="HandleSelectPeriodClickedAsync" />
@@ -124,6 +128,11 @@
 
             await RequeryFiguresAsync();
         }
+    }
+
+    private void HandleRefreshClicked()
+    {
+        RegionalFilterStateProviderComponent.RegionalFilterChanged.OnNext(Unit.Default);
     }
 
     private string GetSelectedPeriodString()

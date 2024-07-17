@@ -14,6 +14,11 @@
 
 .header {
     padding-top: 24px;
+    display: grid;
+    grid-template-columns: 36px 1fr 36px;
+}
+
+.header-title {
     display: flex;
     justify-content: center;
     align-items: center;
