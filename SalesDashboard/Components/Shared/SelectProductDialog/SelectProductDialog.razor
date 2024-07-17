@@ -90,12 +90,12 @@
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
 
-        if (productSubcategoryNames is not null && productSubcategoryNames.Any())
+        if (productSubcategoryNames.Any())
         {
             query = query.Where(product => product.ProductSubcategory != null && productSubcategoryNames.Contains(product.ProductSubcategory.Name));
         }
 
-        if (productCategoryNames is not null && productCategoryNames.Any())
+        if (productCategoryNames.Any())
         {
             query = query.Where(product => product.ProductSubcategory != null && productCategoryNames.Contains(product.ProductSubcategory.ProductCategory.Name));
         }

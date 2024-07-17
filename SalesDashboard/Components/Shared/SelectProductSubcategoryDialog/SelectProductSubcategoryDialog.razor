@@ -87,7 +87,7 @@
 
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
 
-        if (productCategoryNames is not null && productCategoryNames.Any())
+        if (productCategoryNames.Any())
         {
             query = query.Where(productSubcategory => productCategoryNames.Contains(productSubcategory.ProductCategory.Name));
         }
