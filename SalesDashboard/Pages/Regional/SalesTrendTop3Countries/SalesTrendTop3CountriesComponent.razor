@@ -2,7 +2,6 @@
 @using SalesDashboard.Entities
 
 @implements IDisposable
-
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <div class="sales-trend-top-3-countries">
@@ -65,7 +64,9 @@
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
         var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
 
-        var query = DbFactory.CreateDbContext().SalesOrderDetails.AsQueryable();
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
 
         query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
         query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
