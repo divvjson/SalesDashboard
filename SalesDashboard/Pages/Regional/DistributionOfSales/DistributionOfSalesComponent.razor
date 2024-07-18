@@ -7,7 +7,7 @@
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <SpinnerOverlayComponent IsLoading="IsMapDataLoading">
-    <div id="map" style="height: 500px;"></div>
+    <div id="distributionOfSalesMap" style="height: 500px;"></div>
 </SpinnerOverlayComponent>
 
 @code {
@@ -34,6 +34,8 @@
 
     private async Task RequeryMapDataAsync()
     {
+        Console.Clear();
+
         IsMapDataLoading = true;
 
         await InvokeAsync(StateHasChanged);
@@ -55,19 +57,21 @@
                 sod.SalesOrder.BillToAddress.StateProvince.StateProvinceId,
                 StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name,
                 CountryRegionName = sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name,
-                Latitude = 0,
-                Longitude = 0
+                Latitude = sod.SalesOrder.BillToAddress.StateProvince.Latitude,
+                Longitude = sod.SalesOrder.BillToAddress.StateProvince.Longitude
             })
             .Select(g => new StateProvinceSale
             {
                 StateProvinceId = g.Key.StateProvinceId,
                 StateProvinceName = g.Key.StateProvinceName,
                 CountryRegionName = g.Key.CountryRegionName,
-                Latitude = 0,
-                Longitude = 0,
+                Latitude = g.Key.Latitude,
+                Longitude = g.Key.Longitude,
                 TotalSales = g.Sum(sod => sod.LineTotal)
             })
             .ToListAsync();
+
+        await JSRuntime.InvokeVoidAsync("updateMap", stateProvinceSales);
 
         IsMapDataLoading = false;
 

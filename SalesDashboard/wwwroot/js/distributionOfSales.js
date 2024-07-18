@@ -1,8 +1,10 @@
-﻿let map;
+﻿let distributionOfSalesMap;
 
 window.initializeMap = () => {
-    if (!map) {
-        map = new google.maps.Map(document.getElementById('map'), {
+    const distributionOfSalesMapElement = document.getElementById('distributionOfSalesMap');
+
+    if (distributionOfSalesMapElement) {
+        distributionOfSalesMap = new google.maps.Map(distributionOfSalesMapElement, {
             center: { lat: 0, lng: 0 },
             disableDoubleClickZoom: true,
             fullscreenControl: false,
@@ -14,6 +16,6 @@ window.initializeMap = () => {
     }
 };
 
-window.updateMap = (salesData) => {
+window.updateMap = (stateProvinceSales) => {
 
 };
