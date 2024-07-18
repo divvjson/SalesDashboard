@@ -2,6 +2,7 @@
    "CodeGenerationMode": 4,
    "ContextClassName": "AdventureWorksContext",
    "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "ModelNamespace": null,
@@ -299,12 +300,12 @@
          "ObjectType": 0
       }
    ],
-   "UiHint": null,
+   "UiHint": "91426.AdventureWorks2022.dbo",
    "UncountableWords": null,
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
    "UseDateOnlyTimeOnly": true,
-   "UseDbContextSplitting": false,
+   "UseDbContextSplitting": true,
    "UseDecimalDataAnnotationForSprocResult": true,
    "UseFluentApiOnly": true,
    "UseHandleBars": false,
@@ -317,9 +318,8 @@
    "UseNoObjectFilter": false,
    "UseNodaTime": false,
    "UseNullableReferences": true,
-   "UsePrefixNavigationNaming": false,
    "UseSchemaFolders": false,
    "UseSchemaNamespaces": false,
-   "UseSpatial": false,
+   "UseSpatial": true,
    "UseT4": false
 }
