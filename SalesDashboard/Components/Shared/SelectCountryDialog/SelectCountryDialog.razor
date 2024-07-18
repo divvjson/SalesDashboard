@@ -3,7 +3,6 @@
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
 
-@implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
@@ -13,7 +12,7 @@
     <BodyContent>
         <div class="select-country">
             <div class="data-grid-container">
-                <MudDataGrid T="CountryRegion" 
+                <MudDataGrid T="SelectCountryGridItem"
                              Items="CountryRegions"
                              Virtualize="true"
                              OverscanCount="25"
@@ -31,17 +30,17 @@
                              Outlined="true"
                              Striped="true">
                     <Columns>
-                        <SelectColumn T="CountryRegion" />
+                        <SelectColumn T="SelectCountryGridItem" />
                         <PropertyColumn Title="Name" Property="countryRegion => countryRegion.Name" />
                         <PropertyColumn Title="Code" Property="countryRegion => countryRegion.CountryRegionCode" />
                     </Columns>
                 </MudDataGrid>
             </div>
             <div class="list-container">
-                <MudList T="CountryRegion">
+                <MudList T="SelectCountryGridItem">
                     @foreach (var selectedCountryRegion in SelectedCountryRegions)
                     {
-                        <MudChip T="CountryRegion" 
+                        <MudChip T="SelectCountryGridItem"
                                  OnClose="() => HandleSelectedCountryDeselected(selectedCountryRegion)">
                             @selectedCountryRegion.Name
                         </MudChip>
@@ -58,8 +57,6 @@
 </DialogComponent>
 
 @code {
-    private AdventureWorksContext Context { get; set; } = null!;
-
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
@@ -69,15 +66,24 @@
     [Parameter]
     public List<string> InitiallySelectedCountryRegionCodes { get; set; } = [];
 
-    private IEnumerable<CountryRegion>? CountryRegions { get; set; }
+    private List<SelectCountryGridItem> CountryRegions { get; set; } = [];
 
-    private HashSet<CountryRegion> SelectedCountryRegions { get; set; } = new();
+    private HashSet<SelectCountryGridItem> SelectedCountryRegions { get; set; } = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Context = DbFactory.CreateDbContext();
+        using var context = DbFactory.CreateDbContext();
 
-        CountryRegions = Context.CountryRegions.OrderBy(countryRegion => countryRegion.Name);
+        var query = context.CountryRegions.AsQueryable();
+
+        CountryRegions = await query
+            .OrderBy(countryRegion => countryRegion.Name)
+            .Select(countryRegion => new SelectCountryGridItem
+            {
+                Name = countryRegion.Name,
+                CountryRegionCode = countryRegion.CountryRegionCode
+            })
+            .ToListAsync();
 
         if (InitiallySelectedCountryRegionCodes.Any())
         {
@@ -87,7 +93,7 @@
         }
     }
 
-    private void HandleSelectedCountryDeselected(CountryRegion countryRegion)
+    private void HandleSelectedCountryDeselected(SelectCountryGridItem countryRegion)
     {
         SelectedCountryRegions.Remove(countryRegion);
     }
@@ -107,10 +113,5 @@
         {
             return "600px";
         }
-    }
-
-    public void Dispose()
-    {
-        Context.Dispose();
     }
 }
