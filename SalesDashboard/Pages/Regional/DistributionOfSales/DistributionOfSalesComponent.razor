@@ -38,7 +38,36 @@
 
         await InvokeAsync(StateHasChanged);
 
-        await Task.Delay(2000);
+        var from = RegionalFilterStateProviderComponent.From.Value;
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
+
+        var stateProvinceSales = await query
+            .GroupBy(sod => new
+            {
+                sod.SalesOrder.BillToAddress.StateProvince.StateProvinceId,
+                StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name,
+                CountryRegionName = sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name,
+                Latitude = 0,
+                Longitude = 0
+            })
+            .Select(g => new StateProvinceSale
+            {
+                StateProvinceId = g.Key.StateProvinceId,
+                StateProvinceName = g.Key.StateProvinceName,
+                CountryRegionName = g.Key.CountryRegionName,
+                Latitude = 0,
+                Longitude = 0,
+                TotalSales = g.Sum(sod => sod.LineTotal)
+            })
+            .ToListAsync();
 
         IsMapDataLoading = false;
 
