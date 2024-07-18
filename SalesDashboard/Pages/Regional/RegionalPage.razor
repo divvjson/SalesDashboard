@@ -12,6 +12,7 @@
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
+@using SalesDashboard.Pages.Regional.DistributionOfSales
 @using SalesDashboard.Pages.Regional.SalesTrendTop3Countries
 
 @implements IDisposable
@@ -77,7 +78,7 @@
             </div>
             <div class="distribution-of-sales">
                 <PageBoxComponent Title="Distribution of Sales">
-                    Distribution of Sales
+                    <DistributionOfSalesComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-3-states">

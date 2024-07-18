@@ -1,0 +1,47 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<div id="map" style="height: 500px;"></div>
+
+@code {
+    [CascadingParameter]
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private bool IsMapDataLoading { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeMap");
+
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryMapDataAsync());
+            
+            await RequeryMapDataAsync();
+        }
+    }
+
+    private async Task RequeryMapDataAsync()
+    {
+        IsMapDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        IsMapDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        RegionalFilterChangedSubscription?.Dispose();
+    }
+}
