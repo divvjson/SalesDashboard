@@ -1,5 +1,6 @@
 ﻿let distributionOfSalesMap;
 let circles = [];
+const baseScaleFactor = 150; // Initial scale factor
 
 window.initializeMap = () => {
     const distributionOfSalesMapElement = document.getElementById('distributionOfSalesMap');
@@ -14,6 +15,8 @@ window.initializeMap = () => {
             zoomControl: false,
             zoom: 2
         });
+
+        distributionOfSalesMap.addListener('zoom_changed', updateCircles);
     }
 };
 
@@ -25,7 +28,6 @@ window.updateMap = (stateProvinceSales) => {
     circles = [];
 
     for (const stateProvinceSale of stateProvinceSales) {
-        const scaleFactor = 150; // Adjust this factor to control the size of the circles
         const circle = new google.maps.Circle({
             strokeColor: '#FF0000',
             strokeOpacity: 0.8,
@@ -34,7 +36,7 @@ window.updateMap = (stateProvinceSales) => {
             fillOpacity: 0.35,
             map: distributionOfSalesMap,
             center: { lat: stateProvinceSale.latitude, lng: stateProvinceSale.longitude },
-            radius: Math.sqrt(stateProvinceSale.totalSales) * scaleFactor
+            radius: calculateRadius(stateProvinceSale.totalSales)
         });
 
         const infoWindow = new google.maps.InfoWindow({
@@ -49,3 +51,17 @@ window.updateMap = (stateProvinceSales) => {
         circles.push(circle);
     }
 };
+
+function updateCircles() {
+    const zoomLevel = distributionOfSalesMap.getZoom();
+    for (const circle of circles) {
+        const originalSales = Math.pow(circle.getRadius() / baseScaleFactor, 2);
+        circle.setRadius(calculateRadius(originalSales));
+    }
+}
+
+function calculateRadius(sales) {
+    const zoomLevel = distributionOfSalesMap.getZoom();
+    const adjustedScaleFactor = baseScaleFactor / Math.pow(2, zoomLevel - 2); // Adjust the scale factor based on zoom level
+    return Math.sqrt(sales) * adjustedScaleFactor;
+}
