@@ -3,7 +3,6 @@
 @using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Entities
 
-@implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
@@ -13,7 +12,7 @@
     <BodyContent>
         <div class="select-product-category">
             <div class="data-grid-container">
-                <MudDataGrid T="ProductCategory" 
+                <MudDataGrid T="SelectProductCategoryGridItem"
                              Items="ProductCategories"
                              Virtualize="true"
                              OverscanCount="25"
@@ -31,16 +30,16 @@
                              Outlined="true"
                              Striped="true">
                     <Columns>
-                        <SelectColumn T="ProductCategory" />
+                        <SelectColumn T="SelectProductCategoryGridItem" />
                         <PropertyColumn Title="Name" Property="productCategory => productCategory.Name" />
                     </Columns>
                 </MudDataGrid>
             </div>
             <div class="list-container">
-                <MudList T="ProductCategory">
+                <MudList T="SelectProductCategoryGridItem">
                     @foreach (var selectedProductCategory in SelectedProductCategories)
                     {
-                        <MudChip T="ProductCategory"
+                        <MudChip T="SelectProductCategoryGridItem"
                                  OnClose="() => HandleSelectedProductCategoryDeselected(selectedProductCategory)">
                             @selectedProductCategory.Name
                         </MudChip>
@@ -57,8 +56,6 @@
 </DialogComponent>
 
 @code {
-    private AdventureWorksContext Context { get; set; } = null!;
-
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
@@ -68,15 +65,23 @@
     [Parameter]
     public List<string> InitiallySelectedProductCategoryNames { get; set; } = [];
 
-    private IEnumerable<ProductCategory>? ProductCategories { get; set; }
+    private List<SelectProductCategoryGridItem> ProductCategories { get; set; } = [];
 
-    private HashSet<ProductCategory> SelectedProductCategories { get; set; } = new();
+    private HashSet<SelectProductCategoryGridItem> SelectedProductCategories { get; set; } = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Context = DbFactory.CreateDbContext();
+        using var context = DbFactory.CreateDbContext();
 
-        ProductCategories = Context.ProductCategories.OrderBy(productCategory => productCategory.Name);
+        var query = context.ProductCategories.AsQueryable();
+
+        ProductCategories = await query
+            .OrderBy(productCategory => productCategory.Name)
+            .Select(productCategory => new SelectProductCategoryGridItem
+                {
+                    Name = productCategory.Name
+                })
+            .ToListAsync();
 
         if (InitiallySelectedProductCategoryNames.Any())
         {
@@ -86,7 +91,7 @@
         }
     }
 
-    private void HandleSelectedProductCategoryDeselected(ProductCategory productCategory)
+    private void HandleSelectedProductCategoryDeselected(SelectProductCategoryGridItem productCategory)
     {
         SelectedProductCategories.Remove(productCategory);
     }
@@ -106,10 +111,5 @@
         {
             return "600px";
         }
-    }
-
-    public void Dispose()
-    {
-        Context.Dispose();
     }
 }
