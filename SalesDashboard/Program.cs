@@ -14,9 +14,11 @@ builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
     var userId = builder.Configuration["DbUserID"];
     var password = SecretsHelper.GetValue("DbPassword");
 
+    var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true";
+
     options
         .UseLazyLoadingProxies()
-        .UseSqlServer($"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true");
+        .UseSqlServer(connectionString, options => options.UseNetTopologySuite());
 });
 
 // Add services to the container.

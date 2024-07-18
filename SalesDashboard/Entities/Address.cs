@@ -2,6 +2,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 
 namespace SalesDashboard.Entities;
 
@@ -39,6 +40,11 @@ public partial class Address
     /// Postal code for the street address.
     /// </summary>
     public string PostalCode { get; set; } = null!;
+
+    /// <summary>
+    /// Latitude and longitude of this address.
+    /// </summary>
+    public Geometry? SpatialLocation { get; set; }
 
     /// <summary>
     /// ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.
