@@ -4,7 +4,6 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Regional
 
-@implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <DialogComponent DialogSize="EnumDialogSize.ExtraLarge">
@@ -14,7 +13,7 @@
     <BodyContent>
         <div class="select-product">
             <div class="data-grid-container">
-                <MudDataGrid T="Product"
+                <MudDataGrid T="SelectProductGridItem"
                              Items="Products"
                              Virtualize="true"
                              OverscanCount="25"
@@ -32,19 +31,19 @@
                              Outlined="true"
                              Striped="true">
                     <Columns>
-                        <SelectColumn T="Product" />
+                        <SelectColumn T="SelectProductGridItem" />
                         <PropertyColumn Title="Name" Property="product => product.Name" />
                         <PropertyColumn Title="Product Number" Property="product => product.ProductNumber" />
-                        <PropertyColumn Title="Product Subcategory" Property="product => product.ProductSubcategory == null ? string.Empty : product.ProductSubcategory.Name" />
-                        <PropertyColumn Title="Product Category" Property="product => product.ProductSubcategory == null ? string.Empty : product.ProductSubcategory.ProductCategory.Name" />
+                        <PropertyColumn Title="Product Subcategory" Property="product => product.ProductSubcategoryName ?? string.Empty" />
+                        <PropertyColumn Title="Product Category" Property="product => product.ProductCategoryName ?? string.Empty" />
                     </Columns>
                 </MudDataGrid>
             </div>
             <div class="list-container">
-                <MudList T="Product">
+                <MudList T="SelectProductGridItem">
                     @foreach (var selectedProduct in SelectedProducts)
                     {
-                        <MudChip T="Product"
+                        <MudChip T="SelectProductGridItem"
                                  OnClose="() => HandleSelectedProductDeselected(selectedProduct)">
                             @selectedProduct.Name
                         </MudChip>
@@ -61,8 +60,6 @@
 </DialogComponent>
 
 @code {
-    private AdventureWorksContext Context { get; set; } = null!;
-
     [CascadingParameter]
     private MudDialogInstance MudDialog { get; set; } = null!;
 
@@ -75,17 +72,19 @@
     [Parameter]
     public List<string> InitiallySelectedProductNames { get; set; } = [];
 
-    private IEnumerable<Product>? Products { get; set; }
+    private List<SelectProductGridItem>? Products { get; set; } = [];
 
-    private HashSet<Product> SelectedProducts { get; set; } = new();
+    private HashSet<SelectProductGridItem> SelectedProducts { get; set; } = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Context = DbFactory.CreateDbContext();
+        using var context = DbFactory.CreateDbContext();
 
-        var query = Context.Products.AsQueryable();
+        var query = context.Products.AsQueryable();
 
-        query = query.OrderBy(product => product.Name);
+        query = query
+            .Include(product => product.ProductSubcategory!.ProductCategory)
+            .OrderBy(product => product.Name);
 
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
@@ -100,7 +99,15 @@
             query = query.Where(product => product.ProductSubcategory != null && productCategoryNames.Contains(product.ProductSubcategory.ProductCategory.Name));
         }
 
-        Products = query;
+        Products = await query
+            .Select(product => new SelectProductGridItem
+            {
+                Name = product.Name,
+                ProductNumber = product.ProductNumber,
+                ProductSubcategoryName = product.ProductSubcategory!.Name,
+                ProductCategoryName = product.ProductSubcategory!.ProductCategory!.Name
+            })
+            .ToListAsync();
 
         if (InitiallySelectedProductNames.Any())
         {
@@ -110,7 +117,7 @@
         }
     }
 
-    private void HandleSelectedProductDeselected(Product product)
+    private void HandleSelectedProductDeselected(SelectProductGridItem product)
     {
         SelectedProducts.Remove(product);
     }
@@ -130,10 +137,5 @@
         {
             return "600px";
         }
-    }
-
-    public void Dispose()
-    {
-        Context.Dispose();
     }
 }
