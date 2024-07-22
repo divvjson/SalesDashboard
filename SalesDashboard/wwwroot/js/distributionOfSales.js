@@ -1,6 +1,7 @@
 ﻿let distributionOfSalesMap;
+let stateProvinceSales = [];
 let circles = [];
-const baseScaleFactor = 150; // Initial scale factor
+const baseScaleFactor = 150;
 
 window.initializeMap = () => {
     const distributionOfSalesMapElement = document.getElementById('distributionOfSalesMap');
@@ -20,48 +21,60 @@ window.initializeMap = () => {
     }
 };
 
-window.updateMap = (stateProvinceSales) => {
-    for (const circle of circles) {
-        circle.setMap(null);
-    }
+window.updateMap = (stateProvinceSalesParam) => {
+    stateProvinceSales = [];
+    clearCircles();
 
-    circles = [];
-
-    for (const stateProvinceSale of stateProvinceSales) {
-        const circle = new google.maps.Circle({
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.35,
-            map: distributionOfSalesMap,
-            center: { lat: stateProvinceSale.latitude, lng: stateProvinceSale.longitude },
-            radius: calculateRadius(stateProvinceSale.totalSales)
-        });
-
-        const infoWindow = new google.maps.InfoWindow({
-            content: `<div><strong>${stateProvinceSale.countryRegionName}</strong><br>Sales: ${stateProvinceSale.totalSales}</div>`
-        });
-
-        circle.addListener('click', () => {
-            infoWindow.setPosition(circle.getCenter());
-            infoWindow.open(distributionOfSalesMap);
-        });
-
+    for (const stateProvinceSaleParam of stateProvinceSalesParam) {
+        stateProvinceSales.push(stateProvinceSaleParam);
+        const circle = createCircle(stateProvinceSaleParam);
         circles.push(circle);
     }
 };
 
 function updateCircles() {
-    const zoomLevel = distributionOfSalesMap.getZoom();
-    for (const circle of circles) {
-        const originalSales = Math.pow(circle.getRadius() / baseScaleFactor, 2);
-        circle.setRadius(calculateRadius(originalSales));
+    clearCircles();
+
+    for (const stateProvinceSale of stateProvinceSales) {
+        const circle = createCircle(stateProvinceSale);
+        circles.push(circle);
     }
 }
 
-function calculateRadius(sales) {
+function createCircle(stateProvinceSale) {
+    const circle = new google.maps.Circle({
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FF0000',
+        fillOpacity: 0.35,
+        map: distributionOfSalesMap,
+        center: { lat: stateProvinceSale.latitude, lng: stateProvinceSale.longitude },
+        radius: calculateRadius(stateProvinceSale.totalSales)
+    });
+
+    const infoWindow = new google.maps.InfoWindow({
+        content: `<div><strong>${stateProvinceSale.countryRegionName}</strong><br>Sales: ${stateProvinceSale.totalSales}</div>`
+    });
+
+    circle.addListener('click', () => {
+        infoWindow.setPosition(circle.getCenter());
+        infoWindow.open(distributionOfSalesMap);
+    });
+
+    return circle;
+}
+
+function calculateRadius(totalSales) {
     const zoomLevel = distributionOfSalesMap.getZoom();
-    const adjustedScaleFactor = baseScaleFactor / Math.pow(2, zoomLevel - 2); // Adjust the scale factor based on zoom level
-    return Math.sqrt(sales) * adjustedScaleFactor;
+    const adjustedScaleFactor = baseScaleFactor / Math.pow(1.5, zoomLevel - 2); // Adjust the scale factor based on zoom level
+    const radius = Math.sqrt(totalSales) * adjustedScaleFactor;
+    return radius;
+}
+
+function clearCircles() {
+    for (const circle of circles) {
+        circle.setMap(null);
+    }
+    circles = [];
 }
