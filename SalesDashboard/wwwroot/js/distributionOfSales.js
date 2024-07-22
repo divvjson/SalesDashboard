@@ -57,8 +57,21 @@ function createCircle(stateProvinceSale) {
         radius: calculateRadius(stateProvinceSale.totalSales)
     });
 
+    const formattedTotalSales = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(stateProvinceSale.totalSales);
+
     const infoWindow = new google.maps.InfoWindow({
-        content: `<div><strong>${stateProvinceSale.countryRegionName}</strong><br>Sales: ${stateProvinceSale.totalSales}</div>`
+        content: `
+            <div>
+                <p><strong>State:</strong> ${stateProvinceSale.stateProvinceName}</p>
+                <p><strong>Country:</strong> ${stateProvinceSale.countryRegionName}</p>
+                <p><strong>Total Sales:</strong> ${formattedTotalSales}</p>
+            </div>
+        `
     });
 
     circle.addListener('click', () => {
