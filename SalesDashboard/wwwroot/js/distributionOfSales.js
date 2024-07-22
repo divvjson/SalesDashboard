@@ -23,7 +23,12 @@ window.initializeMap = () => {
 
 window.updateMap = (stateProvinceSalesParam) => {
     stateProvinceSales = [];
-    clearCircles();
+
+    for (const circle of circles) {
+        circle.setMap(null);
+    }
+
+    circles = [];
 
     for (const stateProvinceSaleParam of stateProvinceSalesParam) {
         stateProvinceSales.push(stateProvinceSaleParam);
@@ -33,11 +38,9 @@ window.updateMap = (stateProvinceSalesParam) => {
 };
 
 function updateCircles() {
-    clearCircles();
-
-    for (const stateProvinceSale of stateProvinceSales) {
-        const circle = createCircle(stateProvinceSale);
-        circles.push(circle);
+    for (const circle of circles) {
+        const radius = calculateRadius(circle.totalSales);
+        circle.setRadius(radius);
     }
 }
 
@@ -50,6 +53,7 @@ function createCircle(stateProvinceSale) {
         fillOpacity: 0.35,
         map: distributionOfSalesMap,
         center: { lat: stateProvinceSale.latitude, lng: stateProvinceSale.longitude },
+        totalSales: stateProvinceSale.totalSales,
         radius: calculateRadius(stateProvinceSale.totalSales)
     });
 
@@ -70,11 +74,4 @@ function calculateRadius(totalSales) {
     const adjustedScaleFactor = baseScaleFactor / Math.pow(1.5, zoomLevel - 2); // Adjust the scale factor based on zoom level
     const radius = Math.sqrt(totalSales) * adjustedScaleFactor;
     return radius;
-}
-
-function clearCircles() {
-    for (const circle of circles) {
-        circle.setMap(null);
-    }
-    circles = [];
 }
