@@ -51,6 +51,29 @@
 
         var query = context.SalesOrderDetails.AsQueryable();
 
+        query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
+        query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
+
+        if (countryRegionCodes.Any())
+        {
+            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
         var stateProvinceSales = await query
             .GroupBy(sod => new
             {
