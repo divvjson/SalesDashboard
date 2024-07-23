@@ -14,6 +14,7 @@
 @using SalesDashboard.Extensions
 @using SalesDashboard.Pages.Regional.DistributionOfSales
 @using SalesDashboard.Pages.Regional.SalesTrendTop3Countries
+@using SalesDashboard.Pages.Regional.Top3States
 
 @implements IDisposable
 
@@ -77,13 +78,13 @@
                 </PageBoxComponent>
             </div>
             <div class="distribution-of-sales">
-                <PageBoxComponent Title="Distribution of Sales">
+                <PageBoxComponent Title="Distribution of Sales by State">
                     <DistributionOfSalesComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-3-states">
                 <PageBoxComponent Title="Top 3 States (Sales)">
-                    Top 3 States
+                    <Top3StatesComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-3-cities">
