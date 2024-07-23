@@ -126,4 +126,13 @@
 }
 
 @media (min-width: 1440px) {
+    .grid {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-areas:
+            "total-sales total-cost gross-profit gross-margin"
+            "sales-trend-top-3-countries sales-trend-top-3-countries internet-vs-reseller internet-vs-reseller"
+            "distribution-of-sales distribution-of-sales distribution-of-sales top-3-states"
+            "distribution-of-sales distribution-of-sales distribution-of-sales top-3-cities"
+            "summary-matrix summary-matrix summary-matrix summary-matrix";
+    }
 }

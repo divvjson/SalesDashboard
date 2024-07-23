@@ -5,7 +5,7 @@
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<div class="top-3-states">
+<div class="top-3-cities">
     <SpinnerOverlayComponent IsLoading="IsChartDataLoading">
         @if (Data.Any() is false)
         {
@@ -14,9 +14,9 @@
         else
         {
             <MudChart ChartType="ChartType.Pie" 
-                      InputData="Data"
-                      InputLabels="Labels"
-                      Height="150px" />
+                        InputData="Data"
+                        InputLabels="Labels"
+                        Height="150px" />
         }
     </SpinnerOverlayComponent>
 </div>
@@ -31,9 +31,9 @@
 
     private int DataSize { get; set; } = 3;
 
-    private double[] Data { get; set; } = [77, 25, 5];
+    private double[] Data { get; set; } = [64, 31, 10];
 
-    private string[] Labels { get; set; } = ["California", "New South Wales", "England"];
+    private string[] Labels { get; set; } = ["London", "Paris", "Wollongong"];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
