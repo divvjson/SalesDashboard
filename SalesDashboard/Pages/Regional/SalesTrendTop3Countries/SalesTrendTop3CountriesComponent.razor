@@ -98,7 +98,11 @@
         }
 
         var sales = await query
-            .GroupBy(sod => new { sod.SalesOrder.OrderDate.Year, sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name })
+            .GroupBy(sod => new
+                { 
+                    sod.SalesOrder.OrderDate.Year,
+                    sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name
+                })
             .Select(g => new Sale
                 {
                     Year = g.Key.Year,

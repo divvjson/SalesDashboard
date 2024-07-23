@@ -1,0 +1,106 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsLoading="IsMapDataLoading">
+    <div id="distributionOfSalesMap" style="height: 500px;"></div>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private bool IsMapDataLoading { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeMap");
+
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryMapDataAsync());
+
+            await RequeryMapDataAsync();
+        }
+    }
+
+    private async Task RequeryMapDataAsync()
+    {
+        IsMapDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        var from = RegionalFilterStateProviderComponent.From.Value;
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
+
+        query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
+        query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
+
+        if (countryRegionCodes.Any())
+        {
+            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        var stateProvinceSales = await query
+            .GroupBy(sod => new
+            {
+                sod.SalesOrder.BillToAddress.StateProvince.StateProvinceId,
+                StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name,
+                CountryRegionName = sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name,
+                Latitude = sod.SalesOrder.BillToAddress.StateProvince.Latitude,
+                Longitude = sod.SalesOrder.BillToAddress.StateProvince.Longitude
+            })
+            .Select(g => new StateProvinceSale
+            {
+                StateProvinceId = g.Key.StateProvinceId,
+                StateProvinceName = g.Key.StateProvinceName,
+                CountryRegionName = g.Key.CountryRegionName,
+                Latitude = g.Key.Latitude,
+                Longitude = g.Key.Longitude,
+                TotalSales = g.Sum(sod => sod.LineTotal)
+            })
+            .ToListAsync();
+
+        await JSRuntime.InvokeVoidAsync("updateMap", stateProvinceSales);
+
+        IsMapDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        RegionalFilterChangedSubscription?.Dispose();
+    }
+}
