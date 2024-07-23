@@ -1,7 +1,8 @@
 ﻿let distributionOfSalesMap;
 let stateProvinceSales = [];
 let circles = [];
-const baseScaleFactor = 150;
+const baseMaxRadius = 750000; // Base maximum radius for the largest circle
+const baseMinRadius = 50000; // Base minimum radius for the smallest circle
 
 window.initializeMap = () => {
     const distributionOfSalesMapElement = document.getElementById('distributionOfSalesMap');
@@ -30,21 +31,38 @@ window.updateMap = (stateProvinceSalesParam) => {
 
     circles = [];
 
+    let maxSales = -Infinity;
+    let minSales = Infinity;
+
+    // Find the min and max sales values
+    for (const stateProvinceSaleParam of stateProvinceSalesParam) {
+        maxSales = Math.max(maxSales, stateProvinceSaleParam.totalSales);
+        minSales = Math.min(minSales, stateProvinceSaleParam.totalSales);
+    }
+
     for (const stateProvinceSaleParam of stateProvinceSalesParam) {
         stateProvinceSales.push(stateProvinceSaleParam);
-        const circle = createCircle(stateProvinceSaleParam);
+        const circle = createCircle(stateProvinceSaleParam, minSales, maxSales);
         circles.push(circle);
     }
 };
 
 function updateCircles() {
+    let maxSales = -Infinity;
+    let minSales = Infinity;
+
+    for (const stateProvinceSale of stateProvinceSales) {
+        maxSales = Math.max(maxSales, stateProvinceSale.totalSales);
+        minSales = Math.min(minSales, stateProvinceSale.totalSales);
+    }
+
     for (const circle of circles) {
-        const radius = calculateRadius(circle.totalSales);
+        const radius = calculateRadius(circle.totalSales, minSales, maxSales);
         circle.setRadius(radius);
     }
 }
 
-function createCircle(stateProvinceSale) {
+function createCircle(stateProvinceSale, minSales, maxSales) {
     const circle = new google.maps.Circle({
         strokeColor: '#FF0000',
         strokeOpacity: 0.8,
@@ -54,7 +72,7 @@ function createCircle(stateProvinceSale) {
         map: distributionOfSalesMap,
         center: { lat: stateProvinceSale.latitude, lng: stateProvinceSale.longitude },
         totalSales: stateProvinceSale.totalSales,
-        radius: calculateRadius(stateProvinceSale.totalSales)
+        radius: calculateRadius(stateProvinceSale.totalSales, minSales, maxSales)
     });
 
     const formattedTotalSales = new Intl.NumberFormat('en-US', {
@@ -82,9 +100,17 @@ function createCircle(stateProvinceSale) {
     return circle;
 }
 
-function calculateRadius(totalSales) {
+function calculateRadius(totalSales, minSales, maxSales) {
+    if (minSales === maxSales) {
+        return baseMaxRadius / 2; // In case all sales are equal, return a fixed medium size
+    }
+
     const zoomLevel = distributionOfSalesMap.getZoom();
-    const adjustedScaleFactor = baseScaleFactor / Math.pow(1.5, zoomLevel - 2); // Adjust the scale factor based on zoom level
-    const radius = Math.sqrt(totalSales) * adjustedScaleFactor;
+    const adjustedMaxRadius = baseMaxRadius / Math.pow(1.5, zoomLevel - 2); // Adjust max radius based on zoom level
+    const adjustedMinRadius = baseMinRadius / Math.pow(1.5, zoomLevel - 2); // Adjust min radius based on zoom level
+
+    // Normalize the sales value to a range between adjustedMinRadius and adjustedMaxRadius
+    const radius = ((totalSales - minSales) / (maxSales - minSales)) * (adjustedMaxRadius - adjustedMinRadius) + adjustedMinRadius;
+
     return radius;
 }
