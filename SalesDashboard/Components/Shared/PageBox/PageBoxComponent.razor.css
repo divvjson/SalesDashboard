@@ -7,6 +7,8 @@
     background-color: var(--gray-50);
     border-radius: 4px;
     overflow: hidden;
+    container-name: page-box;
+    container-type: inline-size;
 }
 
 .page-box-header {
@@ -18,14 +20,28 @@
     font-weight: 500;
 }
 
+@container page-box (min-width: 0px) {
+    .page-box-header {
+        font-size: 9px;
+    }
+}
+
+@container page-box (min-width: 110px) {
+    .page-box-header {
+        font-size: 11px;
+    }
+}
+
+@container page-box (min-width: 120px) {
+    .page-box-header {
+        font-size: 13px;
+    }
+}
+
 .page-box-header--small {
-    height: 20px;
-    font-size: 11px;
     background-color: var(--mud-palette-primary-lighten);
 }
 
 .page-box-header--medium {
-    height: 30px;
-    font-size: 13px;
     background-color: var(--mud-palette-primary);
 }
