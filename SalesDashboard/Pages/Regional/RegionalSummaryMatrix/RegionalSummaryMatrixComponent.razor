@@ -1,27 +1,14 @@
-﻿@using Microsoft.EntityFrameworkCore
+﻿@using Microsoft.Data.SqlClient
+@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Helpers
 
 @implements IDisposable
-@inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject IConfiguration Configuration
 
 <SpinnerOverlayComponent IsLoading="IsLoading">
-    <MudDataGrid MultiSelection="true"
-                 Items="RegionalSummaryMatrixGridItems"
-                 Filterable="true"
-                 Hideable="true"
-                 Groupable="true"
-                 GroupExpanded="false">
-        <Columns>
-            <PropertyColumn Property="rsm => rsm.CountryRegionName" Title="Region" Hidden="true" />
-            <PropertyColumn Property="rsm => rsm.StateProvinceName" Title="State" Hidden="true" />
-            <PropertyColumn Property="rsm => rsm.City" Title="City" Groupable="false" Hidden="true" />
-            <PropertyColumn Property="rsm => rsm.Sales" Title="Sales" Groupable="false" />
-            <PropertyColumn Property="rsm => rsm.QuantitySold" Title="Qty Sold" Groupable="false" />
-            <PropertyColumn Property="rsm => rsm.GrossProfit" Title="Gross Profit" Groupable="false" />
-            <PropertyColumn Property="rsm => rsm.GrossMargin" Title="Gross Margin" Groupable="false" />
-        </Columns>
-    </MudDataGrid>
+
 </SpinnerOverlayComponent>
 
 @code {
@@ -50,50 +37,96 @@
     {
         IsLoading = true;
 
+        RegionalSummaryMatrixGridItems.Clear();
+
         await InvokeAsync(StateHasChanged);
 
-        var from = RegionalFilterStateProviderComponent.From.Value;
-        var through = RegionalFilterStateProviderComponent.Through.Value;
-        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
-        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
-        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
-        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+        var dataSource = Configuration["DbDataSource"];
+        var initialCatalog = Configuration["DbInitialCatalog"];
+        var userId = Configuration["DbUserID"];
+        var password = SecretsHelper.GetValue("DbPassword");
 
-        using var context = DbFactory.CreateDbContext();
+        var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true";
 
-        var query = context.SalesOrderDetails.AsQueryable();
+        using SqlConnection connection = new(connectionString);
 
-        var items = await query
-            .Include(sod => sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation)
-            .Include(sod => sod.Product.ProductCostHistories)
-            .Select(sod => new
+        try
+        {
+            await connection.OpenAsync();
+
+            var cmdText = @"
+                WITH LatestCost AS (
+                    SELECT
+                        pch.ProductID,
+                        pch.StandardCost
+                    FROM
+                        Production.ProductCostHistory pch
+                        INNER JOIN (
+                            SELECT
+                                ProductID,
+                                MAX(ModifiedDate) AS LatestModifiedDate
+                            FROM
+                                Production.ProductCostHistory
+                            GROUP BY
+                                ProductID
+                        ) latest ON pch.ProductID = latest.ProductID
+                            AND pch.ModifiedDate = latest.LatestModifiedDate
+                )
+                SELECT
+                    cr.Name AS CountryRegionName,
+                    sp.Name AS StateProvinceName,
+                    ba.City,
+	                COUNT(*) AS QuantitySold,
+                    SUM(sod.LineTotal) AS TotalSales,
+                    SUM(lc.StandardCost) AS TotalCosts,
+                    SUM(sod.LineTotal) - SUM(lc.StandardCost) AS GrossProfit,
+                    CASE WHEN SUM(sod.LineTotal) = 0 THEN 0
+                         ELSE (SUM(sod.LineTotal) - SUM(lc.StandardCost)) / SUM(sod.LineTotal) * 100
+                    END AS GrossMargin
+                FROM
+                    Sales.SalesOrderDetail sod
+                    JOIN Sales.SalesOrderHeader soh ON sod.SalesOrderID = soh.SalesOrderID
+                    JOIN Person.Address ba ON soh.BillToAddressID = ba.AddressID
+                    JOIN Person.StateProvince sp ON ba.StateProvinceID = sp.StateProvinceID
+                    JOIN Person.CountryRegion cr ON sp.CountryRegionCode = cr.CountryRegionCode
+                    JOIN Production.Product p ON sod.ProductID = p.ProductID
+                    LEFT JOIN LatestCost lc ON p.ProductID = lc.ProductID
+            ";
+
+            using SqlCommand command = new(cmdText, connection);
+
+            cmdText += @"
+                GROUP BY
+                    cr.Name, sp.Name, ba.City
+                ORDER BY
+                    cr.Name, sp.Name, ba.City;
+            ";
+
+            command.CommandText = cmdText;
+
+            using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
             {
-                CountryRegionName = sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name,
-                StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name,
-                City = sod.SalesOrder.BillToAddress.City,
-                LineTotal = sod.LineTotal,
-                Cost = sod.Product.ProductCostHistories
-                    .OrderByDescending(pch => pch.ModifiedDate)
-                    .Select(pch => pch.StandardCost)
-                    .FirstOrDefault()
-            })
-            .Select(x => new RegionalSummaryMatrixGridItem
-            {
-                CountryRegionName = x.CountryRegionName,
-                StateProvinceName = x.StateProvinceName,
-                City = x.City,
-                Sales = x.LineTotal,
-                QuantitySold = 1,
-                GrossProfit = x.LineTotal - x.Cost,
-                GrossMargin = x.LineTotal == 0 ? 0 : (x.LineTotal - x.Cost) / x.LineTotal * 100
-            })
-            .Take(500)
-            .OrderBy(x => x.CountryRegionName)
-            .ThenBy(x => x.StateProvinceName)
-            .ThenBy(x => x.City)
-            .ToListAsync();
+                var item = new RegionalSummaryMatrixGridItem
+                {
+                    CountryRegionName = reader.GetString(reader.GetOrdinal("CountryRegionName")),
+                    StateProvinceName = reader.GetString(reader.GetOrdinal("StateProvinceName")),
+                    City = reader.GetString(reader.GetOrdinal("City")),
+                    QuantitySold = reader.GetInt32(reader.GetOrdinal("QuantitySold")),
+                    TotalSales = reader.GetDecimal(reader.GetOrdinal("TotalSales")),
+                    TotalCosts = reader.GetDecimal(reader.GetOrdinal("TotalCosts")),
+                    GrossProfit = reader.GetDecimal(reader.GetOrdinal("GrossProfit")),
+                    GrossMargin = reader.GetDecimal(reader.GetOrdinal("GrossMargin"))
+                };
 
-        RegionalSummaryMatrixGridItems = items;
+                RegionalSummaryMatrixGridItems.Add(item);
+            }
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
 
         IsLoading = false;
 

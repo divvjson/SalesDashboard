@@ -8,9 +8,11 @@
 
         public required string City { get; set; }
 
-        public required decimal Sales { get; set; }
-
         public required int QuantitySold { get; set; }
+
+        public required decimal TotalSales { get; set; }
+
+        public required decimal TotalCosts { get; set; }
 
         public required decimal GrossProfit { get; set; }
 
