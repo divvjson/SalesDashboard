@@ -5,11 +5,11 @@
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<div class="sales-trend-top-3-countries">
-    <SpinnerOverlayComponent IsLoading="IsChartDataLoading">
+<SpinnerOverlayComponent IsLoading="IsChartDataLoading">
+    <div class="sales-trend-top-3-countries">
         @if (ChartSeries.Any() is false)
         {
-            <div class="no-data-or-trend">NO DATA</div>
+            
         }
         else if (Years.Count() is 1)
         {
@@ -24,8 +24,8 @@
                       Width="100%"
                       Height="100%" />
         }
-    </SpinnerOverlayComponent>
-</div>
+    </div>
+</SpinnerOverlayComponent>
 
 @code {
     [CascadingParameter]

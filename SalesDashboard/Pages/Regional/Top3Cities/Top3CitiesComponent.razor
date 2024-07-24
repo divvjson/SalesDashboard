@@ -1,13 +1,25 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Extensions
 
 @implements IDisposable
-@inject IJSRuntime JSRuntime
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<SpinnerOverlayComponent IsLoading="IsMapDataLoading">
-    <div id="distributionOfSalesMap" style="flex-grow: 1; min-height: 500px;"></div>
+<SpinnerOverlayComponent IsLoading="IsChartDataLoading">
+    <div class="top-3-cities">
+        @if (Data is null)
+        {
+            
+        }
+        else
+        {
+            <MudChart ChartType="ChartType.Pie"
+                      InputData="Data"
+                      InputLabels="Labels"
+                      Height="110px" />
+        }
+    </div>
 </SpinnerOverlayComponent>
 
 @code {
@@ -16,25 +28,29 @@
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
-    private bool IsMapDataLoading { get; set; } = false;
+    private bool IsChartDataLoading { get; set; } = false;
+
+    private int DataSize { get; set; } = 3;
+
+    private double[]? Data { get; set; } = null;
+
+    private string[]? Labels { get; set; } = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("initializeMap");
-
             RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
-                .Subscribe(async _ => await RequeryMapDataAsync());
+                .Subscribe(async _ => await RequeryChartDataAsync());
 
-            await RequeryMapDataAsync();
+            await RequeryChartDataAsync();
         }
     }
 
-    private async Task RequeryMapDataAsync()
+    private async Task RequeryChartDataAsync()
     {
-        IsMapDataLoading = true;
+        IsChartDataLoading = true;
 
         await InvokeAsync(StateHasChanged);
 
@@ -72,29 +88,37 @@
             query = query.Where(sod => productNames.Contains(sod.Product.Name));
         }
 
-        var stateProvinceSales = await query
+        var top3Cities = await query
             .GroupBy(sod => new
             {
-                sod.SalesOrder.BillToAddress.StateProvince.StateProvinceId,
-                StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name,
-                CountryRegionName = sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name,
-                Latitude = sod.SalesOrder.BillToAddress.StateProvince.Latitude,
-                Longitude = sod.SalesOrder.BillToAddress.StateProvince.Longitude
+                City = sod.SalesOrder.BillToAddress.City
             })
-            .Select(g => new StateProvinceSale
-            {
-                StateProvinceId = g.Key.StateProvinceId,
-                StateProvinceName = g.Key.StateProvinceName,
-                CountryRegionName = g.Key.CountryRegionName,
-                Latitude = g.Key.Latitude,
-                Longitude = g.Key.Longitude,
-                TotalSales = g.Sum(sod => sod.LineTotal)
-            })
+            .Select(g => new Top3City
+                {
+                    City = g.Key.City,
+                    TotalSales = g.Sum(sod => sod.LineTotal)
+                })
+            .OrderByDescending(top3City => top3City.TotalSales)
+            .Take(3)
             .ToListAsync();
 
-        await JSRuntime.InvokeVoidAsync("updateMap", stateProvinceSales);
+        if (top3Cities.Any())
+        {
+            Data = top3Cities
+                .Select(top3City => (double)top3City.TotalSales)
+                .ToArray();
 
-        IsMapDataLoading = false;
+            Labels = top3Cities
+                .Select(top3City => $"{top3City.City} ({top3City.TotalSales.ToMillionsWithTwoDecimals()})")
+                .ToArray();
+        }
+        else
+        {
+            Data = null;
+            Labels = null;
+        }
+
+        IsChartDataLoading = false;
 
         await InvokeAsync(StateHasChanged);
     }
