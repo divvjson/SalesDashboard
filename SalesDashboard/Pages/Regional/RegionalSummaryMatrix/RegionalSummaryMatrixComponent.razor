@@ -95,6 +95,8 @@
 
             using SqlCommand command = new(cmdText, connection);
 
+            // Add conditional filters here (see RegionalDataProviderComponent.cs)
+
             cmdText += @"
                 GROUP BY
                     cr.Name, sp.Name, ba.City
@@ -108,7 +110,7 @@
 
             while (await reader.ReadAsync())
             {
-                var item = new RegionalSummaryMatrixGridItem
+                RegionalSummaryMatrixGridItem item = new()
                 {
                     CountryRegionName = reader.GetString(reader.GetOrdinal("CountryRegionName")),
                     StateProvinceName = reader.GetString(reader.GetOrdinal("StateProvinceName")),
