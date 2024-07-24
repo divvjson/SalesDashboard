@@ -2,13 +2,43 @@
 @using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Extensions
 @using SalesDashboard.Helpers
 
 @implements IDisposable
 @inject IConfiguration Configuration
 
 <SpinnerOverlayComponent IsLoading="IsLoading">
-
+    <MudTable FixedHeader="true"
+              T="RegionalSummaryMatrixGridItem"
+              Items="RegionalSummaryMatrixGridItems"
+              GroupBy="GroupDefinition"
+              Dense="true">
+        <HeaderContent>
+            <MudTh>Region</MudTh>
+            <MudTh>State</MudTh>
+            <MudTh>City</MudTh>
+            <MudTh>Qty Sold</MudTh>
+            <MudTh>Sales</MudTh>
+            <MudTh>Costs</MudTh>
+            <MudTh>Gross Profit</MudTh>
+            <MudTh>Gross Margin</MudTh>
+        </HeaderContent>
+        <GroupHeaderTemplate>
+            <MudTh colspan="6">@($"{context.GroupName}: {context.Key}")</MudTh>
+            @* <MudTh colspan="6">@($"{context.Key} {context.Items.Sum(x => x.TotalSales)}")</MudTh> *@
+        </GroupHeaderTemplate>
+        <RowTemplate>
+            <MudTd DataLabel="Region">@context.CountryRegionName</MudTd>
+            <MudTd DataLabel="State">@context.StateProvinceName</MudTd>
+            <MudTd DataLabel="City">@context.City</MudTd>
+            <MudTd DataLabel="Qty Sold">@context.QuantitySold</MudTd>
+            <MudTd DataLabel="Sales">@context.TotalSales.ToThousandWithTwoDecimals()</MudTd>
+            <MudTd DataLabel="Costs">@context.TotalCosts.ToThousandWithTwoDecimals()</MudTd>
+            <MudTd DataLabel="Gross Profit">@context.GrossProfit.ToThousandWithTwoDecimals()</MudTd>
+            <MudTd DataLabel="Gross Margin">@($"{context.GrossMargin.ToString("F2")}%")</MudTd>
+        </RowTemplate>
+    </MudTable>
 </SpinnerOverlayComponent>
 
 @code {
@@ -20,6 +50,23 @@
     private bool IsLoading { get; set; } = false;
 
     public List<RegionalSummaryMatrixGridItem> RegionalSummaryMatrixGridItems { get; set; } = [];
+
+    private TableGroupDefinition<RegionalSummaryMatrixGridItem> GroupDefinition { get; set; } = new()
+    {
+        GroupName = "Region",
+        IsInitiallyExpanded = false,
+        Indentation = true,
+        Expandable = true,
+        Selector = (item) => item.CountryRegionName,
+        InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixGridItem>()
+        {
+            GroupName = "State",
+            IsInitiallyExpanded = false,
+            Indentation = true,
+            Expandable = true,
+            Selector = (item) => item.StateProvinceName
+        }
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
