@@ -7,7 +7,7 @@
             return $"${value / 1_000_000:0.00}M";
         }
 
-        public static string ToThousandWithTwoDecimals(this decimal value)
+        public static string ToThousandsWithTwoDecimals(this decimal value)
         {
             return $"${value / 1_000:0.00}K";
         }

@@ -25,11 +25,25 @@
             <MudTh>Gross Margin</MudTh>
         </HeaderContent>
         <GroupHeaderTemplate>
-            <MudTh colspan="3">@context.Key</MudTh>
+            @if (context.GroupName is "Region")
+            {
+                <MudTh colspan="3">@context.Key</MudTh>
+            }
+            else if (context.GroupName is "State")
+            {
+                <MudTh></MudTh>
+                <MudTh colspan="2">@context.Key</MudTh>
+            }
+            else if (context.GroupName is "City")
+            {
+                <MudTh></MudTh>
+                <MudTh></MudTh>
+                <MudTh>@context.Key</MudTh>
+            }
             <MudTh>@context.Items.Sum(item => item.QuantitySold)</MudTh>
-            <MudTh>@context.Items.Sum(item => item.TotalSales).ToThousandWithTwoDecimals()</MudTh>
-            <MudTh>@context.Items.Sum(item => item.TotalCosts).ToThousandWithTwoDecimals()</MudTh>
-            <MudTh>@context.Items.Sum(item => item.GrossProfit).ToThousandWithTwoDecimals()</MudTh>
+            <MudTh>@context.Items.Sum(item => item.TotalSales).ToMillionsWithTwoDecimals()</MudTh>
+            <MudTh>@context.Items.Sum(item => item.TotalCosts).ToMillionsWithTwoDecimals()</MudTh>
+            <MudTh>@context.Items.Sum(item => item.GrossProfit).ToMillionsWithTwoDecimals()</MudTh>
             <MudTh>@($"{context.Items.Average(item => item.GrossMargin).ToString("F2")}%")</MudTh>
         </GroupHeaderTemplate>
         <RowTemplate>
@@ -37,9 +51,9 @@
             <MudTd DataLabel="State">@context.StateProvinceName</MudTd>
             <MudTd DataLabel="City">@context.City</MudTd>
             <MudTd DataLabel="Qty Sold">@context.QuantitySold</MudTd>
-            <MudTd DataLabel="Sales">@context.TotalSales.ToThousandWithTwoDecimals()</MudTd>
-            <MudTd DataLabel="Costs">@context.TotalCosts.ToThousandWithTwoDecimals()</MudTd>
-            <MudTd DataLabel="Gross Profit">@context.GrossProfit.ToThousandWithTwoDecimals()</MudTd>
+            <MudTd DataLabel="Sales">@context.TotalSales.ToMillionsWithTwoDecimals()</MudTd>
+            <MudTd DataLabel="Costs">@context.TotalCosts.ToMillionsWithTwoDecimals()</MudTd>
+            <MudTd DataLabel="Gross Profit">@context.GrossProfit.ToMillionsWithTwoDecimals()</MudTd>
             <MudTd DataLabel="Gross Margin">@($"{context.GrossMargin.ToString("F2")}%")</MudTd>
         </RowTemplate>
     </MudTable>
@@ -68,7 +82,15 @@
             IsInitiallyExpanded = false,
             Indentation = true,
             Expandable = true,
-            Selector = (item) => item.StateProvinceName
+            Selector = (item) => item.StateProvinceName,
+            InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixGridItem>()
+            {
+                GroupName = "City",
+                IsInitiallyExpanded = false,
+                Indentation = true,
+                Expandable = false,
+                Selector = (item) => item.City
+            }
         }
     };
 
