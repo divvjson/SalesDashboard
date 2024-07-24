@@ -1,25 +1,26 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Extensions
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<div class="top-3-cities">
-    <SpinnerOverlayComponent IsLoading="IsChartDataLoading">
-        @if (Data.Any() is false)
+<SpinnerOverlayComponent IsLoading="IsChartDataLoading">
+    <div class="top-3-cities">
+        @if (Data is null)
         {
-            <div class="no-data-or-trend">NO DATA</div>
+            
         }
         else
         {
             <MudChart ChartType="ChartType.Pie"
-                        InputData="Data"
-                        InputLabels="Labels"
-                        Height="125px" />
+                      InputData="Data"
+                      InputLabels="Labels"
+                      Height="110px" />
         }
-    </SpinnerOverlayComponent>
-</div>
+    </div>
+</SpinnerOverlayComponent>
 
 @code {
     [CascadingParameter]
@@ -31,19 +32,19 @@
 
     private int DataSize { get; set; } = 3;
 
-    private double[] Data { get; set; } = [64, 31, 10];
+    private double[]? Data { get; set; } = null;
 
-    private string[] Labels { get; set; } = ["London", "Paris", "Wollongong"];
+    private string[]? Labels { get; set; } = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
-            //     .Throttle(TimeSpan.FromMilliseconds(25))
-            //     .Subscribe(async _ => await RequeryChartDataAsync());
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
 
-            // await RequeryChartDataAsync();
+            await RequeryChartDataAsync();
         }
     }
 
@@ -52,8 +53,6 @@
         IsChartDataLoading = true;
 
         await InvokeAsync(StateHasChanged);
-
-        await Task.Delay(2000);
 
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
@@ -65,6 +64,52 @@
         using var context = DbFactory.CreateDbContext();
 
         var query = context.SalesOrderDetails.AsQueryable();
+
+        query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
+        query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
+
+        if (countryRegionCodes.Any())
+        {
+            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        var top3Cities = await query
+            .GroupBy(sod => new
+            {
+                City = sod.SalesOrder.BillToAddress.City
+            })
+            .Select(g => new Top3City
+                {
+                    City = g.Key.City,
+                    TotalSales = g.Sum(sod => sod.LineTotal)
+                })
+            .OrderByDescending(top3City => top3City.TotalSales)
+            .Take(3)
+            .ToListAsync();
+
+        Data = new double[3] { 0.0, 0.0, 0.0 };
+        Labels = new string[3] { string.Empty, string.Empty, string.Empty };
+
+        for (int i = 0; i < top3Cities.Count; i++)
+        {
+            Data[i] = Convert.ToDouble(top3Cities[i].TotalSales);
+            Labels[i] = $"{top3Cities[i].City} ({top3Cities[i].TotalSales.ToMillionsWithTwoDecimals()})";
+        }
 
         IsChartDataLoading = false;
 

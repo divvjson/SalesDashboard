@@ -6,21 +6,21 @@
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<div class="top-3-states">
-    <SpinnerOverlayComponent IsLoading="IsChartDataLoading">
+<SpinnerOverlayComponent IsLoading="IsChartDataLoading">
+    <div class="top-3-states">
         @if (Data is null)
         {
-            <div class="no-data-or-trend">NO DATA</div>
+            
         }
         else
         {
-            <MudChart ChartType="ChartType.Pie" 
+            <MudChart ChartType="ChartType.Pie"
                       InputData="Data"
                       InputLabels="Labels"
-                      Height="125px" />
+                      Height="110px" />
         }
-    </SpinnerOverlayComponent>
-</div>
+    </div>
+</SpinnerOverlayComponent>
 
 @code {
     [CascadingParameter]
@@ -51,9 +51,6 @@
     private async Task RequeryChartDataAsync()
     {
         IsChartDataLoading = true;
-
-        Data = null;
-        Labels = null;
 
         await InvokeAsync(StateHasChanged);
 
