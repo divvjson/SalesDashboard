@@ -1,6 +1,6 @@
 ﻿namespace SalesDashboard.Pages.Regional.RegionalSummaryMatrix
 {
-    public class RegionalSummaryMatrixGridItem
+    public class RegionalSummaryMatrixItem
     {
         public required string CountryRegionName { get; set; }
 

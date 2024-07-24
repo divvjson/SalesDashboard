@@ -10,7 +10,7 @@
 
 <SpinnerOverlayComponent IsLoading="IsLoading">
     <MudTable FixedHeader="true"
-              T="RegionalSummaryMatrixGridItem"
+              T="RegionalSummaryMatrixItem"
               Items="RegionalSummaryMatrixGridItems"
               GroupBy="GroupDefinition"
               Dense="true">
@@ -67,23 +67,23 @@
 
     private bool IsLoading { get; set; } = false;
 
-    public List<RegionalSummaryMatrixGridItem> RegionalSummaryMatrixGridItems { get; set; } = [];
+    public List<RegionalSummaryMatrixItem> RegionalSummaryMatrixGridItems { get; set; } = [];
 
-    private TableGroupDefinition<RegionalSummaryMatrixGridItem> GroupDefinition { get; set; } = new()
+    private TableGroupDefinition<RegionalSummaryMatrixItem> GroupDefinition { get; set; } = new()
     {
         GroupName = "Region",
         IsInitiallyExpanded = false,
         Indentation = true,
         Expandable = true,
         Selector = (item) => item.CountryRegionName,
-        InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixGridItem>()
+        InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixItem>()
         {
             GroupName = "State",
             IsInitiallyExpanded = false,
             Indentation = true,
             Expandable = true,
             Selector = (item) => item.StateProvinceName,
-            InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixGridItem>()
+            InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixItem>()
             {
                 GroupName = "City",
                 IsInitiallyExpanded = false,
@@ -183,7 +183,7 @@
 
             while (await reader.ReadAsync())
             {
-                RegionalSummaryMatrixGridItem item = new()
+                RegionalSummaryMatrixItem item = new()
                 {
                     CountryRegionName = reader.GetString(reader.GetOrdinal("CountryRegionName")),
                     StateProvinceName = reader.GetString(reader.GetOrdinal("StateProvinceName")),
