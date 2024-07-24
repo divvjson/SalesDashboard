@@ -25,8 +25,12 @@
             <MudTh>Gross Margin</MudTh>
         </HeaderContent>
         <GroupHeaderTemplate>
-            <MudTh colspan="6">@($"{context.GroupName}: {context.Key}")</MudTh>
-            @* <MudTh colspan="6">@($"{context.Key} {context.Items.Sum(x => x.TotalSales)}")</MudTh> *@
+            <MudTh colspan="3">@context.Key</MudTh>
+            <MudTh>@context.Items.Sum(item => item.QuantitySold)</MudTh>
+            <MudTh>@context.Items.Sum(item => item.TotalSales).ToThousandWithTwoDecimals()</MudTh>
+            <MudTh>@context.Items.Sum(item => item.TotalCosts).ToThousandWithTwoDecimals()</MudTh>
+            <MudTh>@context.Items.Sum(item => item.GrossProfit).ToThousandWithTwoDecimals()</MudTh>
+            <MudTh>@($"{context.Items.Average(item => item.GrossMargin).ToString("F2")}%")</MudTh>
         </GroupHeaderTemplate>
         <RowTemplate>
             <MudTd DataLabel="Region">@context.CountryRegionName</MudTd>
