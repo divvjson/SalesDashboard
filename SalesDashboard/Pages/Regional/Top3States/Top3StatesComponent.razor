@@ -1,13 +1,14 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Extensions
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <div class="top-3-states">
     <SpinnerOverlayComponent IsLoading="IsChartDataLoading">
-        @if (Data.Any() is false)
+        @if (Data is null)
         {
             <div class="no-data-or-trend">NO DATA</div>
         }
@@ -31,19 +32,23 @@
 
     private int DataSize { get; set; } = 3;
 
-    private double[] Data { get; set; } = [77, 25, 5];
+    // private double[] Data { get; set; } = new double[3] { 0.0, 0.0, 0.0 };
 
-    private string[] Labels { get; set; } = ["California", "New South Wales", "England"];
+    // private string[] Labels { get; set; } = new string[3] { string.Empty, string.Empty, string.Empty };
+
+    private double[]? Data { get; set; } = null;
+
+    private string[]? Labels { get; set; } = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
-            //     .Throttle(TimeSpan.FromMilliseconds(25))
-            //     .Subscribe(async _ => await RequeryChartDataAsync());
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
 
-            // await RequeryChartDataAsync();
+            await RequeryChartDataAsync();
         }
     }
 
@@ -51,9 +56,10 @@
     {
         IsChartDataLoading = true;
 
-        await InvokeAsync(StateHasChanged);
+        Data = null;
+        Labels = null;
 
-        await Task.Delay(2000);
+        await InvokeAsync(StateHasChanged);
 
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
@@ -65,6 +71,52 @@
         using var context = DbFactory.CreateDbContext();
 
         var query = context.SalesOrderDetails.AsQueryable();
+
+        query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
+        query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
+
+        if (countryRegionCodes.Any())
+        {
+            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        var top3States = await query
+            .GroupBy(sod => new
+            {
+                StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name
+            })
+            .Select(g => new Top3State
+            {
+                StateProvinceName = g.Key.StateProvinceName,
+                TotalSales = g.Sum(sod => sod.LineTotal)
+            })
+            .OrderByDescending(top3State => top3State.TotalSales)
+            .Take(3)
+            .ToListAsync();
+
+        Data = new double[3] { 0.0, 0.0, 0.0 };
+        Labels = new string[3] { string.Empty, string.Empty, string.Empty };
+
+        for (int i = 0; i < top3States.Count; i++)
+        {
+            Data[i] = Convert.ToDouble(top3States[i].TotalSales);
+            Labels[i] = $"{top3States[i].StateProvinceName} ({top3States[i].TotalSales.ToMillionsWithTwoDecimals()})";
+        }
 
         IsChartDataLoading = false;
 
