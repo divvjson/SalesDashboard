@@ -7,7 +7,7 @@
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <SpinnerOverlayComponent IsLoading="IsMapDataLoading">
-    <div id="distributionOfSalesMap" style="height: 500px;"></div>
+    <div id="distributionOfSalesMap" style="flex-grow: 1; min-height: 500px;"></div>
 </SpinnerOverlayComponent>
 
 @code {
