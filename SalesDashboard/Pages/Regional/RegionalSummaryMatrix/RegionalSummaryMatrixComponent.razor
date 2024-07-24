@@ -1,5 +1,112 @@
-﻿<h3>RegionalSummaryMatrixComponent</h3>
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsLoading="IsLoading">
+    <MudDataGrid MultiSelection="true"
+                 Items="RegionalSummaryMatrixGridItems"
+                 Filterable="true"
+                 Hideable="true"
+                 Groupable="true"
+                 GroupExpanded="false">
+        <Columns>
+            <PropertyColumn Property="rsm => rsm.CountryRegionName" Title="Region" Hidden="true" />
+            <PropertyColumn Property="rsm => rsm.StateProvinceName" Title="State" Hidden="true" />
+            <PropertyColumn Property="rsm => rsm.City" Title="City" Groupable="false" Hidden="true" />
+            <PropertyColumn Property="rsm => rsm.Sales" Title="Sales" Groupable="false" />
+            <PropertyColumn Property="rsm => rsm.QuantitySold" Title="Qty Sold" Groupable="false" />
+            <PropertyColumn Property="rsm => rsm.GrossProfit" Title="Gross Profit" Groupable="false" />
+            <PropertyColumn Property="rsm => rsm.GrossMargin" Title="Gross Margin" Groupable="false" />
+        </Columns>
+    </MudDataGrid>
+</SpinnerOverlayComponent>
 
 @code {
+    [CascadingParameter]
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
 
+    private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private bool IsLoading { get; set; } = false;
+
+    public List<RegionalSummaryMatrixGridItem> RegionalSummaryMatrixGridItems { get; set; } = [];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryAsync());
+
+            await RequeryAsync();
+        }
+    }
+
+    private async Task RequeryAsync()
+    {
+        IsLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        var from = RegionalFilterStateProviderComponent.From.Value;
+        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
+
+        var items = await query
+            .Include(sod => sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation)
+            .Include(sod => sod.Product.ProductCostHistories)
+            .Select(sod => new
+            {
+                CountryRegionName = sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name,
+                StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name,
+                City = sod.SalesOrder.BillToAddress.City,
+                LineTotal = sod.LineTotal,
+                Cost = sod.Product.ProductCostHistories
+                    .OrderByDescending(pch => pch.ModifiedDate)
+                    .Select(pch => pch.StandardCost)
+                    .FirstOrDefault()
+            })
+            .Select(x => new RegionalSummaryMatrixGridItem
+            {
+                CountryRegionName = x.CountryRegionName,
+                StateProvinceName = x.StateProvinceName,
+                City = x.City,
+                Sales = x.LineTotal,
+                QuantitySold = 1,
+                GrossProfit = x.LineTotal - x.Cost,
+                GrossMargin = x.LineTotal == 0 ? 0 : (x.LineTotal - x.Cost) / x.LineTotal * 100
+            })
+            .Take(500)
+            .OrderBy(x => x.CountryRegionName)
+            .ThenBy(x => x.StateProvinceName)
+            .ThenBy(x => x.City)
+            .ToListAsync();
+
+        RegionalSummaryMatrixGridItems = items;
+
+        IsLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    // private string GroupClassFunc(GroupDefinition<RegionalSummaryMatrixGridItem> item)
+    // {
+    //     return item.Grouping.Key?
+    // }
+
+    public void Dispose()
+    {
+        RegionalFilterChangedSubscription?.Dispose();
+    }
 }
