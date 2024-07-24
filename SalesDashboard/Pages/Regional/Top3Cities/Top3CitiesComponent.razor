@@ -102,13 +102,20 @@
             .Take(3)
             .ToListAsync();
 
-        Data = new double[3] { 0.0, 0.0, 0.0 };
-        Labels = new string[3] { string.Empty, string.Empty, string.Empty };
-
-        for (int i = 0; i < top3Cities.Count; i++)
+        if (top3Cities.Any())
         {
-            Data[i] = Convert.ToDouble(top3Cities[i].TotalSales);
-            Labels[i] = $"{top3Cities[i].City} ({top3Cities[i].TotalSales.ToMillionsWithTwoDecimals()})";
+            Data = top3Cities
+                .Select(top3City => (double)top3City.TotalSales)
+                .ToArray();
+
+            Labels = top3Cities
+                .Select(top3City => $"{top3City.City} ({top3City.TotalSales.ToMillionsWithTwoDecimals()})")
+                .ToArray();
+        }
+        else
+        {
+            Data = null;
+            Labels = null;
         }
 
         IsChartDataLoading = false;
