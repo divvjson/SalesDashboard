@@ -9,7 +9,7 @@ window.initializeMap = () => {
 
     if (distributionOfSalesMapElement) {
         distributionOfSalesMap = new google.maps.Map(distributionOfSalesMapElement, {
-            center: { lat: 17, lng: 8 },
+            center: { lat: 15, lng: 5 },
             disableDoubleClickZoom: true,
             fullscreenControl: false,
             mapTypeControl: false,
@@ -78,8 +78,8 @@ function createCircle(stateProvinceSale, minSales, maxSales) {
     const formattedTotalSales = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
     }).format(stateProvinceSale.totalSales);
 
     const infoWindow = new google.maps.InfoWindow({
