@@ -163,8 +163,6 @@
     {
         IsLoading = true;
 
-        RegionalSummaryMatrixGridItems.Clear();
-
         await InvokeAsync(StateHasChanged);
 
         var dataSource = Configuration["DbDataSource"];
@@ -216,6 +214,8 @@
                     JOIN Person.StateProvince sp ON ba.StateProvinceID = sp.StateProvinceID
                     JOIN Person.CountryRegion cr ON sp.CountryRegionCode = cr.CountryRegionCode
                     JOIN Production.Product p ON sod.ProductID = p.ProductID
+                    JOIN Production.ProductSubcategory ps ON p.ProductSubcategoryID = ps.ProductSubcategoryID
+	                JOIN Production.ProductCategory pc ON ps.ProductCategoryID = pc.ProductCategoryID
                     LEFT JOIN LatestCost lc ON p.ProductID = lc.ProductID
             ";
 
@@ -252,6 +252,54 @@
                 conditions.Add($"cr.CountryRegionCode IN ({string.Join(", ", parameterNames)})");
             }
 
+            if (productCategoryNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productCategoryNames.Count(); i++)
+                {
+                    var parameterName = $"@productCategoryName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productCategoryNames.ElementAt(i));
+                }
+
+                conditions.Add($"pc.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productSubcategoryNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productSubcategoryNames.Count(); i++)
+                {
+                    var parameterName = $"@productSubcategoryName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productSubcategoryNames.ElementAt(i));
+                }
+
+                conditions.Add($"ps.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productNames.Count(); i++)
+                {
+                    var parameterName = $"@productName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productNames.ElementAt(i));
+                }
+
+                conditions.Add($"p.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
             if (conditions.Any())
             {
                 cmdText += " WHERE " + string.Join(" AND ", conditions);
@@ -268,6 +316,8 @@
 
             using SqlDataReader reader = await command.ExecuteReaderAsync();
 
+            List<RegionalSummaryMatrixItem> items = new();
+
             while (await reader.ReadAsync())
             {
                 RegionalSummaryMatrixItem item = new()
@@ -282,17 +332,19 @@
                     GrossMargin = reader.GetDecimal(reader.GetOrdinal("GrossMargin"))
                 };
 
-                RegionalSummaryMatrixGridItems.Add(item);
+                items.Add(item);
             }
+
+            RegionalSummaryMatrixGridItems = items;
+
+            IsLoading = false;
+
+            await InvokeAsync(StateHasChanged);
         }
         finally
         {
             await connection.CloseAsync();
         }
-
-        IsLoading = false;
-
-        await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
