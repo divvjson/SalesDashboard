@@ -202,10 +202,10 @@
                     ba.City,
 	                SUM(sod.OrderQty) AS QuantitySold,
                     SUM(sod.LineTotal) AS TotalSales,
-                    SUM(lc.StandardCost) AS TotalCosts,
-                    SUM(sod.LineTotal) - SUM(lc.StandardCost) AS GrossProfit,
+                    SUM(lc.StandardCost * sod.OrderQty) AS TotalCosts,
+                    SUM(sod.LineTotal) - SUM(lc.StandardCost * sod.OrderQty) AS GrossProfit,
                     CASE WHEN SUM(sod.LineTotal) = 0 THEN 0
-                         ELSE (SUM(sod.LineTotal) - SUM(lc.StandardCost)) / SUM(sod.LineTotal) * 100
+                         ELSE (SUM(sod.LineTotal) - SUM(lc.StandardCost * sod.OrderQty)) / SUM(sod.LineTotal) * 100
                     END AS GrossMargin
                 FROM
                     Sales.SalesOrderDetail sod
