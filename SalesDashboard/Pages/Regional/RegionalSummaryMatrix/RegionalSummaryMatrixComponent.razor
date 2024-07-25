@@ -221,7 +221,25 @@
 
             using SqlCommand command = new(cmdText, connection);
 
-            // Add conditional filters here (see RegionalDataProviderComponent.cs)
+            var from = RegionalFilterStateProviderComponent.From.Value;
+            var through = RegionalFilterStateProviderComponent.Through.Value;
+            var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+            var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+            var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+            var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+            List<string> conditions = new();
+
+            conditions.Add("soh.OrderDate >= @from");
+            command.Parameters.AddWithValue("@from", from);
+
+            conditions.Add("soh.OrderDate <= @through");
+            command.Parameters.AddWithValue("@through", through);
+
+            if (conditions.Any())
+            {
+                cmdText += " WHERE " + string.Join(" AND ", conditions);
+            }
 
             cmdText += @"
                 GROUP BY
