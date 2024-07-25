@@ -36,8 +36,8 @@ window.updateMap = (stateProvinceSalesParam) => {
 
     // Find the min and max sales values
     for (const stateProvinceSaleParam of stateProvinceSalesParam) {
-        maxSales = Math.max(maxSales, stateProvinceSaleParam.totalSales);
-        minSales = Math.min(minSales, stateProvinceSaleParam.totalSales);
+        maxSales = Math.max(maxSales, stateProvinceSaleParam.sales);
+        minSales = Math.min(minSales, stateProvinceSaleParam.sales);
     }
 
     for (const stateProvinceSaleParam of stateProvinceSalesParam) {
@@ -52,12 +52,12 @@ function updateCircles() {
     let minSales = Infinity;
 
     for (const stateProvinceSale of stateProvinceSales) {
-        maxSales = Math.max(maxSales, stateProvinceSale.totalSales);
-        minSales = Math.min(minSales, stateProvinceSale.totalSales);
+        maxSales = Math.max(maxSales, stateProvinceSale.sales);
+        minSales = Math.min(minSales, stateProvinceSale.sales);
     }
 
     for (const circle of circles) {
-        const radius = calculateRadius(circle.totalSales, minSales, maxSales);
+        const radius = calculateRadius(circle.sales, minSales, maxSales);
         circle.setRadius(radius);
     }
 }
@@ -71,23 +71,23 @@ function createCircle(stateProvinceSale, minSales, maxSales) {
         fillOpacity: 0.35,
         map: distributionOfSalesMap,
         center: { lat: stateProvinceSale.latitude, lng: stateProvinceSale.longitude },
-        totalSales: stateProvinceSale.totalSales,
-        radius: calculateRadius(stateProvinceSale.totalSales, minSales, maxSales)
+        sales: stateProvinceSale.sales,
+        radius: calculateRadius(stateProvinceSale.sales, minSales, maxSales)
     });
 
-    const formattedTotalSales = new Intl.NumberFormat('en-US', {
+    const formattedSales = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-    }).format(stateProvinceSale.totalSales);
+    }).format(stateProvinceSale.sales);
 
     const infoWindow = new google.maps.InfoWindow({
         content: `
             <div>
                 <p><strong>State:</strong> ${stateProvinceSale.stateProvinceName}</p>
                 <p><strong>Country:</strong> ${stateProvinceSale.countryRegionName}</p>
-                <p><strong>Total Sales:</strong> ${formattedTotalSales}</p>
+                <p><strong>Sales:</strong> ${formattedSales}</p>
             </div>
         `
     });
@@ -100,7 +100,7 @@ function createCircle(stateProvinceSale, minSales, maxSales) {
     return circle;
 }
 
-function calculateRadius(totalSales, minSales, maxSales) {
+function calculateRadius(sales, minSales, maxSales) {
     if (minSales === maxSales) {
         return baseMaxRadius / 2; // In case all sales are equal, return a fixed medium size
     }
@@ -110,7 +110,7 @@ function calculateRadius(totalSales, minSales, maxSales) {
     const adjustedMinRadius = baseMinRadius / Math.pow(1.5, zoomLevel - 2); // Adjust min radius based on zoom level
 
     // Normalize the sales value to a range between adjustedMinRadius and adjustedMaxRadius
-    const radius = ((totalSales - minSales) / (maxSales - minSales)) * (adjustedMaxRadius - adjustedMinRadius) + adjustedMinRadius;
+    const radius = ((sales - minSales) / (maxSales - minSales)) * (adjustedMaxRadius - adjustedMinRadius) + adjustedMinRadius;
 
     return radius;
 }

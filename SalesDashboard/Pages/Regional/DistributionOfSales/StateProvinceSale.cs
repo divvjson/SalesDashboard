@@ -12,6 +12,6 @@
 
         public required double Longitude { get; set; }
 
-        public required decimal TotalSales { get; set; }
+        public required decimal Sales { get; set; }
     }
 }
