@@ -6,7 +6,19 @@ namespace SalesDashboard.Helpers
     {
         private static readonly string SecretsFilePath = Path.Combine(Directory.GetCurrentDirectory(), "secrets.json");
 
-        public static string GetValue(string key)
+        public static string GetConnectionString(IConfiguration configuration)
+        {
+            var dataSource = configuration["DbDataSource"];
+            var initialCatalog = configuration["DbInitialCatalog"];
+            var userId = configuration["DbUserID"];
+            var password = GetValue("DbPassword");
+
+            var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true";
+
+            return connectionString;
+        }
+
+        private static string GetValue(string key)
         {
             if (File.Exists(SecretsFilePath) == false)
             {

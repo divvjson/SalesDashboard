@@ -9,16 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
 {
-    var dataSource = builder.Configuration["DbDataSource"];
-    var initialCatalog = builder.Configuration["DbInitialCatalog"];
-    var userId = builder.Configuration["DbUserID"];
-    var password = SecretsHelper.GetValue("DbPassword");
-
-    var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true";
-
     options
         .UseLazyLoadingProxies()
-        .UseSqlServer(connectionString, options => options.UseNetTopologySuite());
+        .UseSqlServer(SecretsHelper.GetConnectionString(builder.Configuration), options => options.UseNetTopologySuite());
 });
 
 // Add services to the container.
