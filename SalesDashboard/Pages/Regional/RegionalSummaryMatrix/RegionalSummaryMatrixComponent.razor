@@ -236,6 +236,22 @@
             conditions.Add("soh.OrderDate <= @through");
             command.Parameters.AddWithValue("@through", through);
 
+            if (countryRegionCodes.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < countryRegionCodes.Count(); i++)
+                {
+                    var parameterName = $"@countryRegionCode{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, countryRegionCodes.ElementAt(i));
+                }
+
+                conditions.Add($"cr.CountryRegionCode IN ({string.Join(", ", parameterNames)})");
+            }
+
             if (conditions.Any())
             {
                 cmdText += " WHERE " + string.Join(" AND ", conditions);
