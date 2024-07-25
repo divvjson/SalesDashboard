@@ -1,0 +1,354 @@
+﻿@using Microsoft.Data.SqlClient
+@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+@using SalesDashboard.Extensions
+@using SalesDashboard.Helpers
+
+@implements IDisposable
+@inject IConfiguration Configuration
+
+<SpinnerOverlayComponent IsLoading="IsLoading">
+    <MudTable FixedHeader="true"
+              T="RegionalSummaryMatrixItem"
+              Items="RegionalSummaryMatrixGridItems"
+              GroupBy="GroupDefinition"
+              Breakpoint="Breakpoint.None"
+              Dense="true"
+              Striped="true">
+        <HeaderContent>
+            <MudTh>Region</MudTh>
+            <MudTh>State</MudTh>
+            <MudTh>City</MudTh>
+            <MudTh>Qty Sold</MudTh>
+            <MudTh>Sales</MudTh>
+            <MudTh>Costs</MudTh>
+            <MudTh>Gross Profit</MudTh>
+            <MudTh>Gross Margin</MudTh>
+        </HeaderContent>
+        <GroupHeaderTemplate>
+            @if (context.GroupName is "Region")
+            {
+                <MudTh colspan="3" style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
+            }
+            else if (context.GroupName is "State")
+            {
+                <MudTh></MudTh>
+                <MudTh colspan="2" style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
+            }
+            else if (context.GroupName is "City")
+            {
+                <MudTh></MudTh>
+                <MudTh></MudTh>
+                <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
+            }
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @context.Items.Sum(item => item.QuantitySold)
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @if (context.GroupName is "Region")
+                {
+                    @context.Items.Sum(item => item.TotalSales).ToCurrencyWithTwoDecimalsInMillions()
+                }
+                else
+                {
+                    @context.Items.Sum(item => item.TotalSales).ToCurrencyWithTwoDecimals()
+                }
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @if (context.GroupName is "Region")
+                {
+                    @context.Items.Sum(item => item.TotalCosts).ToCurrencyWithTwoDecimalsInMillions()
+                }
+                else
+                {
+                    @context.Items.Sum(item => item.TotalCosts).ToCurrencyWithTwoDecimals()
+                }
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @if (context.GroupName is "Region")
+                {
+                    @context.Items.Sum(item => item.GrossProfit).ToCurrencyWithTwoDecimalsInMillions()
+                }
+                else
+                {
+                    @context.Items.Sum(item => item.GrossProfit).ToCurrencyWithTwoDecimals()
+                }
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @($"{context.Items.Average(item => item.GrossMargin).ToString("F2")}%")
+            </MudTh>
+        </GroupHeaderTemplate>
+        <RowTemplate>
+            <MudTd DataLabel="Region">@context.CountryRegionName</MudTd>
+            <MudTd DataLabel="State">@context.StateProvinceName</MudTd>
+            <MudTd DataLabel="City">@context.City</MudTd>
+            <MudTd DataLabel="Qty Sold">@context.QuantitySold</MudTd>
+            <MudTd DataLabel="Sales">@context.TotalSales.ToCurrencyWithTwoDecimalsInMillions()</MudTd>
+            <MudTd DataLabel="Costs">@context.TotalCosts.ToCurrencyWithTwoDecimalsInMillions()</MudTd>
+            <MudTd DataLabel="Gross Profit">@context.GrossProfit.ToCurrencyWithTwoDecimalsInMillions()</MudTd>
+            <MudTd DataLabel="Gross Margin">@($"{context.GrossMargin.ToString("F2")}%")</MudTd>
+        </RowTemplate>
+    </MudTable>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private bool IsLoading { get; set; } = false;
+
+    public List<RegionalSummaryMatrixItem> RegionalSummaryMatrixGridItems { get; set; } = [];
+
+    private TableGroupDefinition<RegionalSummaryMatrixItem> GroupDefinition { get; set; } = new()
+    {
+        GroupName = "Region",
+        IsInitiallyExpanded = false,
+        Indentation = true,
+        Expandable = true,
+        Selector = (item) => item.CountryRegionName,
+        InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixItem>()
+        {
+            GroupName = "State",
+            IsInitiallyExpanded = false,
+            Indentation = true,
+            Expandable = true,
+            Selector = (item) => item.StateProvinceName,
+            InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixItem>()
+            {
+                GroupName = "City",
+                IsInitiallyExpanded = false,
+                Indentation = true,
+                Expandable = false,
+                Selector = (item) => item.City
+            }
+        }
+    };
+
+    private string GetGroupHeaderRowStyle(TableGroupData<object, RegionalSummaryMatrixItem> context)
+    {
+        var styleString = "";
+
+        switch (context.GroupName)
+        {
+            case "Region":
+                styleString += " font-weight: 500;";
+                break;
+            case "State":
+                styleString += " font-weight: 400;";
+                break;
+            case "City":
+                styleString += " font-weight: 300;";
+                break;
+        }
+
+        return styleString;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryAsync());
+
+            await RequeryAsync();
+        }
+    }
+
+    private async Task RequeryAsync()
+    {
+        IsLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        var dataSource = Configuration["DbDataSource"];
+        var initialCatalog = Configuration["DbInitialCatalog"];
+        var userId = Configuration["DbUserID"];
+        var password = SecretsHelper.GetValue("DbPassword");
+
+        var connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};Encrypt=False;MultipleActiveResultSets=true";
+
+        using SqlConnection connection = new(connectionString);
+
+        try
+        {
+            await connection.OpenAsync();
+
+            var cmdText = @"
+                WITH LatestCost AS (
+                    SELECT
+                        pch.ProductID,
+                        pch.StandardCost
+                    FROM
+                        Production.ProductCostHistory pch
+                        INNER JOIN (
+                            SELECT
+                                ProductID,
+                                MAX(ModifiedDate) AS LatestModifiedDate
+                            FROM
+                                Production.ProductCostHistory
+                            GROUP BY
+                                ProductID
+                        ) latest ON pch.ProductID = latest.ProductID
+                            AND pch.ModifiedDate = latest.LatestModifiedDate
+                )
+                SELECT
+                    cr.Name AS CountryRegionName,
+                    sp.Name AS StateProvinceName,
+                    ba.City,
+	                SUM(sod.OrderQty) AS QuantitySold,
+                    SUM(sod.LineTotal) AS TotalSales,
+                    SUM(lc.StandardCost) AS TotalCosts,
+                    SUM(sod.LineTotal) - SUM(lc.StandardCost) AS GrossProfit,
+                    CASE WHEN SUM(sod.LineTotal) = 0 THEN 0
+                         ELSE (SUM(sod.LineTotal) - SUM(lc.StandardCost)) / SUM(sod.LineTotal) * 100
+                    END AS GrossMargin
+                FROM
+                    Sales.SalesOrderDetail sod
+                    JOIN Sales.SalesOrderHeader soh ON sod.SalesOrderID = soh.SalesOrderID
+                    JOIN Person.Address ba ON soh.BillToAddressID = ba.AddressID
+                    JOIN Person.StateProvince sp ON ba.StateProvinceID = sp.StateProvinceID
+                    JOIN Person.CountryRegion cr ON sp.CountryRegionCode = cr.CountryRegionCode
+                    JOIN Production.Product p ON sod.ProductID = p.ProductID
+                    JOIN Production.ProductSubcategory ps ON p.ProductSubcategoryID = ps.ProductSubcategoryID
+	                JOIN Production.ProductCategory pc ON ps.ProductCategoryID = pc.ProductCategoryID
+                    LEFT JOIN LatestCost lc ON p.ProductID = lc.ProductID
+            ";
+
+            using SqlCommand command = new(cmdText, connection);
+
+            var from = RegionalFilterStateProviderComponent.From.Value;
+            var through = RegionalFilterStateProviderComponent.Through.Value;
+            var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+            var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
+            var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
+            var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+
+            List<string> conditions = new();
+
+            conditions.Add("soh.OrderDate >= @from");
+            command.Parameters.AddWithValue("@from", from);
+
+            conditions.Add("soh.OrderDate <= @through");
+            command.Parameters.AddWithValue("@through", through);
+
+            if (countryRegionCodes.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < countryRegionCodes.Count(); i++)
+                {
+                    var parameterName = $"@countryRegionCode{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, countryRegionCodes.ElementAt(i));
+                }
+
+                conditions.Add($"cr.CountryRegionCode IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productCategoryNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productCategoryNames.Count(); i++)
+                {
+                    var parameterName = $"@productCategoryName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productCategoryNames.ElementAt(i));
+                }
+
+                conditions.Add($"pc.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productSubcategoryNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productSubcategoryNames.Count(); i++)
+                {
+                    var parameterName = $"@productSubcategoryName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productSubcategoryNames.ElementAt(i));
+                }
+
+                conditions.Add($"ps.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (productNames.Any())
+            {
+                List<string> parameterNames = new();
+
+                for (int i = 0; i < productNames.Count(); i++)
+                {
+                    var parameterName = $"@productName{i}";
+
+                    parameterNames.Add(parameterName);
+
+                    command.Parameters.AddWithValue(parameterName, productNames.ElementAt(i));
+                }
+
+                conditions.Add($"p.Name IN ({string.Join(", ", parameterNames)})");
+            }
+
+            if (conditions.Any())
+            {
+                cmdText += " WHERE " + string.Join(" AND ", conditions);
+            }
+
+            cmdText += @"
+                GROUP BY
+                    cr.Name, sp.Name, ba.City
+                ORDER BY
+                    cr.Name, sp.Name, ba.City;
+            ";
+
+            command.CommandText = cmdText;
+
+            using SqlDataReader reader = await command.ExecuteReaderAsync();
+
+            List<RegionalSummaryMatrixItem> items = new();
+
+            while (await reader.ReadAsync())
+            {
+                RegionalSummaryMatrixItem item = new()
+                {
+                    CountryRegionName = reader.GetString(reader.GetOrdinal("CountryRegionName")),
+                    StateProvinceName = reader.GetString(reader.GetOrdinal("StateProvinceName")),
+                    City = reader.GetString(reader.GetOrdinal("City")),
+                    QuantitySold = reader.GetInt32(reader.GetOrdinal("QuantitySold")),
+                    TotalSales = reader.GetDecimal(reader.GetOrdinal("TotalSales")),
+                    TotalCosts = reader.GetDecimal(reader.GetOrdinal("TotalCosts")),
+                    GrossProfit = reader.GetDecimal(reader.GetOrdinal("GrossProfit")),
+                    GrossMargin = reader.GetDecimal(reader.GetOrdinal("GrossMargin"))
+                };
+
+                items.Add(item);
+            }
+
+            RegionalSummaryMatrixGridItems = items;
+
+            IsLoading = false;
+
+            await InvokeAsync(StateHasChanged);
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
+    }
+
+    public void Dispose()
+    {
+        RegionalFilterChangedSubscription?.Dispose();
+    }
+}

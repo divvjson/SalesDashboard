@@ -109,7 +109,7 @@
                 .ToArray();
 
             Labels = top3Cities
-                .Select(top3City => $"{top3City.City} ({top3City.TotalSales.ToMillionsWithTwoDecimals()})")
+                .Select(top3City => $"{top3City.City} ({top3City.TotalSales.ToCurrencyWithTwoDecimalsInMillions()})")
                 .ToArray();
         }
         else

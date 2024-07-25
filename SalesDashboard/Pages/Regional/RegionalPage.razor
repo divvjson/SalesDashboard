@@ -13,6 +13,7 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
 @using SalesDashboard.Pages.Regional.DistributionOfSales
+@using SalesDashboard.Pages.Regional.RegionalSummaryMatrix
 @using SalesDashboard.Pages.Regional.SalesTrendTop3Countries
 @using SalesDashboard.Pages.Regional.Top3Cities
 @using SalesDashboard.Pages.Regional.Top3States
@@ -50,17 +51,17 @@
         <div class="grid">
             <div class="total-sales">
                 <PageBoxComponent Title="Total Sales">
-                    <FigureBoxComponent Value="@TotalSales.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@TotalSales.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="total-cost">
                 <PageBoxComponent Title="Total Cost">
-                    <FigureBoxComponent Value="@TotalCost.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@TotalCost.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-profit">
                 <PageBoxComponent Title="Gross Profit">
-                    <FigureBoxComponent Value="@GrossProfit.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@GrossProfit.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-margin">
@@ -95,7 +96,7 @@
             </div>
             <div class="summary-matrix">
                 <PageBoxComponent Title="Summary Matrix">
-                    Summary Matrix
+                    <RegionalSummaryMatrixComponent />
                 </PageBoxComponent>
             </div>
         </div>
