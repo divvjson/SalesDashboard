@@ -171,7 +171,7 @@
                     cr.Name AS CountryRegionName,
                     sp.Name AS StateProvinceName,
                     ba.City,
-	                COUNT(*) AS QuantitySold,
+	                SUM(sod.OrderQty) AS QuantitySold,
                     SUM(sod.LineTotal) AS TotalSales,
                     SUM(lc.StandardCost) AS TotalCosts,
                     SUM(sod.LineTotal) - SUM(lc.StandardCost) AS GrossProfit,
