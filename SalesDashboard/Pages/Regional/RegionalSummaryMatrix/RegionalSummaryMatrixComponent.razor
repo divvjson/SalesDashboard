@@ -131,17 +131,17 @@
     {
         var styleString = "";
 
-        if (context.GroupName is "Region")
+        switch (context.GroupName)
         {
-            styleString += " font-weight: 500;";
-        }
-        else if (context.GroupName is "State")
-        {
-            styleString += " font-weight: 400;";
-        }
-        else if (context.GroupName is "City")
-        {
-            styleString += " font-weight: 300;";
+            case "Region":
+                styleString += " font-weight: 500;";
+                break;
+            case "State":
+                styleString += " font-weight: 400;";
+                break;
+            case "City":
+                styleString += " font-weight: 300;";
+                break;
         }
 
         return styleString;
