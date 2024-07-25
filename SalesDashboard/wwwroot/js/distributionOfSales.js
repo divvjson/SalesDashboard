@@ -9,7 +9,7 @@ window.initializeMap = () => {
 
     if (distributionOfSalesMapElement) {
         distributionOfSalesMap = new google.maps.Map(distributionOfSalesMapElement, {
-            center: { lat: 0, lng: 0 },
+            center: { lat: 17, lng: 8 },
             disableDoubleClickZoom: true,
             fullscreenControl: false,
             mapTypeControl: false,
