@@ -13,7 +13,9 @@
               T="RegionalSummaryMatrixItem"
               Items="RegionalSummaryMatrixGridItems"
               GroupBy="GroupDefinition"
-              Dense="true">
+              Breakpoint="Breakpoint.None"
+              Dense="true"
+              Striped="true">
         <HeaderContent>
             <MudTh>Region</MudTh>
             <MudTh>State</MudTh>
@@ -27,24 +29,24 @@
         <GroupHeaderTemplate>
             @if (context.GroupName is "Region")
             {
-                <MudTh colspan="3" style="font-weight: 500;">@context.Key</MudTh>
+                <MudTh colspan="3" style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
             }
             else if (context.GroupName is "State")
             {
                 <MudTh></MudTh>
-                <MudTh colspan="2" style="font-weight: 400;">@context.Key</MudTh>
+                <MudTh colspan="2" style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
             }
             else if (context.GroupName is "City")
             {
                 <MudTh></MudTh>
                 <MudTh></MudTh>
-                <MudTh style="font-weight: 300;">@context.Key</MudTh>
+                <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
             }
-            <MudTh>@context.Items.Sum(item => item.QuantitySold)</MudTh>
-            <MudTh>@context.Items.Sum(item => item.TotalSales).ToMillionsWithTwoDecimals()</MudTh>
-            <MudTh>@context.Items.Sum(item => item.TotalCosts).ToMillionsWithTwoDecimals()</MudTh>
-            <MudTh>@context.Items.Sum(item => item.GrossProfit).ToMillionsWithTwoDecimals()</MudTh>
-            <MudTh>@($"{context.Items.Average(item => item.GrossMargin).ToString("F2")}%")</MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Items.Sum(item => item.QuantitySold)</MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Items.Sum(item => item.TotalSales).ToMillionsWithTwoDecimals()</MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Items.Sum(item => item.TotalCosts).ToMillionsWithTwoDecimals()</MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Items.Sum(item => item.GrossProfit).ToMillionsWithTwoDecimals()</MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">@($"{context.Items.Average(item => item.GrossMargin).ToString("F2")}%")</MudTh>
         </GroupHeaderTemplate>
         <RowTemplate>
             <MudTd DataLabel="Region">@context.CountryRegionName</MudTd>
@@ -93,6 +95,26 @@
             }
         }
     };
+
+    private string GetGroupHeaderRowStyle(TableGroupData<object, RegionalSummaryMatrixItem> context)
+    {
+        var styleString = "";
+
+        if (context.GroupName is "Region")
+        {
+            styleString += " font-weight: 500;";
+        }
+        else if (context.GroupName is "State")
+        {
+            styleString += " font-weight: 400;";
+        }
+        else if (context.GroupName is "City")
+        {
+            styleString += " font-weight: 300;";
+        }
+
+        return styleString;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
