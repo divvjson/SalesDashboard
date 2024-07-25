@@ -42,20 +42,51 @@
                 <MudTh></MudTh>
                 <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
             }
-            <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Items.Sum(item => item.QuantitySold)</MudTh>
-            <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Items.Sum(item => item.TotalSales).ToMillionsWithTwoDecimals()</MudTh>
-            <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Items.Sum(item => item.TotalCosts).ToMillionsWithTwoDecimals()</MudTh>
-            <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Items.Sum(item => item.GrossProfit).ToMillionsWithTwoDecimals()</MudTh>
-            <MudTh style="@GetGroupHeaderRowStyle(context)">@($"{context.Items.Average(item => item.GrossMargin).ToString("F2")}%")</MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @context.Items.Sum(item => item.QuantitySold)
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @if (context.GroupName is "Region")
+                {
+                    @context.Items.Sum(item => item.TotalSales).ToCurrencyWithTwoDecimalsInMillions()
+                }
+                else
+                {
+                    @context.Items.Sum(item => item.TotalSales).ToCurrencyWithTwoDecimals()
+                }
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @if (context.GroupName is "Region")
+                {
+                    @context.Items.Sum(item => item.TotalCosts).ToCurrencyWithTwoDecimalsInMillions()
+                }
+                else
+                {
+                    @context.Items.Sum(item => item.TotalCosts).ToCurrencyWithTwoDecimals()
+                }
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @if (context.GroupName is "Region")
+                {
+                    @context.Items.Sum(item => item.GrossProfit).ToCurrencyWithTwoDecimalsInMillions()
+                }
+                else
+                {
+                    @context.Items.Sum(item => item.GrossProfit).ToCurrencyWithTwoDecimals()
+                }
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @($"{context.Items.Average(item => item.GrossMargin).ToString("F2")}%")
+            </MudTh>
         </GroupHeaderTemplate>
         <RowTemplate>
             <MudTd DataLabel="Region">@context.CountryRegionName</MudTd>
             <MudTd DataLabel="State">@context.StateProvinceName</MudTd>
             <MudTd DataLabel="City">@context.City</MudTd>
             <MudTd DataLabel="Qty Sold">@context.QuantitySold</MudTd>
-            <MudTd DataLabel="Sales">@context.TotalSales.ToMillionsWithTwoDecimals()</MudTd>
-            <MudTd DataLabel="Costs">@context.TotalCosts.ToMillionsWithTwoDecimals()</MudTd>
-            <MudTd DataLabel="Gross Profit">@context.GrossProfit.ToMillionsWithTwoDecimals()</MudTd>
+            <MudTd DataLabel="Sales">@context.TotalSales.ToCurrencyWithTwoDecimalsInMillions()</MudTd>
+            <MudTd DataLabel="Costs">@context.TotalCosts.ToCurrencyWithTwoDecimalsInMillions()</MudTd>
+            <MudTd DataLabel="Gross Profit">@context.GrossProfit.ToCurrencyWithTwoDecimalsInMillions()</MudTd>
             <MudTd DataLabel="Gross Margin">@($"{context.GrossMargin.ToString("F2")}%")</MudTd>
         </RowTemplate>
     </MudTable>

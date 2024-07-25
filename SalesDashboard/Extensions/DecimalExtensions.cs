@@ -1,15 +1,32 @@
-﻿namespace SalesDashboard.Extensions
+﻿using System.Globalization;
+
+namespace SalesDashboard.Extensions
 {
     public static class DecimalExtensions
     {
-        public static string ToMillionsWithTwoDecimals(this decimal value)
+        public static string ToCurrencyWithTwoDecimalsInMillions(this decimal value)
         {
-            return $"${value / 1_000_000:0.00}M";
+            value = value / 1000000;
+
+            var formattedValue = value.ToString("C2", new CultureInfo("en-US"));
+
+            return $"{formattedValue}M";
         }
 
-        public static string ToThousandsWithTwoDecimals(this decimal value)
+        public static string ToCurrencyWithTwoDecimalsInThousands(this decimal value)
         {
-            return $"${value / 1_000:0.00}K";
+            value = value / 1000;
+
+            var formattedValue = value.ToString("C2", new CultureInfo("en-US"));
+
+            return $"{formattedValue}K";
+        }
+
+        public static string ToCurrencyWithTwoDecimals(this decimal value)
+        {
+            var formattedValue = value.ToString("C2", new CultureInfo("en-US"));
+
+            return formattedValue;
         }
 
         public static string ToPercentageWithTwoDecimals(this decimal value)

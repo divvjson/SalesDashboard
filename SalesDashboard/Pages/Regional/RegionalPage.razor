@@ -51,17 +51,17 @@
         <div class="grid">
             <div class="total-sales">
                 <PageBoxComponent Title="Total Sales">
-                    <FigureBoxComponent Value="@TotalSales.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@TotalSales.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="total-cost">
                 <PageBoxComponent Title="Total Cost">
-                    <FigureBoxComponent Value="@TotalCost.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@TotalCost.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-profit">
                 <PageBoxComponent Title="Gross Profit">
-                    <FigureBoxComponent Value="@GrossProfit.ToMillionsWithTwoDecimals()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@GrossProfit.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-margin">
