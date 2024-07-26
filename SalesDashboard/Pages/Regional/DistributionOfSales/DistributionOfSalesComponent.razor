@@ -59,8 +59,15 @@
 
         var query = context.SalesOrderDetails.AsQueryable();
 
-        query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
-        query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
+        if (from.HasValue)
+        {
+            query = query.Where(sod => sod.SalesOrder.OrderDate >= from.Value);
+        }
+
+        if (through.HasValue)
+        {
+            query = query.Where(sod => sod.SalesOrder.OrderDate <= through.Value);
+        }
 
         if (countryRegionCodes.Any())
         {

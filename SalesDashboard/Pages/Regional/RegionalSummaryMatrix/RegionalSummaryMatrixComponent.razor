@@ -223,11 +223,17 @@
 
             List<string> conditions = new();
 
-            conditions.Add("soh.OrderDate >= @from");
-            command.Parameters.AddWithValue("@from", from);
+            if (from.HasValue)
+            {
+                conditions.Add("soh.OrderDate >= @from");
+                command.Parameters.AddWithValue("@from", from.Value);
+            }
 
-            conditions.Add("soh.OrderDate <= @through");
-            command.Parameters.AddWithValue("@through", through);
+            if (through.HasValue)
+            {
+                conditions.Add("soh.OrderDate <= @through");
+                command.Parameters.AddWithValue("@through", through.Value);
+            }
 
             if (countryRegionCodes.Any())
             {
