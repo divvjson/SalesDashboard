@@ -1,4 +1,5 @@
 ﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.ClickToActivateOverlay
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
 
@@ -6,8 +7,10 @@
 @inject IJSRuntime JSRuntime
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<SpinnerOverlayComponent IsLoading="IsMapDataLoading">
-    <div id="distributionOfSalesMap" style="flex-grow: 1; min-height: 500px;"></div>
+<SpinnerOverlayComponent IsVisible="IsMapDataLoading">
+    <ClickToActivateOverlayComponent IsVisible="IsClickToActivateVisible" OnActivateClicked="HandleActivateClicked">
+        <div id="distributionOfSalesMap" style="flex-grow: 1; min-height: 500px;"></div>
+    </ClickToActivateOverlayComponent>
 </SpinnerOverlayComponent>
 
 @code {
@@ -17,6 +20,8 @@
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
     private bool IsMapDataLoading { get; set; } = false;
+
+    private bool IsClickToActivateVisible { get; set; } = true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -30,6 +35,11 @@
 
             await RequeryMapDataAsync();
         }
+    }
+
+    private void HandleActivateClicked()
+    {
+        IsClickToActivateVisible = false;
     }
 
     private async Task RequeryMapDataAsync()
@@ -49,8 +59,15 @@
 
         var query = context.SalesOrderDetails.AsQueryable();
 
-        query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
-        query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
+        if (from.HasValue)
+        {
+            query = query.Where(sod => sod.SalesOrder.OrderDate >= from.Value);
+        }
+
+        if (through.HasValue)
+        {
+            query = query.Where(sod => sod.SalesOrder.OrderDate <= through.Value);
+        }
 
         if (countryRegionCodes.Any())
         {

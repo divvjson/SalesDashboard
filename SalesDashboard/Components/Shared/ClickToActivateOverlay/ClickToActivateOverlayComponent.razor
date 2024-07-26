@@ -1,6 +1,6 @@
 ﻿<div class="overlay-container">
     <div class="overlay @(IsVisible ? "visible" : "")">
-        <MudProgressCircular Color="Color.Inherit" Indeterminate="true" />
+        <MudButton style="background-color: white;" OnClick="HandleActivateClickedAsync">Click To Activate</MudButton>
     </div>
     <div class="content">
         @ChildContent
@@ -12,5 +12,13 @@
     public bool IsVisible { get; set; }
 
     [Parameter]
+    public EventCallback OnActivateClicked { get; set; }
+
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    private async Task HandleActivateClickedAsync()
+    {
+        await OnActivateClicked.InvokeAsync();
+    }
 }
