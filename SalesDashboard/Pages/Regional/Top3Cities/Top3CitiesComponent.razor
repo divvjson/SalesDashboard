@@ -6,7 +6,7 @@
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<SpinnerOverlayComponent IsLoading="IsChartDataLoading">
+<SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="top-3-cities">
         @if (Data is null)
         {

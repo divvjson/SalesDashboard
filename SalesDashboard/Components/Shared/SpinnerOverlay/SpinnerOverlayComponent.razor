@@ -1,5 +1,5 @@
 ﻿<div class="overlay-container">
-    <div class="overlay @(IsLoading ? "visible" : "")">
+    <div class="overlay @(IsVisible ? "visible" : "")">
         <MudProgressCircular Color="Color.Inherit" Indeterminate="true" />
     </div>
     <div class="content">
@@ -9,7 +9,7 @@
 
 @code {
     [Parameter, EditorRequired]
-    public bool IsLoading { get; set; }
+    public bool IsVisible { get; set; }
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }

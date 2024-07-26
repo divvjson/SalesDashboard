@@ -7,7 +7,7 @@
 @inject IJSRuntime JSRuntime
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<SpinnerOverlayComponent IsLoading="IsMapDataLoading">
+<SpinnerOverlayComponent IsVisible="IsMapDataLoading">
     <ClickToActivateOverlayComponent IsVisible="IsClickToActivateVisible" OnActivateClicked="HandleActivateClicked">
         <div id="distributionOfSalesMap" style="flex-grow: 1; min-height: 500px;"></div>
     </ClickToActivateOverlayComponent>

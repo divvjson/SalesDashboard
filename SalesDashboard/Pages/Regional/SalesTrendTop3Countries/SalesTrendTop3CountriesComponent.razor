@@ -5,7 +5,7 @@
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
-<SpinnerOverlayComponent IsLoading="IsChartDataLoading">
+<SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="sales-trend-top-3-countries">
         @if (ChartSeries.Any() is false)
         {
