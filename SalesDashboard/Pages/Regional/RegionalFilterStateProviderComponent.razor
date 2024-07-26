@@ -12,9 +12,9 @@
 @code {
     public Subject<Unit> RegionalFilterChanged { get; private set; } = new();
 
-    public BehaviorSubject<DateTime> From { get; private set; } = new(DateTime.Now);
+    public BehaviorSubject<DateTime?> From { get; private set; } = new(null);
 
-    public BehaviorSubject<DateTime> Through { get; private set; } = new(DateTime.Now);
+    public BehaviorSubject<DateTime?> Through { get; private set; } = new(null);
 
     public BehaviorSubject<IEnumerable<string>> CountryRegionCodes { get; private set; } = new([]);
 
@@ -41,19 +41,19 @@
 
             var countryRegionCodes = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}");
 
-            await SetCountryRegionCodesAsync(countryRegionCodes);
+            await SetCountryRegionCodesAsync(countryRegionCodes ?? []);
 
             var productCategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductCategoryNames)}");
 
-            await SetProductCategoryNamesAsync(productCategoryNames);
+            await SetProductCategoryNamesAsync(productCategoryNames ?? []);
 
             var productSubcategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductSubcategoryNames)}");
 
-            await SetProductSubcategoryNamesAsync(productSubcategoryNames);
+            await SetProductSubcategoryNamesAsync(productSubcategoryNames ?? []);
 
             var productNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductNames)}");
 
-            await SetProductNamesAsync(productNames);
+            await SetProductNamesAsync(productNames ?? []);
         }
     }
 
@@ -89,13 +89,8 @@
         RegionalFilterChanged.OnNext(Unit.Default);
     }
 
-    public async Task SetCountryRegionCodesAsync(IEnumerable<string>? countryRegionCodes)
+    public async Task SetCountryRegionCodesAsync(IEnumerable<string> countryRegionCodes)
     {
-        if (countryRegionCodes is null)
-        {
-            countryRegionCodes = new List<string>();
-        }
-
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}", countryRegionCodes);
 
         CountryRegionCodes.OnNext(countryRegionCodes);
@@ -103,14 +98,9 @@
         RegionalFilterChanged.OnNext(Unit.Default);
     }
 
-    public async Task SetProductCategoryNamesAsync(IEnumerable<string>? productCategoryNames)
+    public async Task SetProductCategoryNamesAsync(IEnumerable<string> productCategoryNames)
     {
-        if (productCategoryNames is null)
-        {
-            productCategoryNames = new List<string>();
-        }
-
-        await SetProductSubcategoryNamesAsync(null);
+        await SetProductSubcategoryNamesAsync([]);
 
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductCategoryNames)}", productCategoryNames);
 
@@ -119,14 +109,9 @@
         RegionalFilterChanged.OnNext(Unit.Default);
     }
 
-    public async Task SetProductSubcategoryNamesAsync(IEnumerable<string>? productSubcategoryNames)
+    public async Task SetProductSubcategoryNamesAsync(IEnumerable<string> productSubcategoryNames)
     {
-        if (productSubcategoryNames is null)
-        {
-            productSubcategoryNames = new List<string>();
-        }
-
-        await SetProductNamesAsync(null);
+        await SetProductNamesAsync([]);
 
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductSubcategoryNames)}", productSubcategoryNames);
 
@@ -135,13 +120,8 @@
         RegionalFilterChanged.OnNext(Unit.Default);
     }
 
-    public async Task SetProductNamesAsync(IEnumerable<string>? productNames)
+    public async Task SetProductNamesAsync(IEnumerable<string> productNames)
     {
-        if (productNames is null)
-        {
-            productNames = new List<string>();
-        }
-
         await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductNames)}", productNames);
 
         ProductNames.OnNext(productNames);
@@ -154,10 +134,50 @@
         await Task.WhenAll([
             SetFromAsync(null),
             SetThroughAsync(null),
-            SetCountryRegionCodesAsync(null),
-            SetProductCategoryNamesAsync(null),
-            SetProductSubcategoryNamesAsync(null),
-            SetProductNamesAsync(null)
+            SetCountryRegionCodesAsync([]),
+            SetProductCategoryNamesAsync([]),
+            SetProductSubcategoryNamesAsync([]),
+            SetProductNamesAsync([])
         ]);
+    }
+
+    public int NumberOfSettingsSet
+    { 
+        get
+        {
+            int count = 0;
+
+            var properties = GetType()
+                .GetProperties()
+                .Where(property => property.PropertyType.IsGenericType)
+                .Where(property => property.PropertyType.GetGenericTypeDefinition() == typeof(BehaviorSubject<>))
+                .ToList();
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(this);
+
+                if (value is null)
+                {
+                    continue;
+                }
+
+                var currentValue = value.GetType().GetProperty("Value")?.GetValue(value);
+
+                if (currentValue is IEnumerable<object> enumerable)
+                {
+                    if (enumerable.Any())
+                    {
+                        count++;
+                    }
+                }
+                else if (currentValue is not null)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
     }
 }

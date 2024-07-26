@@ -144,7 +144,22 @@
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
 
-        return $"{from.Date.ToShortDateString()} - {through.Date.ToShortDateString()}";
+        if (from.HasValue && through.HasValue)
+        {
+            return $"{from.Value.ToShortDateString()} - {through.Value.ToShortDateString()}";
+        }
+        else if (from.HasValue && through.HasValue is false)
+        {
+            return $"{from.Value.ToShortDateString()} and onwards";
+        }
+        else if (from.HasValue is false && through.HasValue)
+        {
+            return $"up until {through.Value.ToShortDateString()}";
+        }
+        else
+        {
+            return "All";
+        }
     }
 
     private async Task HandleSelectPeriodClickedAsync()
