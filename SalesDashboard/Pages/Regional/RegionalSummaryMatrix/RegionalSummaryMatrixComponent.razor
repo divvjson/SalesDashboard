@@ -7,9 +7,11 @@
 
 @implements IDisposable
 @inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime
 
 <SpinnerOverlayComponent IsVisible="IsLoading">
-    <MudTable FixedHeader="true"
+    <MudTable id="@SummaryMatrixId"
+              FixedHeader="true"
               T="RegionalSummaryMatrixItem"
               Items="RegionalSummaryMatrixGridItems"
               GroupBy="GroupDefinition"
@@ -100,7 +102,9 @@
 
     private bool IsLoading { get; set; } = false;
 
-    public List<RegionalSummaryMatrixItem> RegionalSummaryMatrixGridItems { get; set; } = [];
+    private string SummaryMatrixId { get; set; } = "regional-summary-matrix";
+
+    private List<RegionalSummaryMatrixItem> RegionalSummaryMatrixGridItems { get; set; } = [];
 
     private TableGroupDefinition<RegionalSummaryMatrixItem> GroupDefinition { get; set; } = new()
     {
@@ -134,14 +138,14 @@
         switch (context.GroupName)
         {
             case "Region":
-                styleString += " font-weight: 500;";
-                break;
+            styleString += " font-weight: 500;";
+            break;
             case "State":
-                styleString += " font-weight: 400;";
-                break;
+            styleString += " font-weight: 400;";
+            break;
             case "City":
-                styleString += " font-weight: 300;";
-                break;
+            styleString += " font-weight: 300;";
+            break;
         }
 
         return styleString;
@@ -334,11 +338,27 @@
                 items.Add(item);
             }
 
+            RegionalSummaryMatrixItem summaryRow = new()
+            {
+                CountryRegionName = string.Empty,
+                StateProvinceName = string.Empty,
+                City = string.Empty,
+                QuantitySold = items.Sum(item => item.QuantitySold),
+                TotalSales = items.Sum(item => item.TotalSales),
+                TotalCosts = items.Sum(item => item.TotalCosts),
+                GrossProfit = items.Sum(item => item.GrossProfit),
+                GrossMargin = items.Average(item => item.GrossMargin)
+            };
+
+            items.Add(summaryRow);
+
             RegionalSummaryMatrixGridItems = items;
 
             IsLoading = false;
 
             await InvokeAsync(StateHasChanged);
+
+            await JSRuntime.InvokeVoidAsync("styleSummaryMatrixSummaryRow", SummaryMatrixId);
         }
         finally
         {
