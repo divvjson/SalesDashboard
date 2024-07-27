@@ -1,0 +1,44 @@
+﻿<div class="overlay-container">
+    <div class="overlay @(IsVisible ? "visible" : "")" @onclick="HandleUnlockClickedAsync">
+        <MudButton class="unlock-button"
+                   StartIcon="@Icons.Material.Outlined.LockOpen"
+                   OnClick="HandleUnlockClickedAsync">
+            Click To Unlock
+        </MudButton>
+    </div>
+    <div class="content">
+        @ChildContent
+        @if (IsVisible is false)
+        {
+            <MudIconButton class="lock-button"
+                           Icon="@Icons.Material.Outlined.Lock"
+                           Variant="Variant.Filled"
+                           Size="Size.Medium"
+                           OnClick="HandleLockClickedAsync" />
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback OnUnlockClicked { get; set; }
+
+    [Parameter]
+    public EventCallback OnLockClicked { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private async Task HandleUnlockClickedAsync()
+    {
+        await OnUnlockClicked.InvokeAsync();
+    }
+
+    private async Task HandleLockClickedAsync()
+    {
+        await OnLockClicked.InvokeAsync();
+    }
+}

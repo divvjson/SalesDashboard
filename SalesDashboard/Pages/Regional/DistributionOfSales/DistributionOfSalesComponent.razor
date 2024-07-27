@@ -1,5 +1,5 @@
 ﻿@using Microsoft.EntityFrameworkCore
-@using SalesDashboard.Components.Shared.ClickToActivateOverlay
+@using SalesDashboard.Components.Shared.ClickToUnlockOverlay
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
 
@@ -8,9 +8,9 @@
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <SpinnerOverlayComponent IsVisible="IsMapDataLoading">
-    <ClickToActivateOverlayComponent IsVisible="IsClickToActivateVisible" OnActivateClicked="HandleActivateClicked">
+    <ClickToUnlockOverlayComponent IsVisible="IsClickToUnlockVisible" OnUnlockClicked="HandleUnlockClicked" OnLockClicked="HandleLockClicked">
         <div id="distributionOfSalesMap" style="flex-grow: 1; min-height: 500px;"></div>
-    </ClickToActivateOverlayComponent>
+    </ClickToUnlockOverlayComponent>
 </SpinnerOverlayComponent>
 
 @code {
@@ -21,7 +21,7 @@
 
     private bool IsMapDataLoading { get; set; } = false;
 
-    private bool IsClickToActivateVisible { get; set; } = true;
+    private bool IsClickToUnlockVisible { get; set; } = true;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -37,9 +37,14 @@
         }
     }
 
-    private void HandleActivateClicked()
+    private void HandleUnlockClicked()
     {
-        IsClickToActivateVisible = false;
+        IsClickToUnlockVisible = false;
+    }
+
+    private void HandleLockClicked()
+    {
+        IsClickToUnlockVisible = true;
     }
 
     private async Task RequeryMapDataAsync()

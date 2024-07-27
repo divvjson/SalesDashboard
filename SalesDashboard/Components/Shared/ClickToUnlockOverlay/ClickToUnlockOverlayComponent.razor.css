@@ -36,3 +36,16 @@
     display: flex;
     flex-direction: column;
 }
+
+::deep .unlock-button.mud-button {
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+}
+
+::deep .lock-button.mud-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: rgba(0, 0, 0, 0.4);
+    color: white;
+}
