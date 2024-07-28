@@ -1,0 +1,16 @@
+﻿.summary-matrix > .mud-table-root > .mud-table-body > .mud-table-row:last-child {
+    background-color: var(--mud-palette-dark-lighten) !important;
+}
+
+.summary-matrix > .mud-table-root > .mud-table-body > .mud-table-row:last-child > .mud-table-cell {
+    color: white;
+    font-weight: 500;
+}
+
+.summary-matrix > .mud-table-root > .mud-table-body > .mud-table-row:last-child > .mud-table-cell:first-child > div > .mud-table-row-expander {
+    display: none;
+}
+
+.summary-matrix > .mud-table-root > .mud-table-body > .mud-table-row:last-child > .mud-table-cell:first-child > div::after {
+    content: "Summary"
+}

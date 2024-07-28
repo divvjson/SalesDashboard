@@ -8,12 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\js\styleSummaryMatrixSummaryRow.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="efpt.config.json.user" />
-    <None Include="wwwroot\js\styleSummaryMatrixSummaryRow.js" />
   </ItemGroup>
 
   <ItemGroup>
