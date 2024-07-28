@@ -78,7 +78,7 @@
                 }
             </MudTh>
             <MudTh style="@GetGroupHeaderRowStyle(context)">
-                @($"{context.Items.Average(item => item.GrossMargin).ToString("F2")}%")
+                @($"{GetGrossMargin(context.Items).ToString("F2")}%")
             </MudTh>
         </GroupHeaderTemplate>
         <RowTemplate>
@@ -346,8 +346,8 @@
                 QuantitySold = items.Sum(item => item.QuantitySold),
                 TotalSales = items.Sum(item => item.TotalSales),
                 TotalCosts = items.Sum(item => item.TotalCosts),
-                GrossProfit = items.Sum(item => item.GrossProfit),
-                GrossMargin = items.Average(item => item.GrossMargin)
+                GrossProfit = items.Sum(item => item.TotalSales) - items.Sum(item => item.TotalCosts),
+                GrossMargin = GetGrossMargin(items)
             };
 
             items.Add(summaryRow);
@@ -363,6 +363,18 @@
         finally
         {
             await connection.CloseAsync();
+        }
+    }
+
+    private decimal GetGrossMargin(IEnumerable<RegionalSummaryMatrixItem> items)
+    {
+        if (items.Sum(item => item.TotalSales) is 0)
+        {
+            return 0;
+        }
+        else
+        {
+            return (items.Sum(item => item.TotalSales) - items.Sum(item => item.TotalCosts)) / items.Sum(item => item.TotalSales) * 100;
         }
     }
 
