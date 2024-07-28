@@ -338,19 +338,22 @@
                 items.Add(item);
             }
 
-            RegionalSummaryMatrixItem summaryRow = new()
+            if (items.Any())
             {
-                CountryRegionName = string.Empty,
-                StateProvinceName = string.Empty,
-                City = string.Empty,
-                QuantitySold = items.Sum(item => item.QuantitySold),
-                TotalSales = items.Sum(item => item.TotalSales),
-                TotalCosts = items.Sum(item => item.TotalCosts),
-                GrossProfit = items.Sum(item => item.TotalSales) - items.Sum(item => item.TotalCosts),
-                GrossMargin = GetGrossMargin(items)
-            };
+                RegionalSummaryMatrixItem summaryRow = new()
+                    {
+                        CountryRegionName = string.Empty,
+                        StateProvinceName = string.Empty,
+                        City = string.Empty,
+                        QuantitySold = items.Sum(item => item.QuantitySold),
+                        TotalSales = items.Sum(item => item.TotalSales),
+                        TotalCosts = items.Sum(item => item.TotalCosts),
+                        GrossProfit = items.Sum(item => item.TotalSales) - items.Sum(item => item.TotalCosts),
+                        GrossMargin = GetGrossMargin(items)
+                    };
 
-            items.Add(summaryRow);
+                items.Add(summaryRow);
+            }
 
             RegionalSummaryMatrixGridItems = items;
 
