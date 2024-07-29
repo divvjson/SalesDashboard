@@ -1,0 +1,66 @@
+﻿@page "/Product"
+
+@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.FilterSettings
+@using SalesDashboard.Components.Shared.SelectPeriodDialog
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IDialogService DialogService
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<PageTitle>Product Analysis</PageTitle>
+
+<div class="product">
+    <div class="product-container mud-elevation-4">
+        <div class="header">
+            <div></div>
+            <div class="header-title">Product Analysis</div>
+            <MudTooltip Text="Refresh">
+                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
+            </MudTooltip>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? ProductFilterChangedSubscription { get; set; }
+
+    private bool IsFiguresLoading { get; set; } = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductFilterChangedSubscription = ProductFilterStateProviderComponent.ProductFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+
+            await RequeryFiguresAsync();
+        }
+    }
+
+    private void HandleRefreshClicked()
+    {
+        ProductFilterStateProviderComponent.ProductFilterChanged.OnNext(Unit.Default);
+    }
+
+    private async Task RequeryFiguresAsync()
+    {
+        IsFiguresLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        IsFiguresLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ProductFilterChangedSubscription?.Dispose();
+    }
+}

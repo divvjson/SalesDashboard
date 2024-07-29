@@ -1,0 +1,183 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Entities
+@using SalesDashboard.Services.Scoped.LocalStorage
+
+@inject LocalStorageService LocalStorageService
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    public Subject<Unit> ProductFilterChanged { get; private set; } = new();
+
+    public BehaviorSubject<DateTime?> From { get; private set; } = new(null);
+
+    public BehaviorSubject<DateTime?> Through { get; private set; } = new(null);
+
+    public BehaviorSubject<IEnumerable<string>> CountryRegionCodes { get; private set; } = new([]);
+
+    public BehaviorSubject<IEnumerable<string>> ProductCategoryNames { get; private set; } = new([]);
+
+    public BehaviorSubject<IEnumerable<string>> ProductSubcategoryNames { get; private set; } = new([]);
+
+    public BehaviorSubject<IEnumerable<string>> ProductNames { get; private set; } = new([]);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var from = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(From)}");
+
+            await SetFromAsync(from);
+
+            var through = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(Through)}");
+
+            await SetThroughAsync(through);
+
+            var countryRegionCodes = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}");
+
+            await SetCountryRegionCodesAsync(countryRegionCodes ?? []);
+
+            var productCategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(ProductCategoryNames)}");
+
+            await SetProductCategoryNamesAsync(productCategoryNames ?? []);
+
+            var productSubcategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(ProductSubcategoryNames)}");
+
+            await SetProductSubcategoryNamesAsync(productSubcategoryNames ?? []);
+
+            var productNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(ProductNames)}");
+
+            await SetProductNamesAsync(productNames ?? []);
+        }
+    }
+
+    public async Task SetFromAsync(DateTime? from)
+    {
+        if (from is null)
+        {
+            using var context = DbFactory.CreateDbContext();
+
+            from = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
+        }
+
+        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(From)}", from);
+
+        From.OnNext(from ?? DateTime.Now);
+
+        ProductFilterChanged.OnNext(Unit.Default);
+    }
+
+    public async Task SetThroughAsync(DateTime? through)
+    {
+        if (through is null)
+        {
+            using var context = DbFactory.CreateDbContext();
+
+            through = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
+        }
+
+        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(Through)}", through);
+
+        Through.OnNext(through ?? DateTime.Now);
+
+        ProductFilterChanged.OnNext(Unit.Default);
+    }
+
+    public async Task SetCountryRegionCodesAsync(IEnumerable<string> countryRegionCodes)
+    {
+        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}", countryRegionCodes);
+
+        CountryRegionCodes.OnNext(countryRegionCodes);
+
+        ProductFilterChanged.OnNext(Unit.Default);
+    }
+
+    public async Task SetProductCategoryNamesAsync(IEnumerable<string> productCategoryNames)
+    {
+        await SetProductSubcategoryNamesAsync([]);
+
+        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(ProductCategoryNames)}", productCategoryNames);
+
+        ProductCategoryNames.OnNext(productCategoryNames);
+
+        ProductFilterChanged.OnNext(Unit.Default);
+    }
+
+    public async Task SetProductSubcategoryNamesAsync(IEnumerable<string> productSubcategoryNames)
+    {
+        await SetProductNamesAsync([]);
+
+        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(ProductSubcategoryNames)}", productSubcategoryNames);
+
+        ProductSubcategoryNames.OnNext(productSubcategoryNames);
+
+        ProductFilterChanged.OnNext(Unit.Default);
+    }
+
+    public async Task SetProductNamesAsync(IEnumerable<string> productNames)
+    {
+        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(ProductNames)}", productNames);
+
+        ProductNames.OnNext(productNames);
+
+        ProductFilterChanged.OnNext(Unit.Default);
+    }
+
+    public async Task ResetAsync()
+    {
+        await Task.WhenAll([
+            SetFromAsync(null),
+        SetThroughAsync(null),
+        SetCountryRegionCodesAsync([]),
+        SetProductCategoryNamesAsync([]),
+        SetProductSubcategoryNamesAsync([]),
+        SetProductNamesAsync([])
+        ]);
+    }
+
+    public int NumberOfSettingsSet
+    {
+        get
+        {
+            int count = 0;
+
+            var properties = GetType()
+                .GetProperties()
+                .Where(property => property.PropertyType.IsGenericType)
+                .Where(property => property.PropertyType.GetGenericTypeDefinition() == typeof(BehaviorSubject<>))
+                .ToList();
+
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(this);
+
+                if (value is null)
+                {
+                    continue;
+                }
+
+                var currentValue = value.GetType().GetProperty("Value")?.GetValue(value);
+
+                if (currentValue is IEnumerable<object> enumerable)
+                {
+                    if (enumerable.Any())
+                    {
+                        count++;
+                    }
+                }
+                else if (currentValue is not null)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+    }
+}
