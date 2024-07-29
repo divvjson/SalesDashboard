@@ -54,8 +54,7 @@
 
         await InvokeAsync(StateHasChanged);
 
-        var from = RegionalFilterStateProviderComponent.From.Value;
-        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var period = RegionalFilterStateProviderComponent.Period.Value;
         var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
@@ -65,8 +64,18 @@
 
         var query = context.SalesOrderDetails.AsQueryable();
 
-        query = query.Where(sod => sod.SalesOrder.OrderDate >= from);
-        query = query.Where(sod => sod.SalesOrder.OrderDate <= through);
+        if (period is not null)
+        {
+            if (period.Start.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate >= period.Start.Value);
+            }
+
+            if (period.End.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate <= period.End.Value);
+            }
+        }
 
         if (countryRegionNames.Any())
         {

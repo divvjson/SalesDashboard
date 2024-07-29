@@ -17,6 +17,7 @@
 @using SalesDashboard.Pages.Regional.SalesTrendTop3Countries
 @using SalesDashboard.Pages.Regional.Top3Cities
 @using SalesDashboard.Pages.Regional.Top3States
+@using SalesDashboard.Types
 
 @implements IDisposable
 @inject IDialogService DialogService
@@ -140,24 +141,27 @@
 
     private string GetSelectedPeriodString()
     {
-        var from = RegionalFilterStateProviderComponent.From.Value;
-        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var period = RegionalFilterStateProviderComponent.Period.Value;
 
-        if (from.HasValue && through.HasValue)
+        if (period is null || period.Start.HasValue is false && period.End.HasValue is false)
         {
-            return $"{from.Value.ToShortDateString()} - {through.Value.ToShortDateString()}";
+            return "All";
         }
-        else if (from.HasValue && through.HasValue is false)
+        else if (period.Start.HasValue && period.End.HasValue)
         {
-            return $"{from.Value.ToShortDateString()} and onwards";
+            return $"{period.Start.Value.ToShortDateString()} - {period.End.Value.ToShortDateString()}";
         }
-        else if (from.HasValue is false && through.HasValue)
+        else if (period.Start.HasValue && period.End.HasValue is false)
         {
-            return $"up until {through.Value.ToShortDateString()}";
+            return $"{period.Start.Value.ToShortDateString()} and onwards";
+        }
+        else if (period.Start.HasValue is false && period.End.HasValue)
+        {
+            return $"up until {period.End.Value.ToShortDateString()}";
         }
         else
         {
-            return "All";
+            return string.Empty;
         }
     }
 
@@ -167,25 +171,29 @@
 
         var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
         var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
-        var from = RegionalFilterStateProviderComponent.From.Value;
-        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var period = RegionalFilterStateProviderComponent.Period.Value;
 
         DialogParameters<SelectPeriodDialog> parameters = new()
         {
             { selectPeriodDialog => selectPeriodDialog.MinDate, firstOrderDate },
             { selectPeriodDialog => selectPeriodDialog.MaxDate, lastOrderDate },
-            { selectPeriodDialog => selectPeriodDialog.From, from },
-            { selectPeriodDialog => selectPeriodDialog.Through, through }
+            { selectPeriodDialog => selectPeriodDialog.From, period?.Start },
+            { selectPeriodDialog => selectPeriodDialog.Through, period?.End }
         };
 
         var dialog = await DialogService.ShowAsync<SelectPeriodDialog>("Select Period", parameters);
 
         var result = await dialog.Result;
 
-        if (result?.Data is SelectPeriodDialogResult selectedPeriod)
+        if (result?.Data is SelectPeriodDialogResult selectedDates)
         {
-            await RegionalFilterStateProviderComponent.SetFromAsync(selectedPeriod.From);
-            await RegionalFilterStateProviderComponent.SetThroughAsync(selectedPeriod.Through);
+            DateTimeRange selectedPeriod = new()
+            {
+                Start = selectedDates.From,
+                End = selectedDates.Through
+            };
+
+            await RegionalFilterStateProviderComponent.SetPeriodAsync(selectedPeriod);
         }
     }
 

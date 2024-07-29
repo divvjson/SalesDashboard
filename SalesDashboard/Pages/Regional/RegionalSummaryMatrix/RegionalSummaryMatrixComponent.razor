@@ -216,8 +216,7 @@
 
             using SqlCommand command = new(cmdText, connection);
 
-            var from = RegionalFilterStateProviderComponent.From.Value;
-            var through = RegionalFilterStateProviderComponent.Through.Value;
+            var period = RegionalFilterStateProviderComponent.Period.Value;
             var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
             var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
             var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
@@ -225,16 +224,19 @@
 
             List<string> conditions = new();
 
-            if (from.HasValue)
+            if (period is not null)
             {
-                conditions.Add("soh.OrderDate >= @from");
-                command.Parameters.AddWithValue("@from", from.Value);
-            }
+                if (period.Start.HasValue)
+                {
+                    conditions.Add("soh.OrderDate >= @from");
+                    command.Parameters.AddWithValue("@from", period.Start.Value);
+                }
 
-            if (through.HasValue)
-            {
-                conditions.Add("soh.OrderDate <= @through");
-                command.Parameters.AddWithValue("@through", through.Value);
+                if (period.End.HasValue)
+                {
+                    conditions.Add("soh.OrderDate <= @through");
+                    command.Parameters.AddWithValue("@through", period.End.Value);
+                }
             }
 
             if (countryRegionNames.Any())

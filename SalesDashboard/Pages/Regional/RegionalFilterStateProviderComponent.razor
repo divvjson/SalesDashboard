@@ -1,6 +1,7 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Entities
 @using SalesDashboard.Services.Scoped.LocalStorage
+@using SalesDashboard.Types
 
 @inject LocalStorageService LocalStorageService
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
@@ -12,9 +13,7 @@
 @code {
     public Subject<Unit> RegionalFilterChanged { get; private set; } = new();
 
-    public BehaviorSubject<DateTime?> From { get; private set; } = new(null);
-
-    public BehaviorSubject<DateTime?> Through { get; private set; } = new(null);
+    public BehaviorSubject<DateTimeRange?> Period { get; set; } = new(null);
 
     public BehaviorSubject<IEnumerable<string>> CountryRegionNames { get; private set; } = new([]);
 
@@ -31,13 +30,9 @@
     {
         if (firstRender)
         {
-            var from = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(From)}");
+            var period = await LocalStorageService.GetItemAsync<DateTimeRange?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Period)}");
 
-            await SetFromAsync(from);
-
-            var through = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Through)}");
-
-            await SetThroughAsync(through);
+            await SetPeriodAsync(period);
 
             var countryRegionNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionNames)}");
 
@@ -57,34 +52,22 @@
         }
     }
 
-    public async Task SetFromAsync(DateTime? from)
+    public async Task SetPeriodAsync(DateTimeRange? period)
     {
-        if (from is null)
+        if (period is null)
         {
             using var context = DbFactory.CreateDbContext();
 
-            from = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
+            period = new()
+            {
+                Start = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate),
+                End = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate)
+            };
         }
 
-        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(From)}", from);
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Period)}", period);
 
-        From.OnNext(from ?? DateTime.Now);
-
-        RegionalFilterChanged.OnNext(Unit.Default);
-    }
-
-    public async Task SetThroughAsync(DateTime? through)
-    {
-        if (through is null)
-        {
-            using var context = DbFactory.CreateDbContext();
-
-            through = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
-        }
-
-        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Through)}", through);
-
-        Through.OnNext(through ?? DateTime.Now);
+        Period.OnNext(period);
 
         RegionalFilterChanged.OnNext(Unit.Default);
     }
@@ -132,8 +115,7 @@
     public async Task ResetAsync()
     {
         await Task.WhenAll([
-            SetFromAsync(null),
-            SetThroughAsync(null),
+            SetPeriodAsync(null),
             SetCountryRegionNamesAsync([]),
             SetProductCategoryNamesAsync([]),
             SetProductSubcategoryNamesAsync([]),
