@@ -36,15 +36,15 @@
             </MudTooltip>
         </div>
         <FilterSettingsComponent>
-            <FilterSettingsItemComponent Key="Period" Value="@GetSelectedPeriodString()" OnSelect="HandleSelectPeriodClickedAsync" />
+            <FilterSettingsItemComponent Key="Period" Value="RegionalFilterStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Country" Value="@GetSelectedCountryString()" OnSelect="HandleSelectCountryClickedAsync" />
+            <FilterSettingsItemComponent Key="Country" Value="RegionalFilterStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Category" Value="@GetSelectedProductCategoryString()" OnSelect="HandleSelectProductCategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Category" Value="RegionalFilterStateProviderComponent.ProductCategoryNames.Value" OnSelect="HandleSelectProductCategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Subcategory" Value="@GetSelectedProductSubcategoryString()" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Subcategory" Value="RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product" Value="@GetSelectedProductString()" OnSelect="HandleSelectProductClickedAsync" />
+            <FilterSettingsItemComponent Key="Product" Value="RegionalFilterStateProviderComponent.ProductNames.Value" OnSelect="HandleSelectProductClickedAsync" />
             <MudDivider />
             <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
@@ -139,32 +139,6 @@
         RegionalFilterStateProviderComponent.RegionalFilterChanged.OnNext(Unit.Default);
     }
 
-    private string GetSelectedPeriodString()
-    {
-        var period = RegionalFilterStateProviderComponent.Period.Value;
-
-        if (period is null || period.Start.HasValue is false && period.End.HasValue is false)
-        {
-            return "All";
-        }
-        else if (period.Start.HasValue && period.End.HasValue)
-        {
-            return $"{period.Start.Value.ToShortDateString()} - {period.End.Value.ToShortDateString()}";
-        }
-        else if (period.Start.HasValue && period.End.HasValue is false)
-        {
-            return $"{period.Start.Value.ToShortDateString()} and onwards";
-        }
-        else if (period.Start.HasValue is false && period.End.HasValue)
-        {
-            return $"up until {period.End.Value.ToShortDateString()}";
-        }
-        else
-        {
-            return string.Empty;
-        }
-    }
-
     private async Task HandleSelectPeriodClickedAsync()
     {
         using var context = DbFactory.CreateDbContext();
@@ -195,54 +169,6 @@
 
             await RegionalFilterStateProviderComponent.SetPeriodAsync(selectedPeriod);
         }
-    }
-
-    private string GetSelectedCountryString()
-    {
-        var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
-
-        if (countryRegionNames.Any() is false)
-        {
-            return "All";
-        }
-
-        return string.Join(", ", countryRegionNames);
-    }
-
-    private string GetSelectedProductCategoryString()
-    {
-        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
-
-        if (productCategoryNames.Any() is false)
-        {
-            return "All";
-        }
-
-        return string.Join(", ", productCategoryNames);
-    }
-
-    private string GetSelectedProductSubcategoryString()
-    {
-        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
-
-        if (productSubcategoryNames.Any() is false)
-        {
-            return "All";
-        }
-
-        return string.Join(", ", productSubcategoryNames);
-    }
-
-    private string GetSelectedProductString()
-    {
-        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
-
-        if (productNames.Any() is false)
-        {
-            return "All";
-        }
-
-        return string.Join(", ", productNames);
     }
 
     private async Task HandleSelectCountryClickedAsync()

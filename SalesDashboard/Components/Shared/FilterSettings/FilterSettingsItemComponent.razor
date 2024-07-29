@@ -1,6 +1,10 @@
-﻿<div class="filter-settings-item">
+﻿@using SalesDashboard.Types
+
+@typeparam TValue
+
+<div class="filter-settings-item">
     <div class="filter-settings-item-key">@(Key + ":")&nbsp;</div>
-    <div class="filter-settings-item-value">@Value</div>
+    <div class="filter-settings-item-value">@GetStringRepresentation(Value)</div>
     <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="HandleSelect">Select</MudButton>
 </div>
 
@@ -9,7 +13,7 @@
     public required string Key { get; set; }
 
     [Parameter, EditorRequired]
-    public required string Value { get; set; }
+    public required TValue Value { get; set; }
 
     [Parameter]
     public EventCallback OnSelect { get; set; }
@@ -17,5 +21,47 @@
     private async Task HandleSelect()
     {
         await OnSelect.InvokeAsync();
+    }
+
+    private string GetStringRepresentation(object? value)
+    {
+        if (value is null)
+        {
+            return "All";
+        }
+        else if (value is DateTimeRange dateTimeRange)
+        {
+            if (dateTimeRange.Start.HasValue && dateTimeRange.End.HasValue)
+            {
+                return $"{dateTimeRange.Start.Value.ToShortDateString()} - {dateTimeRange.End.Value.ToShortDateString()}";
+            }
+            else if (dateTimeRange.Start.HasValue && dateTimeRange.End.HasValue is false)
+            {
+                return $"{dateTimeRange.Start.Value.ToShortDateString()} and onwards";
+            }
+            else if (dateTimeRange.Start.HasValue is false && dateTimeRange.End.HasValue)
+            {
+                return $"up until {dateTimeRange.End.Value.ToShortDateString()}";
+            }
+            else
+            {
+                return "All";
+            }
+        }
+        else if (value is IEnumerable<object> enumerable)
+        {
+            if (enumerable.Any())
+            {
+                return string.Join(", ", enumerable.Select(item => item.ToString()));
+            }
+            else
+            {
+                return "All";
+            }
+        }
+        else
+        {
+            return value.ToString() ?? string.Empty;
+        }
     }
 }
