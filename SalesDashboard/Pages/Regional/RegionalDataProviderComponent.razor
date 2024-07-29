@@ -22,7 +22,7 @@
     {
         var from = RegionalFilterStateProviderComponent.From.Value;
         var through = RegionalFilterStateProviderComponent.Through.Value;
-        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
         var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
@@ -41,9 +41,9 @@
             query = query.Where(sod => sod.SalesOrder.OrderDate <= through.Value);
         }
 
-        if (countryRegionCodes.Any())
+        if (countryRegionNames.Any())
         {
-            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
+            query = query.Where(sod => countryRegionNames.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name));
         }
 
         if (productCategoryNames.Any())
@@ -110,7 +110,7 @@
 
             var from = RegionalFilterStateProviderComponent.From.Value;
             var through = RegionalFilterStateProviderComponent.Through.Value;
-            var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+            var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
             var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
             var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
             var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
@@ -129,20 +129,20 @@
                 command.Parameters.AddWithValue("@through", through.Value);
             }
 
-            if (countryRegionCodes.Any())
+            if (countryRegionNames.Any())
             {
                 List<string> parameterNames = new();
 
-                for (int i = 0; i < countryRegionCodes.Count(); i++)
+                for (int i = 0; i < countryRegionNames.Count(); i++)
                 {
-                    var parameterName = $"@countryRegionCode{i}";
+                    var parameterName = $"@countryRegionName{i}";
 
                     parameterNames.Add(parameterName);
 
-                    command.Parameters.AddWithValue(parameterName, countryRegionCodes.ElementAt(i));
+                    command.Parameters.AddWithValue(parameterName, countryRegionNames.ElementAt(i));
                 }
 
-                conditions.Add($"cr.CountryRegionCode IN ({string.Join(", ", parameterNames)})");
+                conditions.Add($"cr.Name IN ({string.Join(", ", parameterNames)})");
             }
 
             if (productCategoryNames.Any())

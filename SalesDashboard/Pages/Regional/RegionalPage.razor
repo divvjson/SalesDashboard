@@ -191,22 +191,14 @@
 
     private string GetSelectedCountryString()
     {
-        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
 
-        if (countryRegionCodes.Any() is false)
+        if (countryRegionNames.Any() is false)
         {
             return "All";
         }
 
-        using var context = DbFactory.CreateDbContext();
-
-        var selectedCountryNames = context.CountryRegions
-            .Where(countryRegion => countryRegionCodes.Contains(countryRegion.CountryRegionCode))
-            .OrderBy(countryRegion => countryRegion.Name)
-            .Select(countryRegion => countryRegion.Name)
-            .ToList();
-
-        return string.Join(", ", selectedCountryNames);
+        return string.Join(", ", countryRegionNames);
     }
 
     private string GetSelectedProductCategoryString()
@@ -249,16 +241,16 @@
     {
         DialogParameters<SelectCountryDialog> parameters = new()
         {
-            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionCodes, RegionalFilterStateProviderComponent.CountryRegionCodes.Value.ToList() }
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionNames, RegionalFilterStateProviderComponent.CountryRegionNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
 
         var result = await dialog.Result;
 
-        if (result?.Data is IEnumerable<string> selectedCountryRegionCodes)
+        if (result?.Data is IEnumerable<string> selectedCountryRegionNames)
         {
-            await RegionalFilterStateProviderComponent.SetCountryRegionCodesAsync(selectedCountryRegionCodes);
+            await RegionalFilterStateProviderComponent.SetCountryRegionNamesAsync(selectedCountryRegionNames);
         }
     }
 

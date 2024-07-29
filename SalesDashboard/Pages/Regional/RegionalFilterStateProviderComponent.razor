@@ -16,7 +16,7 @@
 
     public BehaviorSubject<DateTime?> Through { get; private set; } = new(null);
 
-    public BehaviorSubject<IEnumerable<string>> CountryRegionCodes { get; private set; } = new([]);
+    public BehaviorSubject<IEnumerable<string>> CountryRegionNames { get; private set; } = new([]);
 
     public BehaviorSubject<IEnumerable<string>> ProductCategoryNames { get; private set; } = new([]);
 
@@ -39,9 +39,9 @@
 
             await SetThroughAsync(through);
 
-            var countryRegionCodes = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}");
+            var countryRegionNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionNames)}");
 
-            await SetCountryRegionCodesAsync(countryRegionCodes ?? []);
+            await SetCountryRegionNamesAsync(countryRegionNames ?? []);
 
             var productCategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductCategoryNames)}");
 
@@ -89,11 +89,11 @@
         RegionalFilterChanged.OnNext(Unit.Default);
     }
 
-    public async Task SetCountryRegionCodesAsync(IEnumerable<string> countryRegionCodes)
+    public async Task SetCountryRegionNamesAsync(IEnumerable<string> countryRegionNames)
     {
-        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}", countryRegionCodes);
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionNames)}", countryRegionNames);
 
-        CountryRegionCodes.OnNext(countryRegionCodes);
+        CountryRegionNames.OnNext(countryRegionNames);
 
         RegionalFilterChanged.OnNext(Unit.Default);
     }
@@ -134,7 +134,7 @@
         await Task.WhenAll([
             SetFromAsync(null),
             SetThroughAsync(null),
-            SetCountryRegionCodesAsync([]),
+            SetCountryRegionNamesAsync([]),
             SetProductCategoryNamesAsync([]),
             SetProductSubcategoryNamesAsync([]),
             SetProductNamesAsync([])
