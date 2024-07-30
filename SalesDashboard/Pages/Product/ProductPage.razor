@@ -2,6 +2,7 @@
 
 @using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.FilterSettings
+@using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Components.Shared.SelectCountryDialog
 @using SalesDashboard.Components.Shared.SelectPeriodDialog
 @using SalesDashboard.Components.Shared.SelectProductCategoryDialog
@@ -39,7 +40,11 @@
             <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="ProductFilterStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
         <div class="grid">
-
+            <div class="quantity-sold">
+                <PageBoxComponent Title="Quantity Sold">
+                    <QuantitySoldComponent />
+                </PageBoxComponent>
+            </div>
         </div>
     </div>
 </div>

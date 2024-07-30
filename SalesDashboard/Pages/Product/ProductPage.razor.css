@@ -32,6 +32,10 @@
     gap: 12px;
 }
 
+.quantity-sold {
+    grid-area: quantity-sold;
+}
+
 @media (min-width: 0px) {
     .product {
         padding: 0px;
@@ -46,6 +50,8 @@
         padding-left: 12px;
         padding-right: 12px;
         grid-template-columns: 1fr 1fr;
+        grid-template-areas: 
+            "quantity-sold quantity-sold";
     }
 }
 
