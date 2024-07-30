@@ -36,6 +36,10 @@
     grid-area: quantity-sold;
 }
 
+.total-sales-by-category {
+    grid-area: total-sales-by-category;
+}
+
 @media (min-width: 0px) {
     .product {
         padding: 0px;
@@ -50,8 +54,9 @@
         padding-left: 12px;
         padding-right: 12px;
         grid-template-columns: 1fr 1fr;
-        grid-template-areas: 
-            "quantity-sold quantity-sold";
+        grid-template-areas:
+            "quantity-sold quantity-sold"
+            "total-sales-by-category total-sales-by-category";
     }
 }
 
@@ -72,6 +77,8 @@
         padding-left: 24px;
         padding-right: 24px;
         grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-areas:
+            "quantity-sold quantity-sold total-sales-by-category total-sales-by-category";
     }
 }
 
@@ -82,6 +89,6 @@
     .grid {
         grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-template-areas:
-            "quantity-sold";
+            "quantity-sold total-sales-by-category";
     }
 }
