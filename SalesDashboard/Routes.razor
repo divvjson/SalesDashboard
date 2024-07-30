@@ -2,6 +2,7 @@
 @using SalesDashboard.Components.StateProviders.CurrencyStateProvider
 @using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
+@using SalesDashboard.Pages.Product
 @using SalesDashboard.Pages.Regional
 
 <Router AppAssembly="typeof(Program).Assembly">
@@ -12,7 +13,9 @@
                     <CurrencyStateProviderComponent>
                         <RegionalFilterStateProviderComponent>
                             <RegionalDataProviderComponent>
-                                <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
+                                <ProductFilterStateProviderComponent>
+                                    <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
+                                </ProductFilterStateProviderComponent>
                             </RegionalDataProviderComponent>
                         </RegionalFilterStateProviderComponent>
                     </CurrencyStateProviderComponent>

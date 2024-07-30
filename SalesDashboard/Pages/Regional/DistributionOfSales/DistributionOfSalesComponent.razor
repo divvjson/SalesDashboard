@@ -53,9 +53,8 @@
 
         await InvokeAsync(StateHasChanged);
 
-        var from = RegionalFilterStateProviderComponent.From.Value;
-        var through = RegionalFilterStateProviderComponent.Through.Value;
-        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
+        var period = RegionalFilterStateProviderComponent.Period.Value;
+        var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
         var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
         var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
         var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
@@ -64,19 +63,22 @@
 
         var query = context.SalesOrderDetails.AsQueryable();
 
-        if (from.HasValue)
+        if (period is not null)
         {
-            query = query.Where(sod => sod.SalesOrder.OrderDate >= from.Value);
+            if (period.Start.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate >= period.Start.Value);
+            }
+
+            if (period.End.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate <= period.End.Value);
+            }
         }
 
-        if (through.HasValue)
+        if (countryRegionNames.Any())
         {
-            query = query.Where(sod => sod.SalesOrder.OrderDate <= through.Value);
-        }
-
-        if (countryRegionCodes.Any())
-        {
-            query = query.Where(sod => countryRegionCodes.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCode));
+            query = query.Where(sod => countryRegionNames.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name));
         }
 
         if (productCategoryNames.Any())

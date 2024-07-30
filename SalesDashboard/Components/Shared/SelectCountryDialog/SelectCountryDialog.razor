@@ -64,7 +64,7 @@
     public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
 
     [Parameter]
-    public List<string> InitiallySelectedCountryRegionCodes { get; set; } = [];
+    public List<string> InitiallySelectedCountryRegionNames { get; set; } = [];
 
     private List<SelectCountryGridItem> CountryRegions { get; set; } = [];
 
@@ -85,10 +85,10 @@
             })
             .ToListAsync();
 
-        if (InitiallySelectedCountryRegionCodes.Any())
+        if (InitiallySelectedCountryRegionNames.Any())
         {
             SelectedCountryRegions = CountryRegions
-                .Where(countryRegion => InitiallySelectedCountryRegionCodes.Contains(countryRegion.CountryRegionCode))
+                .Where(countryRegion => InitiallySelectedCountryRegionNames.Contains(countryRegion.Name))
                 .ToHashSet();
         }
     }
@@ -100,7 +100,7 @@
 
     private void HandleOk()
     {
-        MudDialog.Close(DialogResult.Ok(SelectedCountryRegions.Select(countryRegion => countryRegion.CountryRegionCode)));
+        MudDialog.Close(DialogResult.Ok(SelectedCountryRegions.Select(countryRegion => countryRegion.Name)));
     }
 
     private string GetDataGridHeight()

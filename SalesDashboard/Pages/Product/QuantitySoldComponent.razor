@@ -1,0 +1,115 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.FigureBox
+@using SalesDashboard.Components.Shared.PageBox
+@using SalesDashboard.Entities
+@using SalesDashboard.Extensions
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<div class="quantity-sold">
+    <div class="total">
+        <PageBoxComponent Title="Total" Size="EnumPageBoxSize.Small">
+            <FigureBoxComponent Value="@TotalQty.ToTwoDecimalsInThousands()" IsLoading="IsFiguresLoading" />
+        </PageBoxComponent>
+    </div>
+    <div class="internet">
+        <PageBoxComponent Title="Internet" Size="EnumPageBoxSize.Small">
+            <FigureBoxComponent Value="@InternetQty.ToTwoDecimalsInThousands()" IsLoading="IsFiguresLoading" />
+        </PageBoxComponent>
+    </div>
+    <div class="reseller">
+        <PageBoxComponent Title="Reseller" Size="EnumPageBoxSize.Small">
+            <FigureBoxComponent Value="@ResellerQty.ToTwoDecimalsInThousands()" IsLoading="IsFiguresLoading" />
+        </PageBoxComponent>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? ProductFilterChangedSubscription { get; set; }
+
+    private bool IsFiguresLoading { get; set; } = true;
+
+    private int TotalQty => InternetQty + ResellerQty;
+
+    private int InternetQty { get; set; }
+
+    private int ResellerQty { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductFilterChangedSubscription = ProductFilterStateProviderComponent.ProductFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+
+            await RequeryFiguresAsync();
+        }
+    }
+
+    private async Task RequeryFiguresAsync()
+    {
+        IsFiguresLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        var period = ProductFilterStateProviderComponent.Period.Value;
+        var countryRegionNames = ProductFilterStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = ProductFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = ProductFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = ProductFilterStateProviderComponent.ProductNames.Value;
+
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
+
+        if (period is not null)
+        {
+            if (period.Start.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate >= period.Start.Value);
+            }
+
+            if (period.End.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate <= period.End.Value);
+            }
+        }
+
+        if (countryRegionNames.Any())
+        {
+            query = query.Where(sod => countryRegionNames.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        InternetQty = await query.Where(sod => sod.SalesOrder.OnlineOrderFlag == true).SumAsync(sod => sod.OrderQty);
+        ResellerQty = await query.Where(sod => sod.SalesOrder.OnlineOrderFlag == false).SumAsync(sod => sod.OrderQty);
+
+        IsFiguresLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ProductFilterChangedSubscription?.Dispose();
+    }
+}

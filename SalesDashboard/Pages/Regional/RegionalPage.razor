@@ -17,9 +17,9 @@
 @using SalesDashboard.Pages.Regional.SalesTrendTop3Countries
 @using SalesDashboard.Pages.Regional.Top3Cities
 @using SalesDashboard.Pages.Regional.Top3States
+@using SalesDashboard.Types
 
 @implements IDisposable
-
 @inject IDialogService DialogService
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 @inject IConfiguration Configuration
@@ -36,15 +36,15 @@
             </MudTooltip>
         </div>
         <FilterSettingsComponent>
-            <FilterSettingsItemComponent Key="Period" Value="@GetSelectedPeriodString()" OnSelect="HandleSelectPeriodClickedAsync" />
+            <FilterSettingsItemComponent Key="Period" Value="RegionalFilterStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Country" Value="@GetSelectedCountryString()" OnSelect="HandleSelectCountryClickedAsync" />
+            <FilterSettingsItemComponent Key="Country" Value="RegionalFilterStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Category" Value="@GetSelectedProductCategoryString()" OnSelect="HandleSelectProductCategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Category" Value="RegionalFilterStateProviderComponent.ProductCategoryNames.Value" OnSelect="HandleSelectProductCategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Subcategory" Value="@GetSelectedProductSubcategoryString()" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Subcategory" Value="RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product" Value="@GetSelectedProductString()" OnSelect="HandleSelectProductClickedAsync" />
+            <FilterSettingsItemComponent Key="Product" Value="RegionalFilterStateProviderComponent.ProductNames.Value" OnSelect="HandleSelectProductClickedAsync" />
             <MudDivider />
             <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
@@ -139,127 +139,52 @@
         RegionalFilterStateProviderComponent.RegionalFilterChanged.OnNext(Unit.Default);
     }
 
-    private string GetSelectedPeriodString()
-    {
-        var from = RegionalFilterStateProviderComponent.From.Value;
-        var through = RegionalFilterStateProviderComponent.Through.Value;
-
-        if (from.HasValue && through.HasValue)
-        {
-            return $"{from.Value.ToShortDateString()} - {through.Value.ToShortDateString()}";
-        }
-        else if (from.HasValue && through.HasValue is false)
-        {
-            return $"{from.Value.ToShortDateString()} and onwards";
-        }
-        else if (from.HasValue is false && through.HasValue)
-        {
-            return $"up until {through.Value.ToShortDateString()}";
-        }
-        else
-        {
-            return "All";
-        }
-    }
-
     private async Task HandleSelectPeriodClickedAsync()
     {
         using var context = DbFactory.CreateDbContext();
 
         var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
         var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
-        var from = RegionalFilterStateProviderComponent.From.Value;
-        var through = RegionalFilterStateProviderComponent.Through.Value;
+        var period = RegionalFilterStateProviderComponent.Period.Value;
 
         DialogParameters<SelectPeriodDialog> parameters = new()
         {
             { selectPeriodDialog => selectPeriodDialog.MinDate, firstOrderDate },
             { selectPeriodDialog => selectPeriodDialog.MaxDate, lastOrderDate },
-            { selectPeriodDialog => selectPeriodDialog.From, from },
-            { selectPeriodDialog => selectPeriodDialog.Through, through }
+            { selectPeriodDialog => selectPeriodDialog.From, period?.Start },
+            { selectPeriodDialog => selectPeriodDialog.Through, period?.End }
         };
 
         var dialog = await DialogService.ShowAsync<SelectPeriodDialog>("Select Period", parameters);
 
         var result = await dialog.Result;
 
-        if (result?.Data is SelectPeriodDialogResult selectedPeriod)
+        if (result?.Data is SelectPeriodDialogResult selectedDates)
         {
-            await RegionalFilterStateProviderComponent.SetFromAsync(selectedPeriod.From);
-            await RegionalFilterStateProviderComponent.SetThroughAsync(selectedPeriod.Through);
+            DateTimeRange selectedPeriod = new()
+            {
+                Start = selectedDates.From,
+                End = selectedDates.Through
+            };
+
+            await RegionalFilterStateProviderComponent.SetPeriodAsync(selectedPeriod);
         }
-    }
-
-    private string GetSelectedCountryString()
-    {
-        var countryRegionCodes = RegionalFilterStateProviderComponent.CountryRegionCodes.Value;
-
-        if (countryRegionCodes.Any() is false)
-        {
-            return "All";
-        }
-
-        using var context = DbFactory.CreateDbContext();
-
-        var selectedCountryNames = context.CountryRegions
-            .Where(countryRegion => countryRegionCodes.Contains(countryRegion.CountryRegionCode))
-            .OrderBy(countryRegion => countryRegion.Name)
-            .Select(countryRegion => countryRegion.Name)
-            .ToList();
-
-        return string.Join(", ", selectedCountryNames);
-    }
-
-    private string GetSelectedProductCategoryString()
-    {
-        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
-
-        if (productCategoryNames.Any() is false)
-        {
-            return "All";
-        }
-
-        return string.Join(", ", productCategoryNames);
-    }
-
-    private string GetSelectedProductSubcategoryString()
-    {
-        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
-
-        if (productSubcategoryNames.Any() is false)
-        {
-            return "All";
-        }
-
-        return string.Join(", ", productSubcategoryNames);
-    }
-
-    private string GetSelectedProductString()
-    {
-        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
-
-        if (productNames.Any() is false)
-        {
-            return "All";
-        }
-
-        return string.Join(", ", productNames);
     }
 
     private async Task HandleSelectCountryClickedAsync()
     {
         DialogParameters<SelectCountryDialog> parameters = new()
         {
-            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionCodes, RegionalFilterStateProviderComponent.CountryRegionCodes.Value.ToList() }
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionNames, RegionalFilterStateProviderComponent.CountryRegionNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
 
         var result = await dialog.Result;
 
-        if (result?.Data is IEnumerable<string> selectedCountryRegionCodes)
+        if (result?.Data is IEnumerable<string> selectedCountryRegionNames)
         {
-            await RegionalFilterStateProviderComponent.SetCountryRegionCodesAsync(selectedCountryRegionCodes);
+            await RegionalFilterStateProviderComponent.SetCountryRegionNamesAsync(selectedCountryRegionNames);
         }
     }
 

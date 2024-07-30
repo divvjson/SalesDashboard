@@ -1,0 +1,22 @@
+﻿.quantity-sold {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+        "total total"
+        "internet reseller";
+    gap: 8px;
+    padding: 8px;
+}
+
+.total {
+    grid-area: total;
+}
+
+.internet {
+    grid-area: internet;
+}
+
+.reseller {
+    grid-area: reseller;
+}
