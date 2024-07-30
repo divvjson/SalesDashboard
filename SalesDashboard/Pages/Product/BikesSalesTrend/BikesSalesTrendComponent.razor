@@ -1,5 +1,140 @@
-﻿
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsChartDataLoading">
+    <div class="bikes-sales-trend">
+        @if (ChartSeries.Any() is false)
+        {
+            
+        }
+        else if (Years.Count() is 1)
+        {
+            <div class="no-data-or-trend">NO TREND</div>
+        }
+        else
+        {
+            <MudChart ChartType="ChartType.Line"
+                      ChartSeries="ChartSeries"
+                      ChartOptions="ChartOptions"
+                      XAxisLabels="Years"
+                      Width="100%"
+                      Height="100%" />
+        }
+    </div>
+</SpinnerOverlayComponent>
 
 @code {
+    [CascadingParameter]
+    public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
 
+    private IDisposable? ProductFilterChangedSubscription { get; set; }
+
+    private bool IsChartDataLoading { get; set; } = false;
+
+    private string[] Years { get; set; } = [];
+
+    private List<ChartSeries> ChartSeries { get; set; } = new();
+
+    private ChartOptions ChartOptions { get; set; } = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductFilterChangedSubscription = ProductFilterStateProviderComponent.ProductFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            await RequeryChartDataAsync();
+        }
+    }
+
+    private async Task RequeryChartDataAsync()
+    {
+        IsChartDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        var period = ProductFilterStateProviderComponent.Period.Value;
+        var countryRegionNames = ProductFilterStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = ProductFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = ProductFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = ProductFilterStateProviderComponent.ProductNames.Value;
+
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
+
+        if (period is not null)
+        {
+            if (period.Start.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate >= period.Start.Value);
+            }
+
+            if (period.End.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate <= period.End.Value);
+            }
+        }
+
+        if (countryRegionNames.Any())
+        {
+            query = query.Where(sod => countryRegionNames.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        var bikesSalesTrendRecords = await query
+            .Where(sod => sod.Product.ProductSubcategory != null && sod.Product.ProductSubcategory.ProductCategory.Name == "Bikes")
+            .GroupBy(sod => sod.SalesOrder.OrderDate.Year)
+            .Select(g => new BikesSalesTrendRecord
+            {
+                Year = g.Key,
+                UnitsSold = g.Sum(sod => sod.OrderQty)
+            })
+            .OrderBy(bikesSalesTrendRecord => bikesSalesTrendRecord.Year)
+            .ToListAsync();
+
+        ChartSeries = [];
+
+        ChartSeries.Add(new()
+        {
+            Name = "Units Sold",
+            Data = bikesSalesTrendRecords.Select(bikesSalesTrendRecord => (double)bikesSalesTrendRecord.UnitsSold).ToArray()
+        });
+
+        Years = bikesSalesTrendRecords
+            .Select(bikesSalesTrendRecord => bikesSalesTrendRecord.Year)
+            .Distinct()
+            .OrderBy(year => year)
+            .Select(year => year.ToString())
+            .ToArray();
+
+        IsChartDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ProductFilterChangedSubscription?.Dispose();
+    }
 }
