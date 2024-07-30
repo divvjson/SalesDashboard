@@ -9,7 +9,7 @@
 @using SalesDashboard.Components.Shared.SelectProductDialog
 @using SalesDashboard.Components.Shared.SelectProductSubcategoryDialog
 @using SalesDashboard.Entities
-@using SalesDashboard.Pages.Product.TotalSalesByProductCategory
+@using SalesDashboard.Pages.Product.DistributionOfSalesByProductCategory
 @using SalesDashboard.Types
 
 @implements IDisposable
@@ -47,8 +47,8 @@
                 </PageBoxComponent>
             </div>
             <div class="total-sales-by-category">
-                <PageBoxComponent Title="Total Sales by Product Category">
-                    <TotalSalesByProductCategoryComponent />
+                <PageBoxComponent Title="Distribution of Sales by Product Category">
+                    <DistributionOfSalesByProductCategoryComponent />
                 </PageBoxComponent>
             </div>
         </div>

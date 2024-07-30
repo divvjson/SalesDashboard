@@ -1,6 +1,6 @@
-﻿namespace SalesDashboard.Pages.Product.TotalSalesByProductCategory
+﻿namespace SalesDashboard.Pages.Product.DistributionOfSalesByProductCategory
 {
-    public class TotalSalesByProductCategory
+    public class DistributionOfSalesByProductCategory
     {
         public required string ProductCategoryName { get; set; }
 
