@@ -1,0 +1,140 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsChartDataLoading">
+    <div class="total-sales-by-category">
+        @if (Data is null)
+        {
+            
+        }
+        else
+        {
+            <MudChart ChartType="ChartType.Pie"
+                      InputData="Data"
+                      InputLabels="Labels"
+                      Height="150px" />
+        }
+    </div>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? ProductFilterChangedSubscription { get; set; }
+
+    private bool IsChartDataLoading { get; set; } = false;
+
+    private int DataSize { get; set; } = 4;
+
+    private double[]? Data { get; set; } = null;
+
+    private string[]? Labels { get; set; } = null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductFilterChangedSubscription = ProductFilterStateProviderComponent.ProductFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            await RequeryChartDataAsync();
+        }
+    }
+
+    private async Task RequeryChartDataAsync()
+    {
+        IsChartDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        var period = ProductFilterStateProviderComponent.Period.Value;
+        var countryRegionNames = ProductFilterStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = ProductFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = ProductFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = ProductFilterStateProviderComponent.ProductNames.Value;
+
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
+
+        if (period is not null)
+        {
+            if (period.Start.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate >= period.Start.Value);
+            }
+
+            if (period.End.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate <= period.End.Value);
+            }
+        }
+
+        if (countryRegionNames.Any())
+        {
+            query = query.Where(sod => countryRegionNames.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        int totalQuantity = await query.SumAsync(sod => sod.OrderQty);
+
+        var totalSalesByCategories = await query
+            .Select(sod => new
+            {
+                ProductCategoryName = sod.Product.ProductSubcategory == null ? "Other" : sod.Product.ProductSubcategory.ProductCategory.Name,
+                OrderQty = (int)sod.OrderQty
+            })
+            .GroupBy(sod => sod.ProductCategoryName)
+            .Select(g => new TotalSalesByCategory
+            {
+                ProductCategoryName = g.Key,
+                Percentage = (double)g.Sum(sod => sod.OrderQty) / totalQuantity * 100
+            })
+            .ToListAsync();
+
+        if (totalSalesByCategories.Any())
+        {
+            Data = totalSalesByCategories
+                .Select(totalSalesByCategory => totalSalesByCategory.Percentage)
+                .ToArray();
+
+            Labels = totalSalesByCategories
+                .Select(totalSalesByCategory => $"{totalSalesByCategory.ProductCategoryName} ({totalSalesByCategory.Percentage.ToString("F2")}%)")
+                .ToArray();
+        }
+        else
+        {
+            Data = null;
+            Labels = null;
+        }
+
+        IsChartDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ProductFilterChangedSubscription?.Dispose();
+    }
+}
