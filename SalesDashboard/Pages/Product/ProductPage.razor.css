@@ -81,5 +81,7 @@
 @media (min-width: 1440px) {
     .grid {
         grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-areas:
+            "quantity-sold";
     }
 }
