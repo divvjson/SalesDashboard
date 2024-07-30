@@ -105,7 +105,7 @@
                 OrderQty = (int)sod.OrderQty
             })
             .GroupBy(sod => sod.ProductCategoryName)
-            .Select(g => new TotalSalesByCategory
+            .Select(g => new TotalSalesByProductCategory
             {
                 ProductCategoryName = g.Key,
                 Percentage = (double)g.Sum(sod => sod.OrderQty) / totalQuantity * 100
