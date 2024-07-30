@@ -36,8 +36,12 @@
     grid-area: quantity-sold;
 }
 
-.total-sales-by-category {
-    grid-area: total-sales-by-category;
+.distribution-of-sales-by-product-category {
+    grid-area: distribution-of-sales-by-product-category;
+}
+
+.bikes-sales-trend {
+    grid-area: bikes-sales-trend;
 }
 
 @media (min-width: 0px) {
@@ -56,7 +60,8 @@
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
             "quantity-sold quantity-sold"
-            "total-sales-by-category total-sales-by-category";
+            "distribution-of-sales-by-product-category distribution-of-sales-by-product-category"
+            "bikes-sales-trend bikes-sales-trend";
     }
 }
 
@@ -78,7 +83,8 @@
         padding-right: 24px;
         grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-template-areas:
-            "quantity-sold quantity-sold total-sales-by-category total-sales-by-category";
+            "quantity-sold quantity-sold distribution-of-sales-by-product-category distribution-of-sales-by-product-category"
+            "bikes-sales-trend bikes-sales-trend bikes-sales-trend bikes-sales-trend";
     }
 }
 
@@ -89,6 +95,6 @@
     .grid {
         grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-template-areas:
-            "quantity-sold total-sales-by-category";
+            "quantity-sold distribution-of-sales-by-product-category bikes-sales-trend bikes-sales-trend";
     }
 }
