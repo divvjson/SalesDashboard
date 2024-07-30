@@ -2,8 +2,13 @@
 
 @using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.FilterSettings
+@using SalesDashboard.Components.Shared.SelectCountryDialog
 @using SalesDashboard.Components.Shared.SelectPeriodDialog
+@using SalesDashboard.Components.Shared.SelectProductCategoryDialog
+@using SalesDashboard.Components.Shared.SelectProductDialog
+@using SalesDashboard.Components.Shared.SelectProductSubcategoryDialog
 @using SalesDashboard.Entities
+@using SalesDashboard.Types
 
 @implements IDisposable
 @inject IDialogService DialogService
@@ -19,6 +24,22 @@
             <MudTooltip Text="Refresh">
                 <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
             </MudTooltip>
+        </div>
+        <FilterSettingsComponent>
+            <FilterSettingsItemComponent Key="Period" Value="ProductFilterStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
+            <MudDivider />
+            <FilterSettingsItemComponent Key="Country" Value="ProductFilterStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />
+            <MudDivider />
+            <FilterSettingsItemComponent Key="Product Category" Value="ProductFilterStateProviderComponent.ProductCategoryNames.Value" OnSelect="HandleSelectProductCategoryClickedAsync" />
+            <MudDivider />
+            <FilterSettingsItemComponent Key="Product Subcategory" Value="ProductFilterStateProviderComponent.ProductSubcategoryNames.Value" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
+            <MudDivider />
+            <FilterSettingsItemComponent Key="Product" Value="ProductFilterStateProviderComponent.ProductNames.Value" OnSelect="HandleSelectProductClickedAsync" />
+            <MudDivider />
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="ProductFilterStateProviderComponent.ResetAsync">Reset</MudButton>
+        </FilterSettingsComponent>
+        <div class="grid">
+
         </div>
     </div>
 </div>
@@ -46,6 +67,106 @@
     private void HandleRefreshClicked()
     {
         ProductFilterStateProviderComponent.ProductFilterChanged.OnNext(Unit.Default);
+    }
+
+    private async Task HandleSelectPeriodClickedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+
+        var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
+        var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
+        var period = ProductFilterStateProviderComponent.Period.Value;
+
+        DialogParameters<SelectPeriodDialog> parameters = new()
+        {
+            { selectPeriodDialog => selectPeriodDialog.MinDate, firstOrderDate },
+            { selectPeriodDialog => selectPeriodDialog.MaxDate, lastOrderDate },
+            { selectPeriodDialog => selectPeriodDialog.From, period?.Start },
+            { selectPeriodDialog => selectPeriodDialog.Through, period?.End }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectPeriodDialog>("Select Period", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is SelectPeriodDialogResult selectedDates)
+        {
+            DateTimeRange selectedPeriod = new()
+                {
+                    Start = selectedDates.From,
+                    End = selectedDates.Through
+                };
+
+            await ProductFilterStateProviderComponent.SetPeriodAsync(selectedPeriod);
+        }
+    }
+
+    private async Task HandleSelectCountryClickedAsync()
+    {
+        DialogParameters<SelectCountryDialog> parameters = new()
+        {
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionNames, ProductFilterStateProviderComponent.CountryRegionNames.Value.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedCountryRegionNames)
+        {
+            await ProductFilterStateProviderComponent.SetCountryRegionNamesAsync(selectedCountryRegionNames);
+        }
+    }
+
+    private async Task HandleSelectProductCategoryClickedAsync()
+    {
+        DialogParameters<SelectProductCategoryDialog> parameters = new()
+        {
+            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, ProductFilterStateProviderComponent.ProductCategoryNames.Value.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectProductCategoryDialog>("Select Product Category", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedProductCategoryNames)
+        {
+            await ProductFilterStateProviderComponent.SetProductCategoryNamesAsync(selectedProductCategoryNames);
+        }
+    }
+
+    private async Task HandleSelectProductSubcategoryClickedAsync()
+    {
+        DialogParameters<SelectProductSubcategoryDialog> parameters = new()
+        {
+            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, ProductFilterStateProviderComponent.ProductSubcategoryNames.Value.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectProductSubcategoryDialog>("Select Product Subcategory", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedProductSubcategoryNames)
+        {
+            await ProductFilterStateProviderComponent.SetProductSubcategoryNamesAsync(selectedProductSubcategoryNames);
+        }
+    }
+
+    private async Task HandleSelectProductClickedAsync()
+    {
+        DialogParameters<SelectProductDialog> parameters = new()
+        {
+            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, ProductFilterStateProviderComponent.ProductNames.Value.ToList() }
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectProductDialog>("Select Product", parameters);
+
+        var result = await dialog.Result;
+
+        if (result?.Data is IEnumerable<string> selectedProductNames)
+        {
+            await ProductFilterStateProviderComponent.SetProductNamesAsync(selectedProductNames);
+        }
     }
 
     private async Task RequeryFiguresAsync()

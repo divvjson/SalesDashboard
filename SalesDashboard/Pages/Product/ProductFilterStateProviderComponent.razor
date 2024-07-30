@@ -1,6 +1,7 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Entities
 @using SalesDashboard.Services.Scoped.LocalStorage
+@using SalesDashboard.Types
 
 @inject LocalStorageService LocalStorageService
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
@@ -12,11 +13,9 @@
 @code {
     public Subject<Unit> ProductFilterChanged { get; private set; } = new();
 
-    public BehaviorSubject<DateTime?> From { get; private set; } = new(null);
+    public BehaviorSubject<DateTimeRange?> Period { get; set; } = new(null);
 
-    public BehaviorSubject<DateTime?> Through { get; private set; } = new(null);
-
-    public BehaviorSubject<IEnumerable<string>> CountryRegionCodes { get; private set; } = new([]);
+    public BehaviorSubject<IEnumerable<string>> CountryRegionNames { get; private set; } = new([]);
 
     public BehaviorSubject<IEnumerable<string>> ProductCategoryNames { get; private set; } = new([]);
 
@@ -31,17 +30,13 @@
     {
         if (firstRender)
         {
-            var from = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(From)}");
+            var period = await LocalStorageService.GetItemAsync<DateTimeRange?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(Period)}");
 
-            await SetFromAsync(from);
+            await SetPeriodAsync(period);
 
-            var through = await LocalStorageService.GetItemAsync<DateTime?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(Through)}");
+            var countryRegionNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(CountryRegionNames)}");
 
-            await SetThroughAsync(through);
-
-            var countryRegionCodes = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}");
-
-            await SetCountryRegionCodesAsync(countryRegionCodes ?? []);
+            await SetCountryRegionNamesAsync(countryRegionNames ?? []);
 
             var productCategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(ProductFilterStateProviderComponent)}.{nameof(ProductCategoryNames)}");
 
@@ -57,43 +52,31 @@
         }
     }
 
-    public async Task SetFromAsync(DateTime? from)
+    public async Task SetPeriodAsync(DateTimeRange? period)
     {
-        if (from is null)
+        if (period is null)
         {
             using var context = DbFactory.CreateDbContext();
 
-            from = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
+            period = new()
+                {
+                    Start = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate),
+                    End = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate)
+                };
         }
 
-        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(From)}", from);
+        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(Period)}", period);
 
-        From.OnNext(from ?? DateTime.Now);
+        Period.OnNext(period);
 
         ProductFilterChanged.OnNext(Unit.Default);
     }
 
-    public async Task SetThroughAsync(DateTime? through)
+    public async Task SetCountryRegionNamesAsync(IEnumerable<string> countryRegionNames)
     {
-        if (through is null)
-        {
-            using var context = DbFactory.CreateDbContext();
+        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(CountryRegionNames)}", countryRegionNames);
 
-            through = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
-        }
-
-        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(Through)}", through);
-
-        Through.OnNext(through ?? DateTime.Now);
-
-        ProductFilterChanged.OnNext(Unit.Default);
-    }
-
-    public async Task SetCountryRegionCodesAsync(IEnumerable<string> countryRegionCodes)
-    {
-        await LocalStorageService.SetItemAsync($"{nameof(ProductFilterStateProviderComponent)}.{nameof(CountryRegionCodes)}", countryRegionCodes);
-
-        CountryRegionCodes.OnNext(countryRegionCodes);
+        CountryRegionNames.OnNext(countryRegionNames);
 
         ProductFilterChanged.OnNext(Unit.Default);
     }
@@ -132,9 +115,8 @@
     public async Task ResetAsync()
     {
         await Task.WhenAll([
-            SetFromAsync(null),
-        SetThroughAsync(null),
-        SetCountryRegionCodesAsync([]),
+        SetPeriodAsync(null),
+        SetCountryRegionNamesAsync([]),
         SetProductCategoryNamesAsync([]),
         SetProductSubcategoryNamesAsync([]),
         SetProductNamesAsync([])
