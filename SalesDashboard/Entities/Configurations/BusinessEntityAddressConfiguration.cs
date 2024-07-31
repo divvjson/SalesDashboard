@@ -24,34 +24,34 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.AddressTypeId, "IX_BusinessEntityAddress_AddressTypeID");
 
             entity.Property(e => e.BusinessEntityId)
-            .HasComment("Primary key. Foreign key to BusinessEntity.BusinessEntityID.")
-            .HasColumnName("BusinessEntityID");
+                .HasComment("Primary key. Foreign key to BusinessEntity.BusinessEntityID.")
+                .HasColumnName("BusinessEntityID");
             entity.Property(e => e.AddressId)
-            .HasComment("Primary key. Foreign key to Address.AddressID.")
-            .HasColumnName("AddressID");
+                .HasComment("Primary key. Foreign key to Address.AddressID.")
+                .HasColumnName("AddressID");
             entity.Property(e => e.AddressTypeId)
-            .HasComment("Primary key. Foreign key to AddressType.AddressTypeID.")
-            .HasColumnName("AddressTypeID");
+                .HasComment("Primary key. Foreign key to AddressType.AddressTypeID.")
+                .HasColumnName("AddressTypeID");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Rowguid)
-            .HasDefaultValueSql("(newid())")
-            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-            .HasColumnName("rowguid");
+                .HasDefaultValueSql("(newid())")
+                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+                .HasColumnName("rowguid");
 
             entity.HasOne(d => d.Address).WithMany(p => p.BusinessEntityAddresses)
-            .HasForeignKey(d => d.AddressId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.AddressId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.AddressType).WithMany(p => p.BusinessEntityAddresses)
-            .HasForeignKey(d => d.AddressTypeId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.AddressTypeId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.BusinessEntity).WithMany(p => p.BusinessEntityAddresses)
-            .HasForeignKey(d => d.BusinessEntityId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.BusinessEntityId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

@@ -20,15 +20,15 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Name, "AK_ScrapReason_Name").IsUnique();
 
             entity.Property(e => e.ScrapReasonId)
-            .HasComment("Primary key for ScrapReason records.")
-            .HasColumnName("ScrapReasonID");
+                .HasComment("Primary key for ScrapReason records.")
+                .HasColumnName("ScrapReasonID");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Failure description.");
+                .HasMaxLength(50)
+                .HasComment("Failure description.");
 
             OnConfigurePartial(entity);
         }

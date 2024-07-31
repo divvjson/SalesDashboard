@@ -22,44 +22,44 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.UnitMeasureCode, "IX_ProductVendor_UnitMeasureCode");
 
             entity.Property(e => e.ProductId)
-            .HasComment("Primary key. Foreign key to Product.ProductID.")
-            .HasColumnName("ProductID");
+                .HasComment("Primary key. Foreign key to Product.ProductID.")
+                .HasColumnName("ProductID");
             entity.Property(e => e.BusinessEntityId)
-            .HasComment("Primary key. Foreign key to Vendor.BusinessEntityID.")
-            .HasColumnName("BusinessEntityID");
+                .HasComment("Primary key. Foreign key to Vendor.BusinessEntityID.")
+                .HasColumnName("BusinessEntityID");
             entity.Property(e => e.AverageLeadTime).HasComment("The average span of time (in days) between placing an order with the vendor and receiving the purchased product.");
             entity.Property(e => e.LastReceiptCost)
-            .HasComment("The selling price when last purchased.")
-            .HasColumnType("money");
+                .HasComment("The selling price when last purchased.")
+                .HasColumnType("money");
             entity.Property(e => e.LastReceiptDate)
-            .HasComment("Date the product was last received by the vendor.")
-            .HasColumnType("datetime");
+                .HasComment("Date the product was last received by the vendor.")
+                .HasColumnType("datetime");
             entity.Property(e => e.MaxOrderQty).HasComment("The minimum quantity that should be ordered.");
             entity.Property(e => e.MinOrderQty).HasComment("The maximum quantity that should be ordered.");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.OnOrderQty).HasComment("The quantity currently on order.");
             entity.Property(e => e.StandardPrice)
-            .HasComment("The vendor's usual selling price.")
-            .HasColumnType("money");
+                .HasComment("The vendor's usual selling price.")
+                .HasColumnType("money");
             entity.Property(e => e.UnitMeasureCode)
-            .HasMaxLength(3)
-            .IsFixedLength()
-            .HasComment("The product's unit of measure.");
+                .HasMaxLength(3)
+                .IsFixedLength()
+                .HasComment("The product's unit of measure.");
 
             entity.HasOne(d => d.BusinessEntity).WithMany(p => p.ProductVendors)
-            .HasForeignKey(d => d.BusinessEntityId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.BusinessEntityId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductVendors)
-            .HasForeignKey(d => d.ProductId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.UnitMeasureCodeNavigation).WithMany(p => p.ProductVendors)
-            .HasForeignKey(d => d.UnitMeasureCode)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.UnitMeasureCode)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

@@ -20,15 +20,15 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Name, "AK_CountryRegion_Name").IsUnique();
 
             entity.Property(e => e.CountryRegionCode)
-            .HasMaxLength(3)
-            .HasComment("ISO standard code for countries and regions.");
+                .HasMaxLength(3)
+                .HasComment("ISO standard code for countries and regions.");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Country or region name.");
+                .HasMaxLength(50)
+                .HasComment("Country or region name.");
 
             OnConfigurePartial(entity);
         }

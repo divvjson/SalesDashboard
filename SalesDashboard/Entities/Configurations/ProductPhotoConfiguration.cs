@@ -18,20 +18,20 @@ namespace SalesDashboard.Entities.Configurations
             entity.ToTable("ProductPhoto", "Production", tb => tb.HasComment("Product images."));
 
             entity.Property(e => e.ProductPhotoId)
-            .HasComment("Primary key for ProductPhoto records.")
-            .HasColumnName("ProductPhotoID");
+                .HasComment("Primary key for ProductPhoto records.")
+                .HasColumnName("ProductPhotoID");
             entity.Property(e => e.LargePhoto).HasComment("Large image of the product.");
             entity.Property(e => e.LargePhotoFileName)
-            .HasMaxLength(50)
-            .HasComment("Large image file name.");
+                .HasMaxLength(50)
+                .HasComment("Large image file name.");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.ThumbNailPhoto).HasComment("Small image of the product.");
             entity.Property(e => e.ThumbnailPhotoFileName)
-            .HasMaxLength(50)
-            .HasComment("Small image file name.");
+                .HasMaxLength(50)
+                .HasComment("Small image file name.");
 
             OnConfigurePartial(entity);
         }

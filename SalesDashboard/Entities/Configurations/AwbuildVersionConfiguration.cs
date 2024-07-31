@@ -18,20 +18,20 @@ namespace SalesDashboard.Entities.Configurations
             entity.ToTable("AWBuildVersion", tb => tb.HasComment("Current version number of the AdventureWorks 2016 sample database. "));
 
             entity.Property(e => e.SystemInformationId)
-            .ValueGeneratedOnAdd()
-            .HasComment("Primary key for AWBuildVersion records.")
-            .HasColumnName("SystemInformationID");
+                .ValueGeneratedOnAdd()
+                .HasComment("Primary key for AWBuildVersion records.")
+                .HasColumnName("SystemInformationID");
             entity.Property(e => e.DatabaseVersion)
-            .HasMaxLength(25)
-            .HasComment("Version number of the database in 9.yy.mm.dd.00 format.")
-            .HasColumnName("Database Version");
+                .HasMaxLength(25)
+                .HasComment("Version number of the database in 9.yy.mm.dd.00 format.")
+                .HasColumnName("Database Version");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.VersionDate)
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
 
             OnConfigurePartial(entity);
         }

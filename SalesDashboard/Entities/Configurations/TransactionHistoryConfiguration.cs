@@ -22,37 +22,37 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => new { e.ReferenceOrderId, e.ReferenceOrderLineId }, "IX_TransactionHistory_ReferenceOrderID_ReferenceOrderLineID");
 
             entity.Property(e => e.TransactionId)
-            .HasComment("Primary key for TransactionHistory records.")
-            .HasColumnName("TransactionID");
+                .HasComment("Primary key for TransactionHistory records.")
+                .HasColumnName("TransactionID");
             entity.Property(e => e.ActualCost)
-            .HasComment("Product cost.")
-            .HasColumnType("money");
+                .HasComment("Product cost.")
+                .HasColumnType("money");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.ProductId)
-            .HasComment("Product identification number. Foreign key to Product.ProductID.")
-            .HasColumnName("ProductID");
+                .HasComment("Product identification number. Foreign key to Product.ProductID.")
+                .HasColumnName("ProductID");
             entity.Property(e => e.Quantity).HasComment("Product quantity.");
             entity.Property(e => e.ReferenceOrderId)
-            .HasComment("Purchase order, sales order, or work order identification number.")
-            .HasColumnName("ReferenceOrderID");
+                .HasComment("Purchase order, sales order, or work order identification number.")
+                .HasColumnName("ReferenceOrderID");
             entity.Property(e => e.ReferenceOrderLineId)
-            .HasComment("Line number associated with the purchase order, sales order, or work order.")
-            .HasColumnName("ReferenceOrderLineID");
+                .HasComment("Line number associated with the purchase order, sales order, or work order.")
+                .HasColumnName("ReferenceOrderLineID");
             entity.Property(e => e.TransactionDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time of the transaction.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time of the transaction.")
+                .HasColumnType("datetime");
             entity.Property(e => e.TransactionType)
-            .HasMaxLength(1)
-            .IsFixedLength()
-            .HasComment("W = WorkOrder, S = SalesOrder, P = PurchaseOrder");
+                .HasMaxLength(1)
+                .IsFixedLength()
+                .HasComment("W = WorkOrder, S = SalesOrder, P = PurchaseOrder");
 
             entity.HasOne(d => d.Product).WithMany(p => p.TransactionHistories)
-            .HasForeignKey(d => d.ProductId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

@@ -16,10 +16,10 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasKey(e => e.BusinessEntityId).HasName("PK_Employee_BusinessEntityID");
 
             entity.ToTable("Employee", "HumanResources", tb =>
-            {
-                tb.HasComment("Employee information such as salary, department, and title.");
-                tb.HasTrigger("dEmployee");
-            });
+                {
+                    tb.HasComment("Employee information such as salary, department, and title.");
+                    tb.HasTrigger("dEmployee");
+                });
 
             entity.HasIndex(e => e.LoginId, "AK_Employee_LoginID").IsUnique();
 
@@ -28,53 +28,53 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_Employee_rowguid").IsUnique();
 
             entity.Property(e => e.BusinessEntityId)
-            .ValueGeneratedNever()
-            .HasComment("Primary key for Employee records.  Foreign key to BusinessEntity.BusinessEntityID.")
-            .HasColumnName("BusinessEntityID");
+                .ValueGeneratedNever()
+                .HasComment("Primary key for Employee records.  Foreign key to BusinessEntity.BusinessEntityID.")
+                .HasColumnName("BusinessEntityID");
             entity.Property(e => e.BirthDate).HasComment("Date of birth.");
             entity.Property(e => e.CurrentFlag)
-            .HasDefaultValue(true)
-            .HasComment("0 = Inactive, 1 = Active");
+                .HasDefaultValue(true)
+                .HasComment("0 = Inactive, 1 = Active");
             entity.Property(e => e.Gender)
-            .HasMaxLength(1)
-            .IsFixedLength()
-            .HasComment("M = Male, F = Female");
+                .HasMaxLength(1)
+                .IsFixedLength()
+                .HasComment("M = Male, F = Female");
             entity.Property(e => e.HireDate).HasComment("Employee hired on this date.");
             entity.Property(e => e.JobTitle)
-            .HasMaxLength(50)
-            .HasComment("Work title such as Buyer or Sales Representative.");
+                .HasMaxLength(50)
+                .HasComment("Work title such as Buyer or Sales Representative.");
             entity.Property(e => e.LoginId)
-            .HasMaxLength(256)
-            .HasComment("Network login.")
-            .HasColumnName("LoginID");
+                .HasMaxLength(256)
+                .HasComment("Network login.")
+                .HasColumnName("LoginID");
             entity.Property(e => e.MaritalStatus)
-            .HasMaxLength(1)
-            .IsFixedLength()
-            .HasComment("M = Married, S = Single");
+                .HasMaxLength(1)
+                .IsFixedLength()
+                .HasComment("M = Married, S = Single");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.NationalIdnumber)
-            .HasMaxLength(15)
-            .HasComment("Unique national identification number such as a social security number.")
-            .HasColumnName("NationalIDNumber");
+                .HasMaxLength(15)
+                .HasComment("Unique national identification number such as a social security number.")
+                .HasColumnName("NationalIDNumber");
             entity.Property(e => e.OrganizationLevel)
-            .HasComputedColumnSql("([OrganizationNode].[GetLevel]())", false)
-            .HasComment("The depth of the employee in the corporate hierarchy.");
+                .HasComputedColumnSql("([OrganizationNode].[GetLevel]())", false)
+                .HasComment("The depth of the employee in the corporate hierarchy.");
             entity.Property(e => e.Rowguid)
-            .HasDefaultValueSql("(newid())")
-            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-            .HasColumnName("rowguid");
+                .HasDefaultValueSql("(newid())")
+                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+                .HasColumnName("rowguid");
             entity.Property(e => e.SalariedFlag)
-            .HasDefaultValue(true)
-            .HasComment("Job classification. 0 = Hourly, not exempt from collective bargaining. 1 = Salaried, exempt from collective bargaining.");
+                .HasDefaultValue(true)
+                .HasComment("Job classification. 0 = Hourly, not exempt from collective bargaining. 1 = Salaried, exempt from collective bargaining.");
             entity.Property(e => e.SickLeaveHours).HasComment("Number of available sick leave hours.");
             entity.Property(e => e.VacationHours).HasComment("Number of available vacation hours.");
 
             entity.HasOne(d => d.BusinessEntity).WithOne(p => p.Employee)
-            .HasForeignKey<Employee>(d => d.BusinessEntityId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey<Employee>(d => d.BusinessEntityId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

@@ -20,24 +20,24 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.CurrencyCode, "IX_CountryRegionCurrency_CurrencyCode");
 
             entity.Property(e => e.CountryRegionCode)
-            .HasMaxLength(3)
-            .HasComment("ISO code for countries and regions. Foreign key to CountryRegion.CountryRegionCode.");
+                .HasMaxLength(3)
+                .HasComment("ISO code for countries and regions. Foreign key to CountryRegion.CountryRegionCode.");
             entity.Property(e => e.CurrencyCode)
-            .HasMaxLength(3)
-            .IsFixedLength()
-            .HasComment("ISO standard currency code. Foreign key to Currency.CurrencyCode.");
+                .HasMaxLength(3)
+                .IsFixedLength()
+                .HasComment("ISO standard currency code. Foreign key to Currency.CurrencyCode.");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
 
             entity.HasOne(d => d.CountryRegionCodeNavigation).WithMany(p => p.CountryRegionCurrencies)
-            .HasForeignKey(d => d.CountryRegionCode)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.CountryRegionCode)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.CurrencyCodeNavigation).WithMany(p => p.CountryRegionCurrencies)
-            .HasForeignKey(d => d.CurrencyCode)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.CurrencyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

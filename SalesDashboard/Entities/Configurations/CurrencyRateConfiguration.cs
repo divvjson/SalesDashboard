@@ -20,37 +20,37 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => new { e.CurrencyRateDate, e.FromCurrencyCode, e.ToCurrencyCode }, "AK_CurrencyRate_CurrencyRateDate_FromCurrencyCode_ToCurrencyCode").IsUnique();
 
             entity.Property(e => e.CurrencyRateId)
-            .HasComment("Primary key for CurrencyRate records.")
-            .HasColumnName("CurrencyRateID");
+                .HasComment("Primary key for CurrencyRate records.")
+                .HasColumnName("CurrencyRateID");
             entity.Property(e => e.AverageRate)
-            .HasComment("Average exchange rate for the day.")
-            .HasColumnType("money");
+                .HasComment("Average exchange rate for the day.")
+                .HasColumnType("money");
             entity.Property(e => e.CurrencyRateDate)
-            .HasComment("Date and time the exchange rate was obtained.")
-            .HasColumnType("datetime");
+                .HasComment("Date and time the exchange rate was obtained.")
+                .HasColumnType("datetime");
             entity.Property(e => e.EndOfDayRate)
-            .HasComment("Final exchange rate for the day.")
-            .HasColumnType("money");
+                .HasComment("Final exchange rate for the day.")
+                .HasColumnType("money");
             entity.Property(e => e.FromCurrencyCode)
-            .HasMaxLength(3)
-            .IsFixedLength()
-            .HasComment("Exchange rate was converted from this currency code.");
+                .HasMaxLength(3)
+                .IsFixedLength()
+                .HasComment("Exchange rate was converted from this currency code.");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.ToCurrencyCode)
-            .HasMaxLength(3)
-            .IsFixedLength()
-            .HasComment("Exchange rate was converted to this currency code.");
+                .HasMaxLength(3)
+                .IsFixedLength()
+                .HasComment("Exchange rate was converted to this currency code.");
 
             entity.HasOne(d => d.FromCurrencyCodeNavigation).WithMany(p => p.CurrencyRateFromCurrencyCodeNavigations)
-            .HasForeignKey(d => d.FromCurrencyCode)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.FromCurrencyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.ToCurrencyCodeNavigation).WithMany(p => p.CurrencyRateToCurrencyCodeNavigations)
-            .HasForeignKey(d => d.ToCurrencyCode)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.ToCurrencyCode)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

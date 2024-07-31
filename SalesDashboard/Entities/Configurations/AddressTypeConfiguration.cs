@@ -22,19 +22,19 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_AddressType_rowguid").IsUnique();
 
             entity.Property(e => e.AddressTypeId)
-            .HasComment("Primary key for AddressType records.")
-            .HasColumnName("AddressTypeID");
+                .HasComment("Primary key for AddressType records.")
+                .HasColumnName("AddressTypeID");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Address type description. For example, Billing, Home, or Shipping.");
+                .HasMaxLength(50)
+                .HasComment("Address type description. For example, Billing, Home, or Shipping.");
             entity.Property(e => e.Rowguid)
-            .HasDefaultValueSql("(newid())")
-            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-            .HasColumnName("rowguid");
+                .HasDefaultValueSql("(newid())")
+                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+                .HasColumnName("rowguid");
 
             OnConfigurePartial(entity);
         }

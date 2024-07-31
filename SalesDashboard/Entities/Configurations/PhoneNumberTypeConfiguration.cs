@@ -18,15 +18,15 @@ namespace SalesDashboard.Entities.Configurations
             entity.ToTable("PhoneNumberType", "Person", tb => tb.HasComment("Type of phone number of a person."));
 
             entity.Property(e => e.PhoneNumberTypeId)
-            .HasComment("Primary key for telephone number type records.")
-            .HasColumnName("PhoneNumberTypeID");
+                .HasComment("Primary key for telephone number type records.")
+                .HasColumnName("PhoneNumberTypeID");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Name of the telephone number type");
+                .HasMaxLength(50)
+                .HasComment("Name of the telephone number type");
 
             OnConfigurePartial(entity);
         }
