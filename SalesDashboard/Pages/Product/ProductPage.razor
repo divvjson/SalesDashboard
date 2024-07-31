@@ -11,6 +11,7 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Product.BikesSalesTrend
 @using SalesDashboard.Pages.Product.DistributionOfSalesByProductCategory
+@using SalesDashboard.Pages.Product.Top3SubcategoriesWithHighestGrossMargin
 @using SalesDashboard.Types
 
 @implements IDisposable
@@ -55,6 +56,11 @@
             <div class="bikes-sales-trend">
                 <PageBoxComponent Title="Bikes Sales Trend">
                     <BikesSalesTrendComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="top-3-subcategories-with-highest-gross-margin">
+                <PageBoxComponent Title="Top 3 Subcategories with Highest Gross Margin">
+                    <Top3SubcategoriesWithHighestGrossMarginComponent />
                 </PageBoxComponent>
             </div>
         </div>
