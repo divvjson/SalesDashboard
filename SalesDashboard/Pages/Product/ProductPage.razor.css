@@ -44,6 +44,10 @@
     grid-area: bikes-sales-trend;
 }
 
+.top-3-subcategories-with-highest-gross-margin {
+    grid-area: top-3-subcategories-with-highest-gross-margin;
+}
+
 @media (min-width: 0px) {
     .product {
         padding: 0px;
@@ -61,7 +65,8 @@
         grid-template-areas:
             "quantity-sold quantity-sold"
             "distribution-of-sales-by-product-category distribution-of-sales-by-product-category"
-            "bikes-sales-trend bikes-sales-trend";
+            "bikes-sales-trend bikes-sales-trend"
+            "top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin";
     }
 }
 
@@ -84,7 +89,8 @@
         grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-template-areas:
             "quantity-sold quantity-sold distribution-of-sales-by-product-category distribution-of-sales-by-product-category"
-            "bikes-sales-trend bikes-sales-trend bikes-sales-trend bikes-sales-trend";
+            "bikes-sales-trend bikes-sales-trend bikes-sales-trend bikes-sales-trend"
+            "top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin";
     }
 }
 
@@ -95,6 +101,7 @@
     .grid {
         grid-template-columns: 1fr 1fr 1fr 1fr;
         grid-template-areas:
-            "quantity-sold distribution-of-sales-by-product-category bikes-sales-trend bikes-sales-trend";
+            "quantity-sold distribution-of-sales-by-product-category bikes-sales-trend bikes-sales-trend"
+            "top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin";
     }
 }
