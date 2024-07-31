@@ -98,28 +98,28 @@
 
         int totalQuantity = await query.SumAsync(sod => sod.OrderQty);
 
-        var distributionOfSalesByProductCategories = await query
+        var items = await query
             .Select(sod => new
             {
                 ProductCategoryName = sod.Product.ProductSubcategory == null ? "Other" : sod.Product.ProductSubcategory.ProductCategory.Name,
                 OrderQty = (int)sod.OrderQty
             })
             .GroupBy(sod => sod.ProductCategoryName)
-            .Select(g => new DistributionOfSalesByProductCategory
+            .Select(g => new DistributionOfSalesByProductCategoryItem
             {
                 ProductCategoryName = g.Key,
                 Percentage = (double)g.Sum(sod => sod.OrderQty) / totalQuantity * 100
             })
             .ToListAsync();
 
-        if (distributionOfSalesByProductCategories.Any())
+        if (items.Any())
         {
-            Data = distributionOfSalesByProductCategories
-                .Select(dosbpc => dosbpc.Percentage)
+            Data = items
+                .Select(item => item.Percentage)
                 .ToArray();
 
-            Labels = distributionOfSalesByProductCategories
-                .Select(dosbpc => $"{dosbpc.ProductCategoryName} ({dosbpc.Percentage.ToString("F2")}%)")
+            Labels = items
+                .Select(item => $"{item.ProductCategoryName} ({item.Percentage.ToString("F2")}%)")
                 .ToArray();
         }
         else

@@ -102,15 +102,15 @@
             query = query.Where(sod => productNames.Contains(sod.Product.Name));
         }
 
-        var bikesSalesTrendRecords = await query
+        var items = await query
             .Where(sod => sod.Product.ProductSubcategory != null && sod.Product.ProductSubcategory.ProductCategory.Name == "Bikes")
             .GroupBy(sod => sod.SalesOrder.OrderDate.Year)
-            .Select(g => new BikesSalesTrendRecord
+            .Select(g => new BikesSalesTrendItem
             {
                 Year = g.Key,
                 UnitsSold = g.Sum(sod => sod.OrderQty)
             })
-            .OrderBy(bikesSalesTrendRecord => bikesSalesTrendRecord.Year)
+            .OrderBy(item => item.Year)
             .ToListAsync();
 
         ChartSeries = [];
@@ -118,11 +118,11 @@
         ChartSeries.Add(new()
         {
             Name = "Units Sold",
-            Data = bikesSalesTrendRecords.Select(bikesSalesTrendRecord => (double)bikesSalesTrendRecord.UnitsSold).ToArray()
+            Data = items.Select(item => (double)item.UnitsSold).ToArray()
         });
 
-        Years = bikesSalesTrendRecords
-            .Select(bikesSalesTrendRecord => bikesSalesTrendRecord.Year)
+        Years = items
+            .Select(item => item.Year)
             .Distinct()
             .OrderBy(year => year)
             .Select(year => year.ToString())

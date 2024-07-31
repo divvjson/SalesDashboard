@@ -1,6 +1,6 @@
 ﻿namespace SalesDashboard.Pages.Product.BikesSalesTrend
 {
-    public class BikesSalesTrendRecord
+    public class BikesSalesTrendItem
     {
         public required int Year { get; set; }
 

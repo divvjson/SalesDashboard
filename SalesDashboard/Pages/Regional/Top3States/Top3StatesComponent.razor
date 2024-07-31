@@ -97,28 +97,28 @@
             query = query.Where(sod => productNames.Contains(sod.Product.Name));
         }
 
-        var top3States = await query
+        var items = await query
             .GroupBy(sod => new
             {
                 StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name
             })
-            .Select(g => new Top3State
+            .Select(g => new Top3StateItem
             {
                 StateProvinceName = g.Key.StateProvinceName,
                 TotalSales = g.Sum(sod => sod.LineTotal)
             })
-            .OrderByDescending(top3State => top3State.TotalSales)
+            .OrderByDescending(item => item.TotalSales)
             .Take(3)
             .ToListAsync();
 
-        if (top3States.Any())
+        if (items.Any())
         {
-            Data = top3States
-                .Select(top3State => (double)top3State.TotalSales)
+            Data = items
+                .Select(item => (double)item.TotalSales)
                 .ToArray();
 
-            Labels = top3States
-                .Select(top3State => $"{top3State.StateProvinceName} ({top3State.TotalSales.ToCurrencyWithTwoDecimalsInMillions()})")
+            Labels = items
+                .Select(item => $"{item.StateProvinceName} ({item.TotalSales.ToCurrencyWithTwoDecimalsInMillions()})")
                 .ToArray();
         }
         else

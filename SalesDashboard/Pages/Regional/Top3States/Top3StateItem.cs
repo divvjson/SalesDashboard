@@ -1,6 +1,6 @@
 ﻿namespace SalesDashboard.Pages.Regional.Top3States
 {
-    public class Top3State
+    public class Top3StateItem
     {
         public required string StateProvinceName { get; set; }
 

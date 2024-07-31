@@ -106,13 +106,13 @@
             query = query.Where(sod => productNames.Contains(sod.Product.Name));
         }
 
-        var salesTrendTop3CountriesRecords = await query
+        var items = await query
             .GroupBy(sod => new
                 { 
                     sod.SalesOrder.OrderDate.Year,
                     sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name
                 })
-            .Select(g => new SalesTrendTop3CountriesRecord
+            .Select(g => new SalesTrendTop3CountriesItem
                 {
                     Year = g.Key.Year,
                     CountryName = g.Key.Name,
@@ -120,30 +120,30 @@
                 })
             .ToListAsync();
 
-        var years = salesTrendTop3CountriesRecords
-            .Select(salesTrendRecord => salesTrendRecord.Year)
+        var years = items
+            .Select(item => item.Year)
             .Distinct()
             .OrderBy(year => year)
             .ToArray();
 
-        var top3Countries = salesTrendTop3CountriesRecords
-            .GroupBy(salesTrendRecord => salesTrendRecord.CountryName)
+        var top3Countries = items
+            .GroupBy(item => item.CountryName)
             .Select(g => new
             {
                 CountryName = g.Key,
-                TotalSales = g.Sum(salesTrendRecord => salesTrendRecord.TotalSales)
+                TotalSales = g.Sum(item => item.TotalSales)
             })
             .OrderByDescending(x => x.TotalSales)
             .Take(3)
             .Select(x => x.CountryName)
             .ToList();
 
-        var filteredSales = salesTrendTop3CountriesRecords
-            .Where(salesTrendRecord => top3Countries.Contains(salesTrendRecord.CountryName))
+        var filteredItems = items
+            .Where(item => top3Countries.Contains(item.CountryName))
             .ToList();
 
-        var chartSeries = filteredSales
-            .GroupBy(salesTrendRecord => salesTrendRecord.CountryName)
+        var chartSeries = filteredItems
+            .GroupBy(filteredItem => filteredItem.CountryName)
             .Select(g => new ChartSeries
                 {
                     Name = g.Key,
