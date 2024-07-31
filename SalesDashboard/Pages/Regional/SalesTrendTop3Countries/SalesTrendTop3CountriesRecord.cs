@@ -1,6 +1,6 @@
 ﻿namespace SalesDashboard.Pages.Regional.SalesTrendTop3Countries
 {
-    public class Sale
+    public class SalesTrendTop3CountriesRecord
     {
         public required int Year { get; set; }
         public required string CountryName { get; set; }

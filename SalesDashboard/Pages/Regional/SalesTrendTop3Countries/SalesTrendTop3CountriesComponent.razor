@@ -106,13 +106,13 @@
             query = query.Where(sod => productNames.Contains(sod.Product.Name));
         }
 
-        var sales = await query
+        var salesTrendTop3CountriesRecords = await query
             .GroupBy(sod => new
                 { 
                     sod.SalesOrder.OrderDate.Year,
                     sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name
                 })
-            .Select(g => new Sale
+            .Select(g => new SalesTrendTop3CountriesRecord
                 {
                     Year = g.Key.Year,
                     CountryName = g.Key.Name,
@@ -120,30 +120,30 @@
                 })
             .ToListAsync();
 
-        var years = sales
-            .Select(sale => sale.Year)
+        var years = salesTrendTop3CountriesRecords
+            .Select(salesTrendRecord => salesTrendRecord.Year)
             .Distinct()
             .OrderBy(year => year)
             .ToArray();
 
-        var top3Countries = sales
-            .GroupBy(sale => sale.CountryName)
+        var top3Countries = salesTrendTop3CountriesRecords
+            .GroupBy(salesTrendRecord => salesTrendRecord.CountryName)
             .Select(g => new
             {
                 CountryName = g.Key,
-                TotalSales = g.Sum(sale => sale.TotalSales)
+                TotalSales = g.Sum(salesTrendRecord => salesTrendRecord.TotalSales)
             })
             .OrderByDescending(x => x.TotalSales)
             .Take(3)
             .Select(x => x.CountryName)
             .ToList();
 
-        var filteredSales = sales
-            .Where(sale => top3Countries.Contains(sale.CountryName))
+        var filteredSales = salesTrendTop3CountriesRecords
+            .Where(salesTrendRecord => top3Countries.Contains(salesTrendRecord.CountryName))
             .ToList();
 
         var chartSeries = filteredSales
-            .GroupBy(c => c.CountryName)
+            .GroupBy(salesTrendRecord => salesTrendRecord.CountryName)
             .Select(g => new ChartSeries
                 {
                     Name = g.Key,
