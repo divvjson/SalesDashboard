@@ -20,16 +20,16 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_BusinessEntity_rowguid").IsUnique();
 
             entity.Property(e => e.BusinessEntityId)
-            .HasComment("Primary key for all customers, vendors, and employees.")
-            .HasColumnName("BusinessEntityID");
+                .HasComment("Primary key for all customers, vendors, and employees.")
+                .HasColumnName("BusinessEntityID");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Rowguid)
-            .HasDefaultValueSql("(newid())")
-            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-            .HasColumnName("rowguid");
+                .HasDefaultValueSql("(newid())")
+                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+                .HasColumnName("rowguid");
 
             OnConfigurePartial(entity);
         }

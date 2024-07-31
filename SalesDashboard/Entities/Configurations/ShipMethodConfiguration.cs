@@ -22,27 +22,27 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_ShipMethod_rowguid").IsUnique();
 
             entity.Property(e => e.ShipMethodId)
-            .HasComment("Primary key for ShipMethod records.")
-            .HasColumnName("ShipMethodID");
+                .HasComment("Primary key for ShipMethod records.")
+                .HasColumnName("ShipMethodID");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Shipping company name.");
+                .HasMaxLength(50)
+                .HasComment("Shipping company name.");
             entity.Property(e => e.Rowguid)
-            .HasDefaultValueSql("(newid())")
-            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-            .HasColumnName("rowguid");
+                .HasDefaultValueSql("(newid())")
+                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+                .HasColumnName("rowguid");
             entity.Property(e => e.ShipBase)
-            .HasDefaultValueSql("((0.00))")
-            .HasComment("Minimum shipping charge.")
-            .HasColumnType("money");
+                .HasDefaultValueSql("((0.00))")
+                .HasComment("Minimum shipping charge.")
+                .HasColumnType("money");
             entity.Property(e => e.ShipRate)
-            .HasDefaultValueSql("((0.00))")
-            .HasComment("Shipping charge per pound.")
-            .HasColumnType("money");
+                .HasDefaultValueSql("((0.00))")
+                .HasComment("Shipping charge per pound.")
+                .HasColumnType("money");
 
             OnConfigurePartial(entity);
         }

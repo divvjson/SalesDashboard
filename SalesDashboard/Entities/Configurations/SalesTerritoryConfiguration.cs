@@ -22,47 +22,47 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_SalesTerritory_rowguid").IsUnique();
 
             entity.Property(e => e.TerritoryId)
-            .HasComment("Primary key for SalesTerritory records.")
-            .HasColumnName("TerritoryID");
+                .HasComment("Primary key for SalesTerritory records.")
+                .HasColumnName("TerritoryID");
             entity.Property(e => e.CostLastYear)
-            .HasDefaultValueSql("((0.00))")
-            .HasComment("Business costs in the territory the previous year.")
-            .HasColumnType("money");
+                .HasDefaultValueSql("((0.00))")
+                .HasComment("Business costs in the territory the previous year.")
+                .HasColumnType("money");
             entity.Property(e => e.CostYtd)
-            .HasDefaultValueSql("((0.00))")
-            .HasComment("Business costs in the territory year to date.")
-            .HasColumnType("money")
-            .HasColumnName("CostYTD");
+                .HasDefaultValueSql("((0.00))")
+                .HasComment("Business costs in the territory year to date.")
+                .HasColumnType("money")
+                .HasColumnName("CostYTD");
             entity.Property(e => e.CountryRegionCode)
-            .HasMaxLength(3)
-            .HasComment("ISO standard country or region code. Foreign key to CountryRegion.CountryRegionCode. ");
+                .HasMaxLength(3)
+                .HasComment("ISO standard country or region code. Foreign key to CountryRegion.CountryRegionCode. ");
             entity.Property(e => e.Group)
-            .HasMaxLength(50)
-            .HasComment("Geographic area to which the sales territory belong.");
+                .HasMaxLength(50)
+                .HasComment("Geographic area to which the sales territory belong.");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Sales territory description");
+                .HasMaxLength(50)
+                .HasComment("Sales territory description");
             entity.Property(e => e.Rowguid)
-            .HasDefaultValueSql("(newid())")
-            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-            .HasColumnName("rowguid");
+                .HasDefaultValueSql("(newid())")
+                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+                .HasColumnName("rowguid");
             entity.Property(e => e.SalesLastYear)
-            .HasDefaultValueSql("((0.00))")
-            .HasComment("Sales in the territory the previous year.")
-            .HasColumnType("money");
+                .HasDefaultValueSql("((0.00))")
+                .HasComment("Sales in the territory the previous year.")
+                .HasColumnType("money");
             entity.Property(e => e.SalesYtd)
-            .HasDefaultValueSql("((0.00))")
-            .HasComment("Sales in the territory year to date.")
-            .HasColumnType("money")
-            .HasColumnName("SalesYTD");
+                .HasDefaultValueSql("((0.00))")
+                .HasComment("Sales in the territory year to date.")
+                .HasColumnType("money")
+                .HasColumnName("SalesYTD");
 
             entity.HasOne(d => d.CountryRegionCodeNavigation).WithMany(p => p.SalesTerritories)
-            .HasForeignKey(d => d.CountryRegionCode)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.CountryRegionCode)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

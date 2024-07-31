@@ -18,25 +18,25 @@ namespace SalesDashboard.Entities.Configurations
             entity.ToTable("ProductCostHistory", "Production", tb => tb.HasComment("Changes in the cost of a product over time."));
 
             entity.Property(e => e.ProductId)
-            .HasComment("Product identification number. Foreign key to Product.ProductID")
-            .HasColumnName("ProductID");
+                .HasComment("Product identification number. Foreign key to Product.ProductID")
+                .HasColumnName("ProductID");
             entity.Property(e => e.StartDate)
-            .HasComment("Product cost start date.")
-            .HasColumnType("datetime");
+                .HasComment("Product cost start date.")
+                .HasColumnType("datetime");
             entity.Property(e => e.EndDate)
-            .HasComment("Product cost end date.")
-            .HasColumnType("datetime");
+                .HasComment("Product cost end date.")
+                .HasColumnType("datetime");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.StandardCost)
-            .HasComment("Standard cost of the product.")
-            .HasColumnType("money");
+                .HasComment("Standard cost of the product.")
+                .HasColumnType("money");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductCostHistories)
-            .HasForeignKey(d => d.ProductId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

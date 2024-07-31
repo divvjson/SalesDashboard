@@ -20,19 +20,19 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_ProductDescription_rowguid").IsUnique();
 
             entity.Property(e => e.ProductDescriptionId)
-            .HasComment("Primary key for ProductDescription records.")
-            .HasColumnName("ProductDescriptionID");
+                .HasComment("Primary key for ProductDescription records.")
+                .HasColumnName("ProductDescriptionID");
             entity.Property(e => e.Description)
-            .HasMaxLength(400)
-            .HasComment("Description of the product.");
+                .HasMaxLength(400)
+                .HasComment("Description of the product.");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Rowguid)
-            .HasDefaultValueSql("(newid())")
-            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-            .HasColumnName("rowguid");
+                .HasDefaultValueSql("(newid())")
+                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+                .HasColumnName("rowguid");
 
             OnConfigurePartial(entity);
         }

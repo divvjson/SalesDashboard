@@ -20,15 +20,15 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Name, "AK_ContactType_Name").IsUnique();
 
             entity.Property(e => e.ContactTypeId)
-            .HasComment("Primary key for ContactType records.")
-            .HasColumnName("ContactTypeID");
+                .HasComment("Primary key for ContactType records.")
+                .HasColumnName("ContactTypeID");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Contact type description.");
+                .HasMaxLength(50)
+                .HasComment("Contact type description.");
 
             OnConfigurePartial(entity);
         }

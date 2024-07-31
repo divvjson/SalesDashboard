@@ -22,26 +22,26 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_ProductSubcategory_rowguid").IsUnique();
 
             entity.Property(e => e.ProductSubcategoryId)
-            .HasComment("Primary key for ProductSubcategory records.")
-            .HasColumnName("ProductSubcategoryID");
+                .HasComment("Primary key for ProductSubcategory records.")
+                .HasColumnName("ProductSubcategoryID");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Subcategory description.");
+                .HasMaxLength(50)
+                .HasComment("Subcategory description.");
             entity.Property(e => e.ProductCategoryId)
-            .HasComment("Product category identification number. Foreign key to ProductCategory.ProductCategoryID.")
-            .HasColumnName("ProductCategoryID");
+                .HasComment("Product category identification number. Foreign key to ProductCategory.ProductCategoryID.")
+                .HasColumnName("ProductCategoryID");
             entity.Property(e => e.Rowguid)
-            .HasDefaultValueSql("(newid())")
-            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-            .HasColumnName("rowguid");
+                .HasDefaultValueSql("(newid())")
+                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+                .HasColumnName("rowguid");
 
             entity.HasOne(d => d.ProductCategory).WithMany(p => p.ProductSubcategories)
-            .HasForeignKey(d => d.ProductCategoryId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
+                .HasForeignKey(d => d.ProductCategoryId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

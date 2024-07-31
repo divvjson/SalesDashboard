@@ -22,17 +22,17 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => new { e.StartTime, e.EndTime }, "AK_Shift_StartTime_EndTime").IsUnique();
 
             entity.Property(e => e.ShiftId)
-            .ValueGeneratedOnAdd()
-            .HasComment("Primary key for Shift records.")
-            .HasColumnName("ShiftID");
+                .ValueGeneratedOnAdd()
+                .HasComment("Primary key for Shift records.")
+                .HasColumnName("ShiftID");
             entity.Property(e => e.EndTime).HasComment("Shift end time.");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Shift description.");
+                .HasMaxLength(50)
+                .HasComment("Shift description.");
             entity.Property(e => e.StartTime).HasComment("Shift start time.");
 
             OnConfigurePartial(entity);

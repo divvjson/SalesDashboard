@@ -18,18 +18,18 @@ namespace SalesDashboard.Entities.Configurations
             entity.ToTable("SalesReason", "Sales", tb => tb.HasComment("Lookup table of customer purchase reasons."));
 
             entity.Property(e => e.SalesReasonId)
-            .HasComment("Primary key for SalesReason records.")
-            .HasColumnName("SalesReasonID");
+                .HasComment("Primary key for SalesReason records.")
+                .HasColumnName("SalesReasonID");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Sales reason description.");
+                .HasMaxLength(50)
+                .HasComment("Sales reason description.");
             entity.Property(e => e.ReasonType)
-            .HasMaxLength(50)
-            .HasComment("Category the sales reason belongs to.");
+                .HasMaxLength(50)
+                .HasComment("Category the sales reason belongs to.");
 
             OnConfigurePartial(entity);
         }

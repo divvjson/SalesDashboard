@@ -26,25 +26,25 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Instructions, "PXML_ProductModel_Instructions");
 
             entity.Property(e => e.ProductModelId)
-            .HasComment("Primary key for ProductModel records.")
-            .HasColumnName("ProductModelID");
+                .HasComment("Primary key for ProductModel records.")
+                .HasColumnName("ProductModelID");
             entity.Property(e => e.CatalogDescription)
-            .HasComment("Detailed product catalog information in xml format.")
-            .HasColumnType("xml");
+                .HasComment("Detailed product catalog information in xml format.")
+                .HasColumnType("xml");
             entity.Property(e => e.Instructions)
-            .HasComment("Manufacturing instructions in xml format.")
-            .HasColumnType("xml");
+                .HasComment("Manufacturing instructions in xml format.")
+                .HasColumnType("xml");
             entity.Property(e => e.ModifiedDate)
-            .HasDefaultValueSql("(getdate())")
-            .HasComment("Date and time the record was last updated.")
-            .HasColumnType("datetime");
+                .HasDefaultValueSql("(getdate())")
+                .HasComment("Date and time the record was last updated.")
+                .HasColumnType("datetime");
             entity.Property(e => e.Name)
-            .HasMaxLength(50)
-            .HasComment("Product model description.");
+                .HasMaxLength(50)
+                .HasComment("Product model description.");
             entity.Property(e => e.Rowguid)
-            .HasDefaultValueSql("(newid())")
-            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-            .HasColumnName("rowguid");
+                .HasDefaultValueSql("(newid())")
+                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+                .HasColumnName("rowguid");
 
             OnConfigurePartial(entity);
         }
