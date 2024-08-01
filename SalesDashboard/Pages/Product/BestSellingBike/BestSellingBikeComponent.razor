@@ -1,0 +1,105 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsLoading">
+    <div class="best-selling-bike">
+
+    </div>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? ProductFilterChangedSubscription { get; set; }
+
+    private bool IsLoading { get; set; } = false;
+
+    private BestSellingBikeItem? BestSellingBikeItem { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductFilterChangedSubscription = ProductFilterStateProviderComponent.ProductFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryAsync());
+
+            await RequeryAsync();
+        }
+    }
+
+    private async Task RequeryAsync()
+    {
+        IsLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        var period = ProductFilterStateProviderComponent.Period.Value;
+        var countryRegionNames = ProductFilterStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = ProductFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = ProductFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = ProductFilterStateProviderComponent.ProductNames.Value;
+
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
+
+        if (period is not null)
+        {
+            if (period.Start.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate >= period.Start.Value);
+            }
+
+            if (period.End.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate <= period.End.Value);
+            }
+        }
+
+        if (countryRegionNames.Any())
+        {
+            query = query.Where(sod => countryRegionNames.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        BestSellingBikeItem = await query
+            .Where(sod => sod.Product.ProductSubcategory != null && sod.Product.ProductSubcategory.ProductCategory.Name == "Bikes")
+            .GroupBy(sod => sod.Product.Name)
+            .Select(g => new BestSellingBikeItem
+            {
+                BikeName = g.Key,
+                QuantitySold = g.Sum(sod => sod.OrderQty)
+            })
+            .OrderByDescending(item => item.QuantitySold)
+            .FirstOrDefaultAsync();
+
+        IsLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ProductFilterChangedSubscription?.Dispose();
+    }
+}
