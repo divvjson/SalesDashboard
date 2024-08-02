@@ -1,0 +1,9 @@
+﻿<img class="image" src="@ImageUrl" @onclick="MudDialog.Cancel" />
+
+@code {
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public string? ImageUrl { get; set; }
+}

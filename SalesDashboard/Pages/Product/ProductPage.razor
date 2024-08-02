@@ -9,6 +9,7 @@
 @using SalesDashboard.Components.Shared.SelectProductDialog
 @using SalesDashboard.Components.Shared.SelectProductSubcategoryDialog
 @using SalesDashboard.Entities
+@using SalesDashboard.Pages.Product.BestSellingBike
 @using SalesDashboard.Pages.Product.BikesSalesTrend
 @using SalesDashboard.Pages.Product.DistributionOfSalesByProductCategory
 @using SalesDashboard.Pages.Product.Top3SubcategoriesWithHighestGrossMargin
@@ -61,6 +62,11 @@
             <div class="top-3-subcategories-with-highest-gross-margin">
                 <PageBoxComponent Title="Top 3 Subcategories with Highest Gross Margin">
                     <Top3SubcategoriesWithHighestGrossMarginComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="best-selling-bike">
+                <PageBoxComponent Title="Best Selling Bike">
+                    <BestSellingBikeComponent />
                 </PageBoxComponent>
             </div>
         </div>

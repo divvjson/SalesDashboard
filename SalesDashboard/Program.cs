@@ -15,6 +15,7 @@ builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
 });
 
 // Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddMudServices();
 builder.Services.AddScoped<LocalStorageService>();
@@ -32,6 +33,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
+app.MapControllers();
 app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 if (app.Environment.IsDevelopment())

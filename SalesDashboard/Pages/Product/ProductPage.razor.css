@@ -48,6 +48,10 @@
     grid-area: top-3-subcategories-with-highest-gross-margin;
 }
 
+.best-selling-bike {
+    grid-area: best-selling-bike;
+}
+
 @media (min-width: 0px) {
     .product {
         padding: 0px;
@@ -61,12 +65,13 @@
     .grid {
         padding-left: 12px;
         padding-right: 12px;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         grid-template-areas:
-            "quantity-sold quantity-sold"
-            "distribution-of-sales-by-product-category distribution-of-sales-by-product-category"
-            "bikes-sales-trend bikes-sales-trend"
-            "top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin";
+            "quantity-sold"
+            "distribution-of-sales-by-product-category"
+            "bikes-sales-trend"
+            "top-3-subcategories-with-highest-gross-margin"
+            "best-selling-bike";
     }
 }
 
@@ -86,11 +91,11 @@
     .grid {
         padding-left: 24px;
         padding-right: 24px;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
         grid-template-areas:
-            "quantity-sold quantity-sold distribution-of-sales-by-product-category distribution-of-sales-by-product-category"
-            "bikes-sales-trend bikes-sales-trend bikes-sales-trend bikes-sales-trend"
-            "top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin";
+            "quantity-sold distribution-of-sales-by-product-category"
+            "bikes-sales-trend best-selling-bike"
+            "top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin";
     }
 }
 
@@ -98,10 +103,4 @@
 }
 
 @media (min-width: 1440px) {
-    .grid {
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        grid-template-areas:
-            "quantity-sold distribution-of-sales-by-product-category bikes-sales-trend bikes-sales-trend"
-            "top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin";
-    }
 }
