@@ -95,10 +95,15 @@
 
         BestSellingBikeItem = await query
             .Where(sod => sod.Product.ProductSubcategory != null && sod.Product.ProductSubcategory.ProductCategory.Name == "Bikes")
-            .GroupBy(sod => sod.Product.Name)
+            .GroupBy(sod => new
+            {
+                ProductId = sod.Product.ProductId,
+                BikeName = sod.Product.Name
+            })
             .Select(g => new BestSellingBikeItem
             {
-                BikeName = g.Key,
+                ProductId = g.Key.ProductId,
+                BikeName = g.Key.BikeName,
                 QuantitySold = g.Sum(sod => sod.OrderQty)
             })
             .OrderByDescending(item => item.QuantitySold)
@@ -111,11 +116,28 @@
 
     private async Task HandleBestSellingBikeClickedAsync()
     {
-        var imageUrl = NavigationManager.BaseUri + "images/best-selling-bike.jpg";
+        if (BestSellingBikeItem is null)
+        {
+            return;
+        }
+
+        using var context = DbFactory.CreateDbContext();
+
+        int productPhotoId = await context.ProductProductPhotos
+            .Where(ppp => ppp.ProductId == BestSellingBikeItem.ProductId)
+            .Select(ppp => ppp.ProductPhoto.ProductPhotoId)
+            .FirstOrDefaultAsync();
+
+        if (productPhotoId is 0)
+        {
+            return;
+        }
+
+        var productPhotoUrl = $"{NavigationManager.BaseUri}api/ProductPhoto/{productPhotoId}";
 
         DialogParameters<ImageDialog> parameters = new()
         {
-            { imageDialog => imageDialog.ImageUrl, imageUrl }
+            { imageDialog => imageDialog.ImageUrl, productPhotoUrl }
         };
 
         await DialogService.ShowAsync<ImageDialog>(null, parameters);
