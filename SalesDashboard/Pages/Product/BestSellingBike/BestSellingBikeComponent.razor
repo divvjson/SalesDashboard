@@ -3,11 +3,20 @@
 @using SalesDashboard.Entities
 
 @implements IDisposable
+@inject IDialogService DialogService
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <SpinnerOverlayComponent IsVisible="IsLoading">
     <div class="best-selling-bike">
-
+        @if (BestSellingBikeItem is not null)
+        {
+            <div class="best-selling-bike-container mud-ripple" @onclick="HandleBestSellingBikeClickedAsync">
+                <MudIcon Icon="@Icons.Material.Outlined.EmojiEvents" />
+                <div class="bike-name">@BestSellingBikeItem.BikeName</div>
+                <div class="quantity-sold-value">@BestSellingBikeItem.QuantitySold</div>
+                <div class="quantity-sold-label">Units Sold</div>
+            </div>
+        }
     </div>
 </SpinnerOverlayComponent>
 
@@ -96,6 +105,11 @@
         IsLoading = false;
 
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleBestSellingBikeClickedAsync()
+    {
+        
     }
 
     public void Dispose()

@@ -9,13 +9,12 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: filter 400ms;
     background-color: white;
 }
 
 @media (pointer: fine) {
     .bar-button:hover {
-        filter: brightness(95%);
+        filter: brightness(99%);
     }
 }
 
