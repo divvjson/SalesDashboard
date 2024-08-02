@@ -1,9 +1,11 @@
 ﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.ImageDialog
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
 
 @implements IDisposable
 @inject IDialogService DialogService
+@inject NavigationManager NavigationManager
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <SpinnerOverlayComponent IsVisible="IsLoading">
@@ -109,7 +111,14 @@
 
     private async Task HandleBestSellingBikeClickedAsync()
     {
-        
+        var imageUrl = NavigationManager.BaseUri + "images/best-selling-bike.jpg";
+
+        DialogParameters<ImageDialog> parameters = new()
+        {
+            { imageDialog => imageDialog.ImageUrl, imageUrl }
+        };
+
+        await DialogService.ShowAsync<ImageDialog>(null, parameters);
     }
 
     public void Dispose()
