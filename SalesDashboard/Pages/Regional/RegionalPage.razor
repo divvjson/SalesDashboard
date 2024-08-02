@@ -35,7 +35,7 @@
                 <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
             </MudTooltip>
         </div>
-        <FilterSettingsComponent>
+        <FilterSettingsComponent NumberOfFilterSettingsSet="RegionalFilterStateProviderComponent.NumberOfFilterSettingsSet">
             <FilterSettingsItemComponent Key="Period" Value="RegionalFilterStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
             <MudDivider />
             <FilterSettingsItemComponent Key="Country" Value="RegionalFilterStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />

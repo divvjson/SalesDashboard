@@ -1,18 +1,15 @@
 ﻿@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
-@using SalesDashboard.Pages.Regional
-
-@implements IDisposable
 
 <MudExpansionPanels style="@GetMudExpansionPanelsStyle()">
     <MudExpansionPanel style="@GetMudExpansionPanelStyle()">
         <TitleContent>
             <div class="filter-settings-title-container">
                 <div>Filter Settings</div>
-                <MudBadge Content="NumberOfSettingsSet"
+                <MudBadge Content="NumberOfFilterSettingsSet"
                           Color="Color.Default"
                           Overlap="true"
                           Bordered="true"
-                          Visible="NumberOfSettingsSet > 0">
+                          Visible="NumberOfFilterSettingsSet > 0">
                     <MudIcon Icon="@Icons.Material.Outlined.FilterAlt" />
                 </MudBadge>
             </div>
@@ -32,27 +29,8 @@
     [CascadingParameter]
     public BreakpointStateProviderComponent BreakpointStateProviderComponent { get; set; } = null!;
 
-    [CascadingParameter]
-    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
-
-    private IDisposable? RegionalFilterChangedSubscription { get; set; }
-
-    private int NumberOfSettingsSet { get; set; }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
-                .Throttle(TimeSpan.FromMilliseconds(25))
-                .Subscribe(_ =>
-                {
-                    NumberOfSettingsSet = RegionalFilterStateProviderComponent.NumberOfSettingsSet;
-                });
-
-            NumberOfSettingsSet = RegionalFilterStateProviderComponent.NumberOfSettingsSet;
-        }
-    }
+    [Parameter, EditorRequired]
+    public int NumberOfFilterSettingsSet { get; set; }
 
     private string GetMudExpansionPanelsStyle()
     {
@@ -75,10 +53,5 @@
         var styleString = "background-color: var(--gray-50);";
 
         return styleString;
-    }
-
-    public void Dispose()
-    {
-        RegionalFilterChangedSubscription?.Dispose();
     }
 }
