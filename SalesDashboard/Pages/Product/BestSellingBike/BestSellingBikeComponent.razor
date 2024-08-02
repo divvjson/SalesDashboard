@@ -140,7 +140,12 @@
             { imageDialog => imageDialog.ImageUrl, productPhotoUrl }
         };
 
-        await DialogService.ShowAsync<ImageDialog>(null, parameters);
+        DialogOptions options = new()
+        {
+            BackdropClick = true
+        };
+
+        await DialogService.ShowAsync<ImageDialog>(null, parameters, options);
     }
 
     public void Dispose()
