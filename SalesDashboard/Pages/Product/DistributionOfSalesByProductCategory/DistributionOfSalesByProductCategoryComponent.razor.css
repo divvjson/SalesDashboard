@@ -1,3 +1,6 @@
 ﻿.total-sales-by-category {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
     padding: 12px;
 }
