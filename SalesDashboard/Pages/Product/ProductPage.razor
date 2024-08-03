@@ -13,6 +13,7 @@
 @using SalesDashboard.Pages.Product.BikesSalesTrend
 @using SalesDashboard.Pages.Product.DistributionOfSalesByProductCategory
 @using SalesDashboard.Pages.Product.Top3SubcategoriesWithHighestGrossMargin
+@using SalesDashboard.Pages.Product.Top5BestSellingProducts
 @using SalesDashboard.Types
 
 @implements IDisposable
@@ -59,14 +60,19 @@
                     <BikesSalesTrendComponent />
                 </PageBoxComponent>
             </div>
+            <div class="best-selling-bike">
+                <PageBoxComponent Title="Best Selling Bike">
+                    <BestSellingBikeComponent />
+                </PageBoxComponent>
+            </div>
             <div class="top-3-subcategories-with-highest-gross-margin">
                 <PageBoxComponent Title="Top 3 Subcategories with Highest Gross Margin">
                     <Top3SubcategoriesWithHighestGrossMarginComponent />
                 </PageBoxComponent>
             </div>
-            <div class="best-selling-bike">
-                <PageBoxComponent Title="Best Selling Bike">
-                    <BestSellingBikeComponent />
+            <div class="top-5-best-selling-products">
+                <PageBoxComponent Title="Top 5 Best Selling Products">
+                    <Top5BestSellingProductsComponent />
                 </PageBoxComponent>
             </div>
         </div>

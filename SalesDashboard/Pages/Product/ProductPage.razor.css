@@ -44,12 +44,16 @@
     grid-area: bikes-sales-trend;
 }
 
+.best-selling-bike {
+    grid-area: best-selling-bike;
+}
+
 .top-3-subcategories-with-highest-gross-margin {
     grid-area: top-3-subcategories-with-highest-gross-margin;
 }
 
-.best-selling-bike {
-    grid-area: best-selling-bike;
+.top-5-best-selling-products {
+    grid-area: top-5-best-selling-products;
 }
 
 @media (min-width: 0px) {
@@ -71,7 +75,8 @@
             "distribution-of-sales-by-product-category"
             "bikes-sales-trend"
             "best-selling-bike"
-            "top-3-subcategories-with-highest-gross-margin";
+            "top-3-subcategories-with-highest-gross-margin"
+            "top-5-best-selling-products";
     }
 }
 
@@ -95,7 +100,7 @@
         grid-template-areas:
             "quantity-sold distribution-of-sales-by-product-category"
             "bikes-sales-trend best-selling-bike"
-            "top-3-subcategories-with-highest-gross-margin top-3-subcategories-with-highest-gross-margin";
+            "top-3-subcategories-with-highest-gross-margin top-5-best-selling-products";
     }
 }
 
