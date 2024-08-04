@@ -12,6 +12,7 @@
 @using SalesDashboard.Pages.Product.BestSellingBike
 @using SalesDashboard.Pages.Product.BikesSalesTrend
 @using SalesDashboard.Pages.Product.DistributionOfSalesByProductCategory
+@using SalesDashboard.Pages.Product.ProductSummaryMatrix
 @using SalesDashboard.Pages.Product.Top3SubcategoriesWithHighestGrossMargin
 @using SalesDashboard.Pages.Product.Top5BestSellingProducts
 @using SalesDashboard.Types
@@ -73,6 +74,11 @@
             <div class="top-5-best-selling-products">
                 <PageBoxComponent Title="Top 5 Best Selling Products">
                     <Top5BestSellingProductsComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="product-summary-matrix">
+                <PageBoxComponent Title="Summary Matrix">
+                    <ProductSummaryMatrixComponent />
                 </PageBoxComponent>
             </div>
         </div>

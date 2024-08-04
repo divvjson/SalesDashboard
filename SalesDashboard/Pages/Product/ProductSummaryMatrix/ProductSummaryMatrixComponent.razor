@@ -1,0 +1,273 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+@using SalesDashboard.Extensions
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsLoading">
+    <MudTable ContainerClass="summary-matrix"
+              FixedHeader="true"
+              T="ProductSummaryMatrixItem"
+              Items="ProductSummaryMatrixGridItems"
+              GroupBy="GroupDefinition"
+              Breakpoint="Breakpoint.None"
+              Dense="true"
+              Striped="true">
+        <HeaderContent>
+            <MudTh>Category</MudTh>
+            <MudTh>Subcategory</MudTh>
+            <MudTh>Product</MudTh>
+            <MudTh>Qty Sold</MudTh>
+            <MudTh>Sales</MudTh>
+            <MudTh>Costs</MudTh>
+            <MudTh>Gross Profit</MudTh>
+            <MudTh>Gross Margin</MudTh>
+        </HeaderContent>
+        <GroupHeaderTemplate>
+            @if (context.GroupName is nameof(ProductSummaryMatrixItem.ProductCategoryName))
+            {
+                <MudTh colspan="3" style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
+            }
+            else if (context.GroupName is nameof(ProductSummaryMatrixItem.ProductSubcategoryName))
+            {
+                <MudTh></MudTh>
+                <MudTh colspan="2" style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
+            }
+            else if (context.GroupName is nameof(ProductSummaryMatrixItem.ProductName))
+            {
+                <MudTh></MudTh>
+                <MudTh></MudTh>
+                <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
+            }
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @context.Items.Sum(item => item.QuantitySold)
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @if (context.GroupName is nameof(ProductSummaryMatrixItem.ProductCategoryName))
+                {
+                    @context.Items.Sum(item => item.TotalSales).ToCurrencyWithTwoDecimalsInMillions()
+                }
+                else
+                {
+                    @context.Items.Sum(item => item.TotalSales).ToCurrencyWithTwoDecimals()
+                }
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @if (context.GroupName is nameof(ProductSummaryMatrixItem.ProductCategoryName))
+                {
+                    @context.Items.Sum(item => item.TotalCosts).ToCurrencyWithTwoDecimalsInMillions()
+                }
+                else
+                {
+                    @context.Items.Sum(item => item.TotalCosts).ToCurrencyWithTwoDecimals()
+                }
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @if (context.GroupName is nameof(ProductSummaryMatrixItem.ProductCategoryName))
+                {
+                    @context.Items.Sum(item => item.GrossProfit).ToCurrencyWithTwoDecimalsInMillions()
+                }
+                else
+                {
+                    @context.Items.Sum(item => item.GrossProfit).ToCurrencyWithTwoDecimals()
+                }
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @($"{GetGrossMargin(context.Items).ToString("F2")}%")
+            </MudTh>
+        </GroupHeaderTemplate>
+        <RowTemplate>
+            <MudTd DataLabel="Category">@context.ProductCategoryName</MudTd>
+            <MudTd DataLabel="Subcategory">@context.ProductSubcategoryName</MudTd>
+            <MudTd DataLabel="Product">@context.ProductName</MudTd>
+            <MudTd DataLabel="Qty Sold">@context.QuantitySold</MudTd>
+            <MudTd DataLabel="Sales">@context.TotalSales.ToCurrencyWithTwoDecimalsInMillions()</MudTd>
+            <MudTd DataLabel="Costs">@context.TotalCosts.ToCurrencyWithTwoDecimalsInMillions()</MudTd>
+            <MudTd DataLabel="Gross Profit">@context.GrossProfit.ToCurrencyWithTwoDecimalsInMillions()</MudTd>
+            <MudTd DataLabel="Gross Margin">@($"{context.GrossMargin.ToString("F2")}%")</MudTd>
+        </RowTemplate>
+    </MudTable>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? ProductFilterChangedSubscription { get; set; }
+
+    private bool IsLoading { get; set; } = false;
+
+    private List<ProductSummaryMatrixItem> ProductSummaryMatrixGridItems { get; set; } = [];
+
+    private TableGroupDefinition<ProductSummaryMatrixItem> GroupDefinition { get; set; } = new()
+    {
+        GroupName = nameof(ProductSummaryMatrixItem.ProductCategoryName),
+        IsInitiallyExpanded = false,
+        Indentation = true,
+        Expandable = true,
+        Selector = (item) => item.ProductCategoryName,
+        InnerGroup = new()
+        {
+            GroupName = nameof(ProductSummaryMatrixItem.ProductSubcategoryName),
+            IsInitiallyExpanded = false,
+            Indentation = true,
+            Expandable = true,
+            Selector = (item) => item.ProductSubcategoryName,
+            InnerGroup = new()
+            {
+                GroupName = nameof(ProductSummaryMatrixItem.ProductName),
+                IsInitiallyExpanded = false,
+                Indentation = true,
+                Expandable = false,
+                Selector = (item) => item.ProductName
+            }
+        }
+    };
+
+    private string GetGroupHeaderRowStyle(TableGroupData<object, ProductSummaryMatrixItem> context)
+    {
+        var styleString = "";
+
+        switch (context.GroupName)
+        {
+            case nameof(ProductSummaryMatrixItem.ProductCategoryName):
+            styleString += " font-weight: 500;";
+            break;
+            case nameof(ProductSummaryMatrixItem.ProductSubcategoryName):
+            styleString += " font-weight: 400;";
+            break;
+            case nameof(ProductSummaryMatrixItem.ProductName):
+            styleString += " font-weight: 300;";
+            break;
+        }
+
+        return styleString;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ProductFilterChangedSubscription = ProductFilterStateProviderComponent.ProductFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryAsync());
+
+            await RequeryAsync();
+        }
+    }
+
+    private async Task RequeryAsync()
+    {
+        IsLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        var period = ProductFilterStateProviderComponent.Period.Value;
+        var countryRegionNames = ProductFilterStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = ProductFilterStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = ProductFilterStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = ProductFilterStateProviderComponent.ProductNames.Value;
+
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.SalesOrderDetails.AsQueryable();
+
+        if (period is not null)
+        {
+            if (period.Start.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate >= period.Start.Value);
+            }
+
+            if (period.End.HasValue)
+            {
+                query = query.Where(sod => sod.SalesOrder.OrderDate <= period.End.Value);
+            }
+        }
+
+        if (countryRegionNames.Any())
+        {
+            query = query.Where(sod => countryRegionNames.Contains(sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name));
+        }
+
+        if (productCategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productCategoryNames.Contains(sod.Product.ProductSubcategory.ProductCategory.Name));
+        }
+
+        if (productSubcategoryNames.Any())
+        {
+            query = query.Where(sod => sod.Product.ProductSubcategory != null && productSubcategoryNames.Contains(sod.Product.ProductSubcategory.Name));
+        }
+
+        if (productNames.Any())
+        {
+            query = query.Where(sod => productNames.Contains(sod.Product.Name));
+        }
+
+        var items = await query
+            .GroupBy(sod => new
+            {
+                ProductCategoryName = sod.Product.ProductSubcategory == null ? "Other" : sod.Product.ProductSubcategory.ProductCategory.Name,
+                ProductSubcategoryName = sod.Product.ProductSubcategory == null ? "Other" : sod.Product.ProductSubcategory.Name,
+                ProductName = sod.Product.Name
+            })
+            .Select(g => new ProductSummaryMatrixItem
+            {
+                ProductCategoryName = g.Key.ProductCategoryName,
+                ProductSubcategoryName = g.Key.ProductSubcategoryName,
+                ProductName = g.Key.ProductName,
+                QuantitySold = g.Sum(sod => sod.OrderQty),
+                TotalSales = g.Sum(sod => sod.LineTotal),
+                TotalCosts = g.Sum(sod => sod.UnitCost * sod.OrderQty),
+                GrossProfit = g.Sum(sod => sod.LineTotal - (sod.UnitCost * sod.OrderQty)),
+                GrossMargin = g.Sum(sod => sod.LineTotal == 0 ? 0 : sod.LineTotal - (sod.UnitCost * sod.OrderQty) / sod.LineTotal * 100)
+            })
+            .OrderBy(item => item.ProductCategoryName)
+            .ThenBy(item => item.ProductSubcategoryName)
+            .ThenBy(item => item.ProductName)
+            .ToListAsync();
+
+        if (items.Any())
+        {
+            ProductSummaryMatrixItem summaryRow = new()
+            {
+                ProductCategoryName = string.Empty,
+                ProductSubcategoryName = string.Empty,
+                ProductName = string.Empty,
+                QuantitySold = items.Sum(item => item.QuantitySold),
+                TotalSales = items.Sum(item => item.TotalSales),
+                TotalCosts = items.Sum(item => item.TotalCosts),
+                GrossProfit = items.Sum(item => item.TotalSales) - items.Sum(item => item.TotalCosts),
+                GrossMargin = GetGrossMargin(items)
+            };
+
+            items.Add(summaryRow);
+        }
+
+        ProductSummaryMatrixGridItems = items;
+
+        IsLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private decimal GetGrossMargin(IEnumerable<ProductSummaryMatrixItem> items)
+    {
+        if (items.Sum(item => item.TotalSales) is 0)
+        {
+            return 0;
+        }
+        else
+        {
+            return (items.Sum(item => item.TotalSales) - items.Sum(item => item.TotalCosts)) / items.Sum(item => item.TotalSales) * 100;
+        }
+    }
+
+    public void Dispose()
+    {
+        ProductFilterChangedSubscription?.Dispose();
+    }
+}
