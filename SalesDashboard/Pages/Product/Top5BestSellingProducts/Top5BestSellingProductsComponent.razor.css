@@ -2,63 +2,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    container-type: inline-size;
+    padding: 12px;
 }
 
-.no-data-or-trend {
+::deep .mud-chart {
+    flex-grow: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 32px;
-    font-weight: 500;
 }
 
-@container (min-width: 0px) {
-    .no-data-or-trend {
-        height: 225px;
-    }
-
-    ::deep .mud-chart {
-        height: 225px;
-    }
-}
-
-@container (min-width: 450px) {
-    .no-data-or-trend {
-        height: 250px;
-    }
-
-    ::deep .mud-chart {
-        height: 250px;
-    }
-}
-
-@container (min-width: 500px) {
-    .no-data-or-trend {
-        height: 275px;
-    }
-
-    ::deep .mud-chart {
-        height: 275px;
-    }
-}
-
-@container (min-width: 550px) {
-    .no-data-or-trend {
-        height: 300px;
-    }
-
-    ::deep .mud-chart {
-        height: 300px;
-    }
-}
-
-@container (min-width: 600px) {
-    .no-data-or-trend {
-        height: 325px;
-    }
-
-    ::deep .mud-chart {
-        height: 325px;
-    }
+::deep .mud-chart-line {
+    margin-left: 30px;
+    overflow: visible;
 }

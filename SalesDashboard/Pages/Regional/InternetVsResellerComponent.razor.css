@@ -8,6 +8,7 @@
 @media (min-width: 0px) {
     .internet-vs-reseller {
         grid-template-columns: 1fr 1fr;
+        grid-template-rows: min-content min-content min-content min-content;
     }
 }
 

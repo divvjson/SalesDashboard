@@ -13,7 +13,7 @@
         }
         else if (Years.Count() is 1)
         {
-            <div class="no-data-or-trend">NO TREND</div>
+            
         }
         else
         {
@@ -39,7 +39,10 @@
 
     private List<ChartSeries> ChartSeries { get; set; } = new();
 
-    private ChartOptions ChartOptions { get; set; } = new();
+    private ChartOptions ChartOptions { get; set; } = new()
+    {
+        
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
