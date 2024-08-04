@@ -12,7 +12,7 @@
     <div class="best-selling-bike">
         @if (BestSellingBikeItem is not null)
         {
-            <div class="best-selling-bike-container mud-ripple" @onclick="HandleBestSellingBikeClickedAsync">
+            <div class="best-selling-bike-container" @onclick="HandleBestSellingBikeClickedAsync">
                 <MudIcon Icon="@Icons.Material.Outlined.EmojiEvents" />
                 <div class="bike-name">@BestSellingBikeItem.BikeName</div>
                 <div class="quantity-sold-value">@BestSellingBikeItem.QuantitySold</div>
