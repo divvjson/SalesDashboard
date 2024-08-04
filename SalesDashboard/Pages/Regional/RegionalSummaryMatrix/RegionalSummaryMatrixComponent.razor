@@ -27,16 +27,16 @@
             <MudTh>Gross Margin</MudTh>
         </HeaderContent>
         <GroupHeaderTemplate>
-            @if (context.GroupName is "Region")
+            @if (context.GroupName is nameof(RegionalSummaryMatrixItem.CountryRegionName))
             {
                 <MudTh colspan="3" style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
             }
-            else if (context.GroupName is "State")
+            else if (context.GroupName is nameof(RegionalSummaryMatrixItem.StateProvinceName))
             {
                 <MudTh></MudTh>
                 <MudTh colspan="2" style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
             }
-            else if (context.GroupName is "City")
+            else if (context.GroupName is nameof(RegionalSummaryMatrixItem.City))
             {
                 <MudTh></MudTh>
                 <MudTh></MudTh>
@@ -46,7 +46,7 @@
                 @context.Items.Sum(item => item.QuantitySold)
             </MudTh>
             <MudTh style="@GetGroupHeaderRowStyle(context)">
-                @if (context.GroupName is "Region")
+                @if (context.GroupName is nameof(RegionalSummaryMatrixItem.CountryRegionName))
                 {
                     @context.Items.Sum(item => item.TotalSales).ToCurrencyWithTwoDecimalsInMillions()
                 }
@@ -56,7 +56,7 @@
                 }
             </MudTh>
             <MudTh style="@GetGroupHeaderRowStyle(context)">
-                @if (context.GroupName is "Region")
+                @if (context.GroupName is nameof(RegionalSummaryMatrixItem.CountryRegionName))
                 {
                     @context.Items.Sum(item => item.TotalCosts).ToCurrencyWithTwoDecimalsInMillions()
                 }
@@ -66,7 +66,7 @@
                 }
             </MudTh>
             <MudTh style="@GetGroupHeaderRowStyle(context)">
-                @if (context.GroupName is "Region")
+                @if (context.GroupName is nameof(RegionalSummaryMatrixItem.CountryRegionName))
                 {
                     @context.Items.Sum(item => item.GrossProfit).ToCurrencyWithTwoDecimalsInMillions()
                 }
@@ -104,21 +104,21 @@
 
     private TableGroupDefinition<RegionalSummaryMatrixItem> GroupDefinition { get; set; } = new()
     {
-        GroupName = "Region",
+        GroupName = nameof(RegionalSummaryMatrixItem.CountryRegionName),
         IsInitiallyExpanded = false,
         Indentation = true,
         Expandable = true,
         Selector = (item) => item.CountryRegionName,
-        InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixItem>()
+        InnerGroup = new()
         {
-            GroupName = "State",
+            GroupName = nameof(RegionalSummaryMatrixItem.StateProvinceName),
             IsInitiallyExpanded = false,
             Indentation = true,
             Expandable = true,
             Selector = (item) => item.StateProvinceName,
-            InnerGroup = new TableGroupDefinition<RegionalSummaryMatrixItem>()
+            InnerGroup = new()
             {
-                GroupName = "City",
+                GroupName = nameof(RegionalSummaryMatrixItem.City),
                 IsInitiallyExpanded = false,
                 Indentation = true,
                 Expandable = false,
@@ -133,13 +133,13 @@
 
         switch (context.GroupName)
         {
-            case "Region":
+            case nameof(RegionalSummaryMatrixItem.CountryRegionName):
             styleString += " font-weight: 500;";
             break;
-            case "State":
+            case nameof(RegionalSummaryMatrixItem.StateProvinceName):
             styleString += " font-weight: 400;";
             break;
-            case "City":
+            case nameof(RegionalSummaryMatrixItem.City):
             styleString += " font-weight: 300;";
             break;
         }
