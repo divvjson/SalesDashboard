@@ -86,13 +86,15 @@
         padding-left: 12px;
         padding-right: 12px;
         grid-template-columns: 1fr 1fr;
+        grid-template-rows: min-content min-content min-content min-content min-content min-content min-content min-content;
         grid-template-areas:
             "total-sales total-cost"
             "gross-profit gross-margin"
             "sales-trend-top-3-countries sales-trend-top-3-countries"
             "internet-vs-reseller internet-vs-reseller"
             "distribution-of-sales distribution-of-sales"
-            "top-3-states top-3-cities"
+            "top-3-states top-3-states"
+            "top-3-cities top-3-cities"
             "summary-matrix summary-matrix";
     }
 }
