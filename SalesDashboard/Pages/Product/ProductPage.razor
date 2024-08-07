@@ -17,7 +17,6 @@
 @using SalesDashboard.Pages.Product.Top5BestSellingProducts
 @using SalesDashboard.Types
 
-@implements IDisposable
 @inject IDialogService DialogService
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
@@ -89,21 +88,7 @@
     [CascadingParameter]
     public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
 
-    private IDisposable? ProductFilterChangedSubscription { get; set; }
-
     private bool IsFiguresLoading { get; set; } = true;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            ProductFilterChangedSubscription = ProductFilterStateProviderComponent.ProductFilterChanged
-                .Throttle(TimeSpan.FromMilliseconds(25))
-                .Subscribe(async _ => await RequeryFiguresAsync());
-
-            await RequeryFiguresAsync();
-        }
-    }
 
     private void HandleRefreshClicked()
     {
@@ -208,21 +193,5 @@
         {
             await ProductFilterStateProviderComponent.SetProductNamesAsync(selectedProductNames);
         }
-    }
-
-    private async Task RequeryFiguresAsync()
-    {
-        IsFiguresLoading = true;
-
-        await InvokeAsync(StateHasChanged);
-
-        IsFiguresLoading = false;
-
-        await InvokeAsync(StateHasChanged);
-    }
-
-    public void Dispose()
-    {
-        ProductFilterChangedSubscription?.Dispose();
     }
 }

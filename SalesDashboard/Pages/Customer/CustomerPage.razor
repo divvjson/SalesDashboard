@@ -1,0 +1,47 @@
+﻿@page "/Customer"
+@using SalesDashboard.Components.Shared.FigureBox
+@using SalesDashboard.Components.Shared.PageBox
+
+@implements IDisposable
+
+<PageTitle>Customer Analysis</PageTitle>
+
+<div class="customer">
+    <div class="customer-container mud-elevation-4">
+        <div class="header">
+            <div></div>
+            <div class="header-title">Customer Analysis</div>
+            <MudTooltip Text="Refresh">
+                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
+            </MudTooltip>
+        </div>
+        <div class="grid">
+            <div class="number-of-registered-customers">
+                <PageBoxComponent Title="Number of Registered Customers">
+                    <FigureBoxComponent Value="@NumberOfRegisteredCustomers.ToString()" IsLoading="IsFiguresLoading" />
+                </PageBoxComponent>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public CustomerFilterStateProviderComponent CustomerFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? CustomerFilterChangedSubscription { get; set; }
+
+    private bool IsFiguresLoading { get; set; } = true;
+
+    private int NumberOfRegisteredCustomers { get; set; }
+
+    private void HandleRefreshClicked()
+    {
+        CustomerFilterStateProviderComponent.CustomerFilterChanged.OnNext(Unit.Default);
+    }
+
+    public void Dispose()
+    {
+        CustomerFilterChangedSubscription?.Dispose();
+    }
+}
