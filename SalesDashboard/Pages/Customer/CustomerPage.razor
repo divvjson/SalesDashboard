@@ -3,6 +3,7 @@
 @using SalesDashboard.Components.Shared.FigureBox
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Entities
+@using SalesDashboard.Pages.Customer.AgeGroup
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
@@ -22,6 +23,11 @@
             <div class="number-of-registered-customers">
                 <PageBoxComponent Title="Number of Registered Customers">
                     <FigureBoxComponent Value="@NumberOfRegisteredCustomers.ToString()" IsLoading="IsFiguresLoading" />
+                </PageBoxComponent>
+            </div>
+            <div class="age-group">
+                <PageBoxComponent Title="Age Group Distribution">
+                    <AgeGroupComponent />
                 </PageBoxComponent>
             </div>
         </div>

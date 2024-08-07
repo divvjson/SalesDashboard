@@ -1,0 +1,27 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+@code {
+    private IDisposable? CustomerFilterChangedSubscription { get; set; }
+
+    private bool IsChartDataLoading { get; set; } = false;
+
+    private async Task RequeryChartDataAsync()
+    {
+        IsChartDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        IsChartDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        CustomerFilterChangedSubscription?.Dispose();
+    }
+}
