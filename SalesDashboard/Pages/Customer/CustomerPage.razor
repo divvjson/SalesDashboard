@@ -1,8 +1,11 @@
 ﻿@page "/Customer"
+@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.FigureBox
 @using SalesDashboard.Components.Shared.PageBox
+@using SalesDashboard.Entities
 
 @implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <PageTitle>Customer Analysis</PageTitle>
 
@@ -35,9 +38,36 @@
 
     private int NumberOfRegisteredCustomers { get; set; }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            CustomerFilterChangedSubscription = CustomerFilterStateProviderComponent.CustomerFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+
+            await RequeryFiguresAsync();
+        }
+    }
+
     private void HandleRefreshClicked()
     {
         CustomerFilterStateProviderComponent.CustomerFilterChanged.OnNext(Unit.Default);
+    }
+
+    private async Task RequeryFiguresAsync()
+    {
+        IsFiguresLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        using var context = DbFactory.CreateDbContext();
+
+        NumberOfRegisteredCustomers = await context.Customers.CountAsync();
+
+        IsFiguresLoading = false;
+
+        await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
