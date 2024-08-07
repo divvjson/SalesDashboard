@@ -1,0 +1,109 @@
+﻿.customer {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--gray-100);
+}
+
+.customer-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+.header {
+    padding-top: 24px;
+    display: grid;
+    grid-template-columns: 36px 1fr 36px;
+}
+
+.header-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+}
+
+.grid {
+    padding-top: 24px;
+    padding-bottom: 24px;
+    display: grid;
+    gap: 12px;
+}
+
+.number-of-registered-customers {
+    grid-area: number-of-registered-customers;
+}
+
+@media (min-width: 0px) {
+    .customer {
+        padding: 0px;
+    }
+
+    .header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .grid {
+        padding-left: 12px;
+        padding-right: 12px;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "number-of-registered-customers";
+        /*        grid-template-columns: 1fr 1fr;
+        grid-template-rows: min-content min-content min-content min-content min-content min-content min-content min-content;
+        grid-template-areas:
+            "total-sales total-cost"
+            "gross-profit gross-margin"
+            "sales-trend-top-3-countries sales-trend-top-3-countries"
+            "internet-vs-reseller internet-vs-reseller"
+            "distribution-of-sales distribution-of-sales"
+            "top-3-states top-3-states"
+            "top-3-cities top-3-cities"
+            "summary-matrix summary-matrix";*/
+    }
+}
+
+@media (min-width: 600px) {
+}
+
+@media (min-width: 905px) {
+    .customer {
+        padding: 24px;
+    }
+
+    .header {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .grid {
+        padding-left: 24px;
+        padding-right: 24px;
+/*        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-areas:
+            "total-sales total-cost gross-profit gross-margin"
+            "sales-trend-top-3-countries sales-trend-top-3-countries internet-vs-reseller internet-vs-reseller"
+            "distribution-of-sales distribution-of-sales distribution-of-sales distribution-of-sales"
+            "top-3-states top-3-states top-3-cities top-3-cities"
+            "summary-matrix summary-matrix summary-matrix summary-matrix";*/
+    }
+}
+
+@media (min-width: 1240px) {
+}
+
+@media (min-width: 1440px) {
+    .grid {
+/*        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-areas:
+            "total-sales total-cost gross-profit gross-margin"
+            "sales-trend-top-3-countries sales-trend-top-3-countries internet-vs-reseller internet-vs-reseller"
+            "distribution-of-sales distribution-of-sales distribution-of-sales top-3-states"
+            "distribution-of-sales distribution-of-sales distribution-of-sales top-3-cities"
+            "summary-matrix summary-matrix summary-matrix summary-matrix";*/
+    }
+}
+

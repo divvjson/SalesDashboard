@@ -1,0 +1,10 @@
+﻿<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    public Subject<Unit> CustomerFilterChanged { get; private set; } = new();
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}
