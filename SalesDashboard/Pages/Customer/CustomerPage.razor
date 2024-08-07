@@ -63,7 +63,7 @@
 
         using var context = DbFactory.CreateDbContext();
 
-        NumberOfRegisteredCustomers = await context.Customers.CountAsync();
+        NumberOfRegisteredCustomers = await context.Customers.CountAsync(c => c.PersonId != null);
 
         IsFiguresLoading = false;
 
