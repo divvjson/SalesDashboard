@@ -33,6 +33,7 @@
 }
 
 .number-of-employees {
+    align-self: start;
     grid-area: number-of-employees;
 }
 
@@ -81,6 +82,10 @@
     .grid {
         padding-left: 24px;
         padding-right: 24px;
+        grid-template-columns: 200px 1fr;
+        grid-template-areas:
+            "number-of-employees number-of-employees-by-department"
+            "age-group age-group";
     }
 }
 
