@@ -24,81 +24,81 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_Product_rowguid").IsUnique();
 
             entity.Property(e => e.ProductId)
-                .HasComment("Primary key for Product records.")
-                .HasColumnName("ProductID");
+            .HasComment("Primary key for Product records.")
+            .HasColumnName("ProductID");
             entity.Property(e => e.Class)
-                .HasMaxLength(2)
-                .IsFixedLength()
-                .HasComment("H = High, M = Medium, L = Low");
+            .HasMaxLength(2)
+            .IsFixedLength()
+            .HasComment("H = High, M = Medium, L = Low");
             entity.Property(e => e.Color)
-                .HasMaxLength(15)
-                .HasComment("Product color.");
+            .HasMaxLength(15)
+            .HasComment("Product color.");
             entity.Property(e => e.DaysToManufacture).HasComment("Number of days required to manufacture the product.");
             entity.Property(e => e.DiscontinuedDate)
-                .HasComment("Date the product was discontinued.")
-                .HasColumnType("datetime");
+            .HasComment("Date the product was discontinued.")
+            .HasColumnType("datetime");
             entity.Property(e => e.FinishedGoodsFlag)
-                .HasDefaultValue(true)
-                .HasComment("0 = Product is not a salable item. 1 = Product is salable.");
+            .HasDefaultValue(true)
+            .HasComment("0 = Product is not a salable item. 1 = Product is salable.");
             entity.Property(e => e.ListPrice)
-                .HasComment("Selling price.")
-                .HasColumnType("money");
+            .HasComment("Selling price.")
+            .HasColumnType("money");
             entity.Property(e => e.MakeFlag)
-                .HasDefaultValue(true)
-                .HasComment("0 = Product is purchased, 1 = Product is manufactured in-house.");
+            .HasDefaultValue(true)
+            .HasComment("0 = Product is purchased, 1 = Product is manufactured in-house.");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasComment("Name of the product.");
+            .HasMaxLength(50)
+            .HasComment("Name of the product.");
             entity.Property(e => e.ProductLine)
-                .HasMaxLength(2)
-                .IsFixedLength()
-                .HasComment("R = Road, M = Mountain, T = Touring, S = Standard");
+            .HasMaxLength(2)
+            .IsFixedLength()
+            .HasComment("R = Road, M = Mountain, T = Touring, S = Standard");
             entity.Property(e => e.ProductModelId)
-                .HasComment("Product is a member of this product model. Foreign key to ProductModel.ProductModelID.")
-                .HasColumnName("ProductModelID");
+            .HasComment("Product is a member of this product model. Foreign key to ProductModel.ProductModelID.")
+            .HasColumnName("ProductModelID");
             entity.Property(e => e.ProductNumber)
-                .HasMaxLength(25)
-                .HasComment("Unique product identification number.");
+            .HasMaxLength(25)
+            .HasComment("Unique product identification number.");
             entity.Property(e => e.ProductSubcategoryId)
-                .HasComment("Product is a member of this product subcategory. Foreign key to ProductSubCategory.ProductSubCategoryID. ")
-                .HasColumnName("ProductSubcategoryID");
+            .HasComment("Product is a member of this product subcategory. Foreign key to ProductSubCategory.ProductSubCategoryID. ")
+            .HasColumnName("ProductSubcategoryID");
             entity.Property(e => e.ReorderPoint).HasComment("Inventory level that triggers a purchase order or work order. ");
             entity.Property(e => e.Rowguid)
-                .HasDefaultValueSql("(newid())")
-                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-                .HasColumnName("rowguid");
+            .HasDefaultValueSql("(newid())")
+            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+            .HasColumnName("rowguid");
             entity.Property(e => e.SafetyStockLevel).HasComment("Minimum inventory quantity. ");
             entity.Property(e => e.SellEndDate)
-                .HasComment("Date the product was no longer available for sale.")
-                .HasColumnType("datetime");
+            .HasComment("Date the product was no longer available for sale.")
+            .HasColumnType("datetime");
             entity.Property(e => e.SellStartDate)
-                .HasComment("Date the product was available for sale.")
-                .HasColumnType("datetime");
+            .HasComment("Date the product was available for sale.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Size)
-                .HasMaxLength(5)
-                .HasComment("Product size.");
+            .HasMaxLength(5)
+            .HasComment("Product size.");
             entity.Property(e => e.SizeUnitMeasureCode)
-                .HasMaxLength(3)
-                .IsFixedLength()
-                .HasComment("Unit of measure for Size column.");
+            .HasMaxLength(3)
+            .IsFixedLength()
+            .HasComment("Unit of measure for Size column.");
             entity.Property(e => e.StandardCost)
-                .HasComment("Standard cost of the product.")
-                .HasColumnType("money");
+            .HasComment("Standard cost of the product.")
+            .HasColumnType("money");
             entity.Property(e => e.Style)
-                .HasMaxLength(2)
-                .IsFixedLength()
-                .HasComment("W = Womens, M = Mens, U = Universal");
+            .HasMaxLength(2)
+            .IsFixedLength()
+            .HasComment("W = Womens, M = Mens, U = Universal");
             entity.Property(e => e.Weight)
-                .HasComment("Product weight.")
-                .HasColumnType("decimal(8, 2)");
+            .HasComment("Product weight.")
+            .HasColumnType("decimal(8, 2)");
             entity.Property(e => e.WeightUnitMeasureCode)
-                .HasMaxLength(3)
-                .IsFixedLength()
-                .HasComment("Unit of measure for Weight column.");
+            .HasMaxLength(3)
+            .IsFixedLength()
+            .HasComment("Unit of measure for Weight column.");
 
             entity.HasOne(d => d.ProductModel).WithMany(p => p.Products).HasForeignKey(d => d.ProductModelId);
 

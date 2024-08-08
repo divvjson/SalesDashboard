@@ -22,27 +22,27 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.ProductId, "IX_SpecialOfferProduct_ProductID");
 
             entity.Property(e => e.SpecialOfferId)
-                .HasComment("Primary key for SpecialOfferProduct records.")
-                .HasColumnName("SpecialOfferID");
+            .HasComment("Primary key for SpecialOfferProduct records.")
+            .HasColumnName("SpecialOfferID");
             entity.Property(e => e.ProductId)
-                .HasComment("Product identification number. Foreign key to Product.ProductID.")
-                .HasColumnName("ProductID");
+            .HasComment("Product identification number. Foreign key to Product.ProductID.")
+            .HasColumnName("ProductID");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Rowguid)
-                .HasDefaultValueSql("(newid())")
-                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-                .HasColumnName("rowguid");
+            .HasDefaultValueSql("(newid())")
+            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+            .HasColumnName("rowguid");
 
             entity.HasOne(d => d.Product).WithMany(p => p.SpecialOfferProducts)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.ProductId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.SpecialOffer).WithMany(p => p.SpecialOfferProducts)
-                .HasForeignKey(d => d.SpecialOfferId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.SpecialOfferId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

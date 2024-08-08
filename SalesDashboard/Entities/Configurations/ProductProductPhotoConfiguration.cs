@@ -14,30 +14,30 @@ namespace SalesDashboard.Entities.Configurations
         public void Configure(EntityTypeBuilder<ProductProductPhoto> entity)
         {
             entity.HasKey(e => new { e.ProductId, e.ProductPhotoId })
-                .HasName("PK_ProductProductPhoto_ProductID_ProductPhotoID")
-                .IsClustered(false);
+            .HasName("PK_ProductProductPhoto_ProductID_ProductPhotoID")
+            .IsClustered(false);
 
             entity.ToTable("ProductProductPhoto", "Production", tb => tb.HasComment("Cross-reference table mapping products and product photos."));
 
             entity.Property(e => e.ProductId)
-                .HasComment("Product identification number. Foreign key to Product.ProductID.")
-                .HasColumnName("ProductID");
+            .HasComment("Product identification number. Foreign key to Product.ProductID.")
+            .HasColumnName("ProductID");
             entity.Property(e => e.ProductPhotoId)
-                .HasComment("Product photo identification number. Foreign key to ProductPhoto.ProductPhotoID.")
-                .HasColumnName("ProductPhotoID");
+            .HasComment("Product photo identification number. Foreign key to ProductPhoto.ProductPhotoID.")
+            .HasColumnName("ProductPhotoID");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Primary).HasComment("0 = Photo is not the principal image. 1 = Photo is the principal image.");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductProductPhotos)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.ProductId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.ProductPhoto).WithMany(p => p.ProductProductPhotos)
-                .HasForeignKey(d => d.ProductPhotoId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.ProductPhotoId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

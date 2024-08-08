@@ -20,18 +20,18 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.BusinessEntityId, "IX_JobCandidate_BusinessEntityID");
 
             entity.Property(e => e.JobCandidateId)
-                .HasComment("Primary key for JobCandidate records.")
-                .HasColumnName("JobCandidateID");
+            .HasComment("Primary key for JobCandidate records.")
+            .HasColumnName("JobCandidateID");
             entity.Property(e => e.BusinessEntityId)
-                .HasComment("Employee identification number if applicant was hired. Foreign key to Employee.BusinessEntityID.")
-                .HasColumnName("BusinessEntityID");
+            .HasComment("Employee identification number if applicant was hired. Foreign key to Employee.BusinessEntityID.")
+            .HasColumnName("BusinessEntityID");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Resume)
-                .HasComment("Résumé in XML format.")
-                .HasColumnType("xml");
+            .HasComment("Résumé in XML format.")
+            .HasColumnType("xml");
 
             entity.HasOne(d => d.BusinessEntity).WithMany(p => p.JobCandidates).HasForeignKey(d => d.BusinessEntityId);
 

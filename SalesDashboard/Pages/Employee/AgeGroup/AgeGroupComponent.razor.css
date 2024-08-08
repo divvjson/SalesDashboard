@@ -1,0 +1,18 @@
+﻿.age-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+}
+
+::deep .mud-chart {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+::deep .mud-chart-line {
+    margin-left: 30px;
+    overflow: visible;
+}

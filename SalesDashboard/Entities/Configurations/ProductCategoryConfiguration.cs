@@ -22,19 +22,19 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_ProductCategory_rowguid").IsUnique();
 
             entity.Property(e => e.ProductCategoryId)
-                .HasComment("Primary key for ProductCategory records.")
-                .HasColumnName("ProductCategoryID");
+            .HasComment("Primary key for ProductCategory records.")
+            .HasColumnName("ProductCategoryID");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasComment("Category description.");
+            .HasMaxLength(50)
+            .HasComment("Category description.");
             entity.Property(e => e.Rowguid)
-                .HasDefaultValueSql("(newid())")
-                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-                .HasColumnName("rowguid");
+            .HasDefaultValueSql("(newid())")
+            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+            .HasColumnName("rowguid");
 
             OnConfigurePartial(entity);
         }

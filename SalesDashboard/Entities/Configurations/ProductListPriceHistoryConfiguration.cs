@@ -18,25 +18,25 @@ namespace SalesDashboard.Entities.Configurations
             entity.ToTable("ProductListPriceHistory", "Production", tb => tb.HasComment("Changes in the list price of a product over time."));
 
             entity.Property(e => e.ProductId)
-                .HasComment("Product identification number. Foreign key to Product.ProductID")
-                .HasColumnName("ProductID");
+            .HasComment("Product identification number. Foreign key to Product.ProductID")
+            .HasColumnName("ProductID");
             entity.Property(e => e.StartDate)
-                .HasComment("List price start date.")
-                .HasColumnType("datetime");
+            .HasComment("List price start date.")
+            .HasColumnType("datetime");
             entity.Property(e => e.EndDate)
-                .HasComment("List price end date")
-                .HasColumnType("datetime");
+            .HasComment("List price end date")
+            .HasColumnType("datetime");
             entity.Property(e => e.ListPrice)
-                .HasComment("Product list price.")
-                .HasColumnType("money");
+            .HasComment("Product list price.")
+            .HasColumnType("money");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductListPriceHistories)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.ProductId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

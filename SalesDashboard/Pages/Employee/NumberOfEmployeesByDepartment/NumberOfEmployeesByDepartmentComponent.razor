@@ -1,0 +1,90 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsChartDataLoading">
+    <div class="number-of-employees-by-department">
+        <MudChart ChartType="ChartType.StackedBar"
+                  ChartSeries="ChartSeries"
+                  ChartOptions="ChartOptions"
+                  Width="100%"
+                  Height="300" />
+    </div>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private bool IsChartDataLoading { get; set; } = false;
+
+    public List<ChartSeries> ChartSeries { get; set; } = new();
+
+    private ChartOptions ChartOptions { get; set; } = new()
+    {
+        YAxisTicks = 20
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            await RequeryChartDataAsync();
+        }
+    }
+
+    private async Task RequeryChartDataAsync()
+    {
+        IsChartDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        using var context = DbFactory.CreateDbContext();
+
+        var items = await context.Employees
+            .SelectMany(e => e.EmployeeDepartmentHistories.Where(edh => edh.EndDate == null).Select(edh => edh.Department))
+            .GroupBy(d => d.Name)
+            .Select(g => new NumberOfEmployeesByDepartmentItem
+            {
+                DepartmentName = g.Key,
+                EmployeeCount = g.Count()
+            })
+            .OrderByDescending(item => item.EmployeeCount)
+            .ToListAsync();
+
+        List<ChartSeries> chartSeries = new();
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            ChartSeries chartSerie = new()
+            {
+                Name = $"{items[i].DepartmentName} ({items[i].EmployeeCount})",
+                Data = new double[items.Count]
+            };
+
+            chartSerie.Data[i] = items[i].EmployeeCount;
+
+            chartSeries.Add(chartSerie);
+        }
+
+        ChartSeries = chartSeries;
+
+        IsChartDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        EmployeeFilterChangedSubscription?.Dispose();
+    }
+}

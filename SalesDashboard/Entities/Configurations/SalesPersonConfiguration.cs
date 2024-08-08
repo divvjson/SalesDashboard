@@ -20,44 +20,44 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_SalesPerson_rowguid").IsUnique();
 
             entity.Property(e => e.BusinessEntityId)
-                .ValueGeneratedNever()
-                .HasComment("Primary key for SalesPerson records. Foreign key to Employee.BusinessEntityID")
-                .HasColumnName("BusinessEntityID");
+            .ValueGeneratedNever()
+            .HasComment("Primary key for SalesPerson records. Foreign key to Employee.BusinessEntityID")
+            .HasColumnName("BusinessEntityID");
             entity.Property(e => e.Bonus)
-                .HasDefaultValueSql("((0.00))")
-                .HasComment("Bonus due if quota is met.")
-                .HasColumnType("money");
+            .HasDefaultValueSql("((0.00))")
+            .HasComment("Bonus due if quota is met.")
+            .HasColumnType("money");
             entity.Property(e => e.CommissionPct)
-                .HasDefaultValueSql("((0.00))")
-                .HasComment("Commision percent received per sale.")
-                .HasColumnType("smallmoney");
+            .HasDefaultValueSql("((0.00))")
+            .HasComment("Commision percent received per sale.")
+            .HasColumnType("smallmoney");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Rowguid)
-                .HasDefaultValueSql("(newid())")
-                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-                .HasColumnName("rowguid");
+            .HasDefaultValueSql("(newid())")
+            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+            .HasColumnName("rowguid");
             entity.Property(e => e.SalesLastYear)
-                .HasDefaultValueSql("((0.00))")
-                .HasComment("Sales total of previous year.")
-                .HasColumnType("money");
+            .HasDefaultValueSql("((0.00))")
+            .HasComment("Sales total of previous year.")
+            .HasColumnType("money");
             entity.Property(e => e.SalesQuota)
-                .HasComment("Projected yearly sales.")
-                .HasColumnType("money");
+            .HasComment("Projected yearly sales.")
+            .HasColumnType("money");
             entity.Property(e => e.SalesYtd)
-                .HasDefaultValueSql("((0.00))")
-                .HasComment("Sales total year to date.")
-                .HasColumnType("money")
-                .HasColumnName("SalesYTD");
+            .HasDefaultValueSql("((0.00))")
+            .HasComment("Sales total year to date.")
+            .HasColumnType("money")
+            .HasColumnName("SalesYTD");
             entity.Property(e => e.TerritoryId)
-                .HasComment("Territory currently assigned to. Foreign key to SalesTerritory.SalesTerritoryID.")
-                .HasColumnName("TerritoryID");
+            .HasComment("Territory currently assigned to. Foreign key to SalesTerritory.SalesTerritoryID.")
+            .HasColumnName("TerritoryID");
 
             entity.HasOne(d => d.BusinessEntity).WithOne(p => p.SalesPerson)
-                .HasForeignKey<SalesPerson>(d => d.BusinessEntityId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey<SalesPerson>(d => d.BusinessEntityId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.Territory).WithMany(p => p.SalesPeople).HasForeignKey(d => d.TerritoryId);
 

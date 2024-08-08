@@ -22,32 +22,36 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.ShiftId, "IX_EmployeeDepartmentHistory_ShiftID");
 
             entity.Property(e => e.BusinessEntityId)
-                .HasComment("Employee identification number. Foreign key to Employee.BusinessEntityID.")
-                .HasColumnName("BusinessEntityID");
-            entity.Property(e => e.StartDate).HasComment("Date the employee started work in the department.");
+            .HasComment("Employee identification number. Foreign key to Employee.BusinessEntityID.")
+            .HasColumnName("BusinessEntityID");
+            entity.Property(e => e.StartDate)
+            .HasComment("Date the employee started work in the department.")
+            .HasColumnType("date");
             entity.Property(e => e.DepartmentId)
-                .HasComment("Department in which the employee worked including currently. Foreign key to Department.DepartmentID.")
-                .HasColumnName("DepartmentID");
+            .HasComment("Department in which the employee worked including currently. Foreign key to Department.DepartmentID.")
+            .HasColumnName("DepartmentID");
             entity.Property(e => e.ShiftId)
-                .HasComment("Identifies which 8-hour shift the employee works. Foreign key to Shift.Shift.ID.")
-                .HasColumnName("ShiftID");
-            entity.Property(e => e.EndDate).HasComment("Date the employee left the department. NULL = Current department.");
+            .HasComment("Identifies which 8-hour shift the employee works. Foreign key to Shift.Shift.ID.")
+            .HasColumnName("ShiftID");
+            entity.Property(e => e.EndDate)
+            .HasComment("Date the employee left the department. NULL = Current department.")
+            .HasColumnType("date");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
 
             entity.HasOne(d => d.BusinessEntity).WithMany(p => p.EmployeeDepartmentHistories)
-                .HasForeignKey(d => d.BusinessEntityId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.BusinessEntityId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.Department).WithMany(p => p.EmployeeDepartmentHistories)
-                .HasForeignKey(d => d.DepartmentId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.DepartmentId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.Shift).WithMany(p => p.EmployeeDepartmentHistories)
-                .HasForeignKey(d => d.ShiftId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.ShiftId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

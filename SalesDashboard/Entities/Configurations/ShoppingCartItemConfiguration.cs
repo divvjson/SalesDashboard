@@ -20,30 +20,30 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => new { e.ShoppingCartId, e.ProductId }, "IX_ShoppingCartItem_ShoppingCartID_ProductID");
 
             entity.Property(e => e.ShoppingCartItemId)
-                .HasComment("Primary key for ShoppingCartItem records.")
-                .HasColumnName("ShoppingCartItemID");
+            .HasComment("Primary key for ShoppingCartItem records.")
+            .HasColumnName("ShoppingCartItemID");
             entity.Property(e => e.DateCreated)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date the time the record was created.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date the time the record was created.")
+            .HasColumnType("datetime");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.ProductId)
-                .HasComment("Product ordered. Foreign key to Product.ProductID.")
-                .HasColumnName("ProductID");
+            .HasComment("Product ordered. Foreign key to Product.ProductID.")
+            .HasColumnName("ProductID");
             entity.Property(e => e.Quantity)
-                .HasDefaultValue(1)
-                .HasComment("Product quantity ordered.");
+            .HasDefaultValue(1)
+            .HasComment("Product quantity ordered.");
             entity.Property(e => e.ShoppingCartId)
-                .HasMaxLength(50)
-                .HasComment("Shopping cart identification number.")
-                .HasColumnName("ShoppingCartID");
+            .HasMaxLength(50)
+            .HasComment("Shopping cart identification number.")
+            .HasColumnName("ShoppingCartID");
 
             entity.HasOne(d => d.Product).WithMany(p => p.ShoppingCartItems)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.ProductId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

@@ -18,23 +18,23 @@ namespace SalesDashboard.Entities.Configurations
             entity.ToTable("ProductModelIllustration", "Production", tb => tb.HasComment("Cross-reference table mapping product models and illustrations."));
 
             entity.Property(e => e.ProductModelId)
-                .HasComment("Primary key. Foreign key to ProductModel.ProductModelID.")
-                .HasColumnName("ProductModelID");
+            .HasComment("Primary key. Foreign key to ProductModel.ProductModelID.")
+            .HasColumnName("ProductModelID");
             entity.Property(e => e.IllustrationId)
-                .HasComment("Primary key. Foreign key to Illustration.IllustrationID.")
-                .HasColumnName("IllustrationID");
+            .HasComment("Primary key. Foreign key to Illustration.IllustrationID.")
+            .HasColumnName("IllustrationID");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
 
             entity.HasOne(d => d.Illustration).WithMany(p => p.ProductModelIllustrations)
-                .HasForeignKey(d => d.IllustrationId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.IllustrationId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.ProductModel).WithMany(p => p.ProductModelIllustrations)
-                .HasForeignKey(d => d.ProductModelId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.ProductModelId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

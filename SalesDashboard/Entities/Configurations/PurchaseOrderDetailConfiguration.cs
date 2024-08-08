@@ -16,57 +16,57 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasKey(e => new { e.PurchaseOrderId, e.PurchaseOrderDetailId }).HasName("PK_PurchaseOrderDetail_PurchaseOrderID_PurchaseOrderDetailID");
 
             entity.ToTable("PurchaseOrderDetail", "Purchasing", tb =>
-                {
-                    tb.HasComment("Individual products associated with a specific purchase order. See PurchaseOrderHeader.");
-                    tb.HasTrigger("iPurchaseOrderDetail");
-                    tb.HasTrigger("uPurchaseOrderDetail");
-                });
+            {
+                tb.HasComment("Individual products associated with a specific purchase order. See PurchaseOrderHeader.");
+                tb.HasTrigger("iPurchaseOrderDetail");
+                tb.HasTrigger("uPurchaseOrderDetail");
+            });
 
             entity.HasIndex(e => e.ProductId, "IX_PurchaseOrderDetail_ProductID");
 
             entity.Property(e => e.PurchaseOrderId)
-                .HasComment("Primary key. Foreign key to PurchaseOrderHeader.PurchaseOrderID.")
-                .HasColumnName("PurchaseOrderID");
+            .HasComment("Primary key. Foreign key to PurchaseOrderHeader.PurchaseOrderID.")
+            .HasColumnName("PurchaseOrderID");
             entity.Property(e => e.PurchaseOrderDetailId)
-                .ValueGeneratedOnAdd()
-                .HasComment("Primary key. One line number per purchased product.")
-                .HasColumnName("PurchaseOrderDetailID");
+            .ValueGeneratedOnAdd()
+            .HasComment("Primary key. One line number per purchased product.")
+            .HasColumnName("PurchaseOrderDetailID");
             entity.Property(e => e.DueDate)
-                .HasComment("Date the product is expected to be received.")
-                .HasColumnType("datetime");
+            .HasComment("Date the product is expected to be received.")
+            .HasColumnType("datetime");
             entity.Property(e => e.LineTotal)
-                .HasComputedColumnSql("(isnull([OrderQty]*[UnitPrice],(0.00)))", false)
-                .HasComment("Per product subtotal. Computed as OrderQty * UnitPrice.")
-                .HasColumnType("money");
+            .HasComputedColumnSql("(isnull([OrderQty]*[UnitPrice],(0.00)))", false)
+            .HasComment("Per product subtotal. Computed as OrderQty * UnitPrice.")
+            .HasColumnType("money");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.OrderQty).HasComment("Quantity ordered.");
             entity.Property(e => e.ProductId)
-                .HasComment("Product identification number. Foreign key to Product.ProductID.")
-                .HasColumnName("ProductID");
+            .HasComment("Product identification number. Foreign key to Product.ProductID.")
+            .HasColumnName("ProductID");
             entity.Property(e => e.ReceivedQty)
-                .HasComment("Quantity actually received from the vendor.")
-                .HasColumnType("decimal(8, 2)");
+            .HasComment("Quantity actually received from the vendor.")
+            .HasColumnType("decimal(8, 2)");
             entity.Property(e => e.RejectedQty)
-                .HasComment("Quantity rejected during inspection.")
-                .HasColumnType("decimal(8, 2)");
+            .HasComment("Quantity rejected during inspection.")
+            .HasColumnType("decimal(8, 2)");
             entity.Property(e => e.StockedQty)
-                .HasComputedColumnSql("(isnull([ReceivedQty]-[RejectedQty],(0.00)))", false)
-                .HasComment("Quantity accepted into inventory. Computed as ReceivedQty - RejectedQty.")
-                .HasColumnType("decimal(9, 2)");
+            .HasComputedColumnSql("(isnull([ReceivedQty]-[RejectedQty],(0.00)))", false)
+            .HasComment("Quantity accepted into inventory. Computed as ReceivedQty - RejectedQty.")
+            .HasColumnType("decimal(9, 2)");
             entity.Property(e => e.UnitPrice)
-                .HasComment("Vendor's selling price of a single product.")
-                .HasColumnType("money");
+            .HasComment("Vendor's selling price of a single product.")
+            .HasColumnType("money");
 
             entity.HasOne(d => d.Product).WithMany(p => p.PurchaseOrderDetails)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.ProductId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.PurchaseOrder).WithMany(p => p.PurchaseOrderDetails)
-                .HasForeignKey(d => d.PurchaseOrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.PurchaseOrderId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

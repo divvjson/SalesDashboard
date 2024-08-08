@@ -20,48 +20,48 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.ProductId, "IX_WorkOrderRouting_ProductID");
 
             entity.Property(e => e.WorkOrderId)
-                .HasComment("Primary key. Foreign key to WorkOrder.WorkOrderID.")
-                .HasColumnName("WorkOrderID");
+            .HasComment("Primary key. Foreign key to WorkOrder.WorkOrderID.")
+            .HasColumnName("WorkOrderID");
             entity.Property(e => e.ProductId)
-                .HasComment("Primary key. Foreign key to Product.ProductID.")
-                .HasColumnName("ProductID");
+            .HasComment("Primary key. Foreign key to Product.ProductID.")
+            .HasColumnName("ProductID");
             entity.Property(e => e.OperationSequence).HasComment("Primary key. Indicates the manufacturing process sequence.");
             entity.Property(e => e.ActualCost)
-                .HasComment("Actual manufacturing cost.")
-                .HasColumnType("money");
+            .HasComment("Actual manufacturing cost.")
+            .HasColumnType("money");
             entity.Property(e => e.ActualEndDate)
-                .HasComment("Actual end date.")
-                .HasColumnType("datetime");
+            .HasComment("Actual end date.")
+            .HasColumnType("datetime");
             entity.Property(e => e.ActualResourceHrs)
-                .HasComment("Number of manufacturing hours used.")
-                .HasColumnType("decimal(9, 4)");
+            .HasComment("Number of manufacturing hours used.")
+            .HasColumnType("decimal(9, 4)");
             entity.Property(e => e.ActualStartDate)
-                .HasComment("Actual start date.")
-                .HasColumnType("datetime");
+            .HasComment("Actual start date.")
+            .HasColumnType("datetime");
             entity.Property(e => e.LocationId)
-                .HasComment("Manufacturing location where the part is processed. Foreign key to Location.LocationID.")
-                .HasColumnName("LocationID");
+            .HasComment("Manufacturing location where the part is processed. Foreign key to Location.LocationID.")
+            .HasColumnName("LocationID");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.PlannedCost)
-                .HasComment("Estimated manufacturing cost.")
-                .HasColumnType("money");
+            .HasComment("Estimated manufacturing cost.")
+            .HasColumnType("money");
             entity.Property(e => e.ScheduledEndDate)
-                .HasComment("Planned manufacturing end date.")
-                .HasColumnType("datetime");
+            .HasComment("Planned manufacturing end date.")
+            .HasColumnType("datetime");
             entity.Property(e => e.ScheduledStartDate)
-                .HasComment("Planned manufacturing start date.")
-                .HasColumnType("datetime");
+            .HasComment("Planned manufacturing start date.")
+            .HasColumnType("datetime");
 
             entity.HasOne(d => d.Location).WithMany(p => p.WorkOrderRoutings)
-                .HasForeignKey(d => d.LocationId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.LocationId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.WorkOrder).WithMany(p => p.WorkOrderRoutings)
-                .HasForeignKey(d => d.WorkOrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.WorkOrderId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

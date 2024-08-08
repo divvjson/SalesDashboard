@@ -1,0 +1,90 @@
+﻿@page "/Employee"
+
+@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.FigureBox
+@using SalesDashboard.Components.Shared.PageBox
+@using SalesDashboard.Entities
+@using SalesDashboard.Pages.Employee.AgeGroup
+@using SalesDashboard.Pages.Employee.NumberOfEmployeesByDepartment
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<PageTitle>Employee Analysis</PageTitle>
+
+<div class="employee">
+    <div class="employee-container mud-elevation-4">
+        <div class="header">
+            <div></div>
+            <div class="header-title">Employee Analysis</div>
+            <MudTooltip Text="Refresh">
+                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
+            </MudTooltip>
+        </div>
+        <div class="grid">
+            <div class="number-of-employees">
+                <PageBoxComponent Title="Number of Employees">
+                    <FigureBoxComponent Value="@NumberOfEmployees.ToString()" IsLoading="IsFiguresLoading" />
+                </PageBoxComponent>
+            </div>
+            <div class="number-of-employees-by-department">
+                <PageBoxComponent Title="Number of Employees by Department">
+                    <NumberOfEmployeesByDepartmentComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="age-group">
+                <PageBoxComponent Title="Age Group Distribution">
+                    <AgeGroupComponent />
+                </PageBoxComponent>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private bool IsFiguresLoading { get; set; } = true;
+
+    private int NumberOfEmployees { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+
+            await RequeryFiguresAsync();
+        }
+    }
+
+    private void HandleRefreshClicked()
+    {
+        EmployeeFilterStateProviderComponent.EmployeeFilterChanged.OnNext(Unit.Default);
+    }
+
+    private async Task RequeryFiguresAsync()
+    {
+        IsFiguresLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        using var context = DbFactory.CreateDbContext();
+
+        NumberOfEmployees = await context.Employees.CountAsync();
+
+        IsFiguresLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        EmployeeFilterChangedSubscription?.Dispose();
+    }
+}
