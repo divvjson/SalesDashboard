@@ -2,7 +2,7 @@
 @using SalesDashboard.Components.StateProviders.CurrencyStateProvider
 @using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
-@using SalesDashboard.Pages.Customer
+@using SalesDashboard.Pages.Employee
 @using SalesDashboard.Pages.Product
 @using SalesDashboard.Pages.Regional
 
@@ -15,9 +15,9 @@
                         <RegionalFilterStateProviderComponent>
                             <RegionalDataProviderComponent>
                                 <ProductFilterStateProviderComponent>
-                                    <CustomerFilterStateProviderComponent>
+                                    <EmployeeFilterStateProviderComponent>
                                         <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
-                                    </CustomerFilterStateProviderComponent>
+                                    </EmployeeFilterStateProviderComponent>
                                 </ProductFilterStateProviderComponent>
                             </RegionalDataProviderComponent>
                         </RegionalFilterStateProviderComponent>

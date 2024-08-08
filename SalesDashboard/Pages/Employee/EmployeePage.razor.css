@@ -1,0 +1,85 @@
+﻿.employee {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--gray-100);
+}
+
+.employee-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+.header {
+    padding-top: 24px;
+    display: grid;
+    grid-template-columns: 36px 1fr 36px;
+}
+
+.header-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+}
+
+.grid {
+    padding-top: 24px;
+    padding-bottom: 24px;
+    display: grid;
+    gap: 12px;
+}
+
+.number-of-employees {
+    grid-area: number-of-employees;
+}
+
+@media (min-width: 0px) {
+    .employee {
+        padding: 0px;
+    }
+
+    .header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .grid {
+        padding-left: 12px;
+        padding-right: 12px;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "number-of-employees";
+    }
+}
+
+@media (min-width: 600px) {
+}
+
+@media (min-width: 905px) {
+    .employee {
+        padding: 24px;
+    }
+
+    .header {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .grid {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+
+@media (min-width: 1240px) {
+}
+
+@media (min-width: 1440px) {
+    .grid {
+
+    }
+}
+

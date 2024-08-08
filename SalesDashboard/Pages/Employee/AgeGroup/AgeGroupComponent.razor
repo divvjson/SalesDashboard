@@ -5,7 +5,7 @@
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 @code {
-    private IDisposable? CustomerFilterChangedSubscription { get; set; }
+    private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
     private bool IsChartDataLoading { get; set; } = false;
 
@@ -22,6 +22,6 @@
 
     public void Dispose()
     {
-        CustomerFilterChangedSubscription?.Dispose();
+        EmployeeFilterChangedSubscription?.Dispose();
     }
 }

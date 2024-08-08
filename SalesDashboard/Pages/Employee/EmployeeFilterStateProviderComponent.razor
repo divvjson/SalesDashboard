@@ -3,7 +3,7 @@
 </CascadingValue>
 
 @code {
-    public Subject<Unit> CustomerFilterChanged { get; private set; } = new();
+    public Subject<Unit> EmployeeFilterChanged { get; private set; } = new();
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
