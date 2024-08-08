@@ -20,33 +20,33 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_SalesTerritoryHistory_rowguid").IsUnique();
 
             entity.Property(e => e.BusinessEntityId)
-                .HasComment("Primary key. The sales rep.  Foreign key to SalesPerson.BusinessEntityID.")
-                .HasColumnName("BusinessEntityID");
+            .HasComment("Primary key. The sales rep.  Foreign key to SalesPerson.BusinessEntityID.")
+            .HasColumnName("BusinessEntityID");
             entity.Property(e => e.StartDate)
-                .HasComment("Primary key. Date the sales representive started work in the territory.")
-                .HasColumnType("datetime");
+            .HasComment("Primary key. Date the sales representive started work in the territory.")
+            .HasColumnType("datetime");
             entity.Property(e => e.TerritoryId)
-                .HasComment("Primary key. Territory identification number. Foreign key to SalesTerritory.SalesTerritoryID.")
-                .HasColumnName("TerritoryID");
+            .HasComment("Primary key. Territory identification number. Foreign key to SalesTerritory.SalesTerritoryID.")
+            .HasColumnName("TerritoryID");
             entity.Property(e => e.EndDate)
-                .HasComment("Date the sales representative left work in the territory.")
-                .HasColumnType("datetime");
+            .HasComment("Date the sales representative left work in the territory.")
+            .HasColumnType("datetime");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Rowguid)
-                .HasDefaultValueSql("(newid())")
-                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-                .HasColumnName("rowguid");
+            .HasDefaultValueSql("(newid())")
+            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+            .HasColumnName("rowguid");
 
             entity.HasOne(d => d.BusinessEntity).WithMany(p => p.SalesTerritoryHistories)
-                .HasForeignKey(d => d.BusinessEntityId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.BusinessEntityId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.Territory).WithMany(p => p.SalesTerritoryHistories)
-                .HasForeignKey(d => d.TerritoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.TerritoryId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

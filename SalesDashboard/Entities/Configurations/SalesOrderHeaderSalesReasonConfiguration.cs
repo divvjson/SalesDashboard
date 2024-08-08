@@ -18,21 +18,21 @@ namespace SalesDashboard.Entities.Configurations
             entity.ToTable("SalesOrderHeaderSalesReason", "Sales", tb => tb.HasComment("Cross-reference table mapping sales orders to sales reason codes."));
 
             entity.Property(e => e.SalesOrderId)
-                .HasComment("Primary key. Foreign key to SalesOrderHeader.SalesOrderID.")
-                .HasColumnName("SalesOrderID");
+            .HasComment("Primary key. Foreign key to SalesOrderHeader.SalesOrderID.")
+            .HasColumnName("SalesOrderID");
             entity.Property(e => e.SalesReasonId)
-                .HasComment("Primary key. Foreign key to SalesReason.SalesReasonID.")
-                .HasColumnName("SalesReasonID");
+            .HasComment("Primary key. Foreign key to SalesReason.SalesReasonID.")
+            .HasColumnName("SalesReasonID");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
 
             entity.HasOne(d => d.SalesOrder).WithMany(p => p.SalesOrderHeaderSalesReasons).HasForeignKey(d => d.SalesOrderId);
 
             entity.HasOne(d => d.SalesReason).WithMany(p => p.SalesOrderHeaderSalesReasons)
-                .HasForeignKey(d => d.SalesReasonId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.SalesReasonId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

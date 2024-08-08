@@ -20,26 +20,26 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.PhoneNumber, "IX_PersonPhone_PhoneNumber");
 
             entity.Property(e => e.BusinessEntityId)
-                .HasComment("Business entity identification number. Foreign key to Person.BusinessEntityID.")
-                .HasColumnName("BusinessEntityID");
+            .HasComment("Business entity identification number. Foreign key to Person.BusinessEntityID.")
+            .HasColumnName("BusinessEntityID");
             entity.Property(e => e.PhoneNumber)
-                .HasMaxLength(25)
-                .HasComment("Telephone number identification number.");
+            .HasMaxLength(25)
+            .HasComment("Telephone number identification number.");
             entity.Property(e => e.PhoneNumberTypeId)
-                .HasComment("Kind of phone number. Foreign key to PhoneNumberType.PhoneNumberTypeID.")
-                .HasColumnName("PhoneNumberTypeID");
+            .HasComment("Kind of phone number. Foreign key to PhoneNumberType.PhoneNumberTypeID.")
+            .HasColumnName("PhoneNumberTypeID");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
 
             entity.HasOne(d => d.BusinessEntity).WithMany(p => p.PersonPhones)
-                .HasForeignKey(d => d.BusinessEntityId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.BusinessEntityId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.PhoneNumberType).WithMany(p => p.PersonPhones)
-                .HasForeignKey(d => d.PhoneNumberTypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.PhoneNumberTypeId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

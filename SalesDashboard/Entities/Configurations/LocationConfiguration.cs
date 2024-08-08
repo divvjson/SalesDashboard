@@ -20,23 +20,23 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Name, "AK_Location_Name").IsUnique();
 
             entity.Property(e => e.LocationId)
-                .HasComment("Primary key for Location records.")
-                .HasColumnName("LocationID");
+            .HasComment("Primary key for Location records.")
+            .HasColumnName("LocationID");
             entity.Property(e => e.Availability)
-                .HasDefaultValueSql("((0.00))")
-                .HasComment("Work capacity (in hours) of the manufacturing location.")
-                .HasColumnType("decimal(8, 2)");
+            .HasDefaultValueSql("((0.00))")
+            .HasComment("Work capacity (in hours) of the manufacturing location.")
+            .HasColumnType("decimal(8, 2)");
             entity.Property(e => e.CostRate)
-                .HasDefaultValueSql("((0.00))")
-                .HasComment("Standard hourly cost of the manufacturing location.")
-                .HasColumnType("smallmoney");
+            .HasDefaultValueSql("((0.00))")
+            .HasComment("Standard hourly cost of the manufacturing location.")
+            .HasColumnType("smallmoney");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasComment("Location description.");
+            .HasMaxLength(50)
+            .HasComment("Location description.");
 
             OnConfigurePartial(entity);
         }

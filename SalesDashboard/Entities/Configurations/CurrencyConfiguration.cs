@@ -20,16 +20,16 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Name, "AK_Currency_Name").IsUnique();
 
             entity.Property(e => e.CurrencyCode)
-                .HasMaxLength(3)
-                .IsFixedLength()
-                .HasComment("The ISO code for the Currency.");
+            .HasMaxLength(3)
+            .IsFixedLength()
+            .HasComment("The ISO code for the Currency.");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasComment("Currency name.");
+            .HasMaxLength(50)
+            .HasComment("Currency name.");
 
             OnConfigurePartial(entity);
         }

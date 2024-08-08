@@ -20,17 +20,17 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Name, "AK_Culture_Name").IsUnique();
 
             entity.Property(e => e.CultureId)
-                .HasMaxLength(6)
-                .IsFixedLength()
-                .HasComment("Primary key for Culture records.")
-                .HasColumnName("CultureID");
+            .HasMaxLength(6)
+            .IsFixedLength()
+            .HasComment("Primary key for Culture records.")
+            .HasColumnName("CultureID");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasComment("Culture description.");
+            .HasMaxLength(50)
+            .HasComment("Culture description.");
 
             OnConfigurePartial(entity);
         }

@@ -24,30 +24,30 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.TerritoryId, "IX_Customer_TerritoryID");
 
             entity.Property(e => e.CustomerId)
-                .HasComment("Primary key.")
-                .HasColumnName("CustomerID");
+            .HasComment("Primary key.")
+            .HasColumnName("CustomerID");
             entity.Property(e => e.AccountNumber)
-                .HasMaxLength(10)
-                .IsUnicode(false)
-                .HasComputedColumnSql("(isnull('AW'+[dbo].[ufnLeadingZeros]([CustomerID]),''))", false)
-                .HasComment("Unique number identifying the customer assigned by the accounting system.");
+            .HasMaxLength(10)
+            .IsUnicode(false)
+            .HasComputedColumnSql("(isnull('AW'+[dbo].[ufnLeadingZeros]([CustomerID]),''))", false)
+            .HasComment("Unique number identifying the customer assigned by the accounting system.");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.PersonId)
-                .HasComment("Foreign key to Person.BusinessEntityID")
-                .HasColumnName("PersonID");
+            .HasComment("Foreign key to Person.BusinessEntityID")
+            .HasColumnName("PersonID");
             entity.Property(e => e.Rowguid)
-                .HasDefaultValueSql("(newid())")
-                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-                .HasColumnName("rowguid");
+            .HasDefaultValueSql("(newid())")
+            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+            .HasColumnName("rowguid");
             entity.Property(e => e.StoreId)
-                .HasComment("Foreign key to Store.BusinessEntityID")
-                .HasColumnName("StoreID");
+            .HasComment("Foreign key to Store.BusinessEntityID")
+            .HasColumnName("StoreID");
             entity.Property(e => e.TerritoryId)
-                .HasComment("ID of the territory in which the customer is located. Foreign key to SalesTerritory.SalesTerritoryID.")
-                .HasColumnName("TerritoryID");
+            .HasComment("ID of the territory in which the customer is located. Foreign key to SalesTerritory.SalesTerritoryID.")
+            .HasColumnName("TerritoryID");
 
             entity.HasOne(d => d.Person).WithMany(p => p.Customers).HasForeignKey(d => d.PersonId);
 

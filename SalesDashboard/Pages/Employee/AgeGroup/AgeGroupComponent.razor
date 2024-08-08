@@ -1,8 +1,19 @@
 ﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsChartDataLoading">
+    <div class="age-group">
+        <MudChart ChartType="ChartType.StackedBar"
+                  ChartSeries="ChartSeries"
+                  ChartOptions="ChartOptions"
+                  Width="100%"
+                  Height="300" />
+    </div>
+</SpinnerOverlayComponent>
 
 @code {
     [CascadingParameter]
@@ -11,6 +22,13 @@
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
     private bool IsChartDataLoading { get; set; } = false;
+
+    public List<ChartSeries> ChartSeries { get; set; } = new();
+
+    private ChartOptions ChartOptions { get; set; } = new()
+    {
+        YAxisTicks = 20
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -34,11 +52,14 @@
 
         var today = DateTime.Today;
 
-        var items = await context.Employees
-            .Select(e => new
+        var birthDates = await context.Employees
+            .Select(e => e.BirthDate)
+            .ToListAsync();
+
+        var items = birthDates
+            .Select(birthDate => new
             {
-                //Age = (int)((DateOnly.FromDateTime(today)).TotalDays / 365.25)
-                Age = 1
+                Age = (int)((today - birthDate).TotalDays / 365.25)
             })
             .GroupBy(x => new
             {
@@ -57,7 +78,24 @@
                 Count = g.Count()
             })
             .OrderBy(item => item.AgeGroup)
-            .ToListAsync();
+            .ToList();
+
+        List<ChartSeries> chartSeries = new();
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            ChartSeries chartSerie = new()
+            {
+                Name = $"{items[i].AgeGroup} ({items[i].Count})",
+                Data = new double[items.Count]
+            };
+
+            chartSerie.Data[i] = items[i].Count;
+
+            chartSeries.Add(chartSerie);
+        }
+
+        ChartSeries = chartSeries;
 
         IsChartDataLoading = false;
 

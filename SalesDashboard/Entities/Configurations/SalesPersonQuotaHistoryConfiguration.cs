@@ -20,26 +20,26 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_SalesPersonQuotaHistory_rowguid").IsUnique();
 
             entity.Property(e => e.BusinessEntityId)
-                .HasComment("Sales person identification number. Foreign key to SalesPerson.BusinessEntityID.")
-                .HasColumnName("BusinessEntityID");
+            .HasComment("Sales person identification number. Foreign key to SalesPerson.BusinessEntityID.")
+            .HasColumnName("BusinessEntityID");
             entity.Property(e => e.QuotaDate)
-                .HasComment("Sales quota date.")
-                .HasColumnType("datetime");
+            .HasComment("Sales quota date.")
+            .HasColumnType("datetime");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Rowguid)
-                .HasDefaultValueSql("(newid())")
-                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-                .HasColumnName("rowguid");
+            .HasDefaultValueSql("(newid())")
+            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+            .HasColumnName("rowguid");
             entity.Property(e => e.SalesQuota)
-                .HasComment("Sales quota amount.")
-                .HasColumnType("money");
+            .HasComment("Sales quota amount.")
+            .HasColumnType("money");
 
             entity.HasOne(d => d.BusinessEntity).WithMany(p => p.SalesPersonQuotaHistories)
-                .HasForeignKey(d => d.BusinessEntityId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.BusinessEntityId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

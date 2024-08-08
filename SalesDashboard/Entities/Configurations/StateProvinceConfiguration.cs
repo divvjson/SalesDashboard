@@ -24,40 +24,40 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Rowguid, "AK_StateProvince_rowguid").IsUnique();
 
             entity.Property(e => e.StateProvinceId)
-                .HasComment("Primary key for StateProvince records.")
-                .HasColumnName("StateProvinceID");
+            .HasComment("Primary key for StateProvince records.")
+            .HasColumnName("StateProvinceID");
             entity.Property(e => e.CountryRegionCode)
-                .HasMaxLength(3)
-                .HasComment("ISO standard country or region code. Foreign key to CountryRegion.CountryRegionCode. ");
+            .HasMaxLength(3)
+            .HasComment("ISO standard country or region code. Foreign key to CountryRegion.CountryRegionCode. ");
             entity.Property(e => e.IsOnlyStateProvinceFlag)
-                .HasDefaultValue(true)
-                .HasComment("0 = StateProvinceCode exists. 1 = StateProvinceCode unavailable, using CountryRegionCode.");
+            .HasDefaultValue(true)
+            .HasComment("0 = StateProvinceCode exists. 1 = StateProvinceCode unavailable, using CountryRegionCode.");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasComment("State or province description.");
+            .HasMaxLength(50)
+            .HasComment("State or province description.");
             entity.Property(e => e.Rowguid)
-                .HasDefaultValueSql("(newid())")
-                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-                .HasColumnName("rowguid");
+            .HasDefaultValueSql("(newid())")
+            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+            .HasColumnName("rowguid");
             entity.Property(e => e.StateProvinceCode)
-                .HasMaxLength(3)
-                .IsFixedLength()
-                .HasComment("ISO standard state or province code.");
+            .HasMaxLength(3)
+            .IsFixedLength()
+            .HasComment("ISO standard state or province code.");
             entity.Property(e => e.TerritoryId)
-                .HasComment("ID of the territory in which the state or province is located. Foreign key to SalesTerritory.SalesTerritoryID.")
-                .HasColumnName("TerritoryID");
+            .HasComment("ID of the territory in which the state or province is located. Foreign key to SalesTerritory.SalesTerritoryID.")
+            .HasColumnName("TerritoryID");
 
             entity.HasOne(d => d.CountryRegionCodeNavigation).WithMany(p => p.StateProvinces)
-                .HasForeignKey(d => d.CountryRegionCode)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.CountryRegionCode)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.Territory).WithMany(p => p.StateProvinces)
-                .HasForeignKey(d => d.TerritoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.TerritoryId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }

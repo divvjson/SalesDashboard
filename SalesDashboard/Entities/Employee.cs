@@ -38,7 +38,7 @@ public partial class Employee
     /// <summary>
     /// Date of birth.
     /// </summary>
-    public DateOnly BirthDate { get; set; }
+    public DateTime BirthDate { get; set; }
 
     /// <summary>
     /// M = Married, S = Single
@@ -53,7 +53,7 @@ public partial class Employee
     /// <summary>
     /// Employee hired on this date.
     /// </summary>
-    public DateOnly HireDate { get; set; }
+    public DateTime HireDate { get; set; }
 
     /// <summary>
     /// Job classification. 0 = Hourly, not exempt from collective bargaining. 1 = Salaried, exempt from collective bargaining.

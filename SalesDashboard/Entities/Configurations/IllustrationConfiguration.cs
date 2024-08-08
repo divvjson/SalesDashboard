@@ -18,15 +18,15 @@ namespace SalesDashboard.Entities.Configurations
             entity.ToTable("Illustration", "Production", tb => tb.HasComment("Bicycle assembly diagrams."));
 
             entity.Property(e => e.IllustrationId)
-                .HasComment("Primary key for Illustration records.")
-                .HasColumnName("IllustrationID");
+            .HasComment("Primary key for Illustration records.")
+            .HasColumnName("IllustrationID");
             entity.Property(e => e.Diagram)
-                .HasComment("Illustrations used in manufacturing instructions. Stored as XML.")
-                .HasColumnType("xml");
+            .HasComment("Illustrations used in manufacturing instructions. Stored as XML.")
+            .HasColumnType("xml");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
 
             OnConfigurePartial(entity);
         }

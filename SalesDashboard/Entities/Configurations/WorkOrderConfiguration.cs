@@ -16,47 +16,47 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasKey(e => e.WorkOrderId).HasName("PK_WorkOrder_WorkOrderID");
 
             entity.ToTable("WorkOrder", "Production", tb =>
-                {
-                    tb.HasComment("Manufacturing work orders.");
-                    tb.HasTrigger("iWorkOrder");
-                    tb.HasTrigger("uWorkOrder");
-                });
+            {
+                tb.HasComment("Manufacturing work orders.");
+                tb.HasTrigger("iWorkOrder");
+                tb.HasTrigger("uWorkOrder");
+            });
 
             entity.HasIndex(e => e.ProductId, "IX_WorkOrder_ProductID");
 
             entity.HasIndex(e => e.ScrapReasonId, "IX_WorkOrder_ScrapReasonID");
 
             entity.Property(e => e.WorkOrderId)
-                .HasComment("Primary key for WorkOrder records.")
-                .HasColumnName("WorkOrderID");
+            .HasComment("Primary key for WorkOrder records.")
+            .HasColumnName("WorkOrderID");
             entity.Property(e => e.DueDate)
-                .HasComment("Work order due date.")
-                .HasColumnType("datetime");
+            .HasComment("Work order due date.")
+            .HasColumnType("datetime");
             entity.Property(e => e.EndDate)
-                .HasComment("Work order end date.")
-                .HasColumnType("datetime");
+            .HasComment("Work order end date.")
+            .HasColumnType("datetime");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.OrderQty).HasComment("Product quantity to build.");
             entity.Property(e => e.ProductId)
-                .HasComment("Product identification number. Foreign key to Product.ProductID.")
-                .HasColumnName("ProductID");
+            .HasComment("Product identification number. Foreign key to Product.ProductID.")
+            .HasColumnName("ProductID");
             entity.Property(e => e.ScrapReasonId)
-                .HasComment("Reason for inspection failure.")
-                .HasColumnName("ScrapReasonID");
+            .HasComment("Reason for inspection failure.")
+            .HasColumnName("ScrapReasonID");
             entity.Property(e => e.ScrappedQty).HasComment("Quantity that failed inspection.");
             entity.Property(e => e.StartDate)
-                .HasComment("Work order start date.")
-                .HasColumnType("datetime");
+            .HasComment("Work order start date.")
+            .HasColumnType("datetime");
             entity.Property(e => e.StockedQty)
-                .HasComputedColumnSql("(isnull([OrderQty]-[ScrappedQty],(0)))", false)
-                .HasComment("Quantity built and put in inventory.");
+            .HasComputedColumnSql("(isnull([OrderQty]-[ScrappedQty],(0)))", false)
+            .HasComment("Quantity built and put in inventory.");
 
             entity.HasOne(d => d.Product).WithMany(p => p.WorkOrders)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.ProductId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             entity.HasOne(d => d.ScrapReason).WithMany(p => p.WorkOrders).HasForeignKey(d => d.ScrapReasonId);
 

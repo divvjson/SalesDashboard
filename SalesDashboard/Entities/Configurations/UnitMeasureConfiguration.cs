@@ -20,16 +20,16 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Name, "AK_UnitMeasure_Name").IsUnique();
 
             entity.Property(e => e.UnitMeasureCode)
-                .HasMaxLength(3)
-                .IsFixedLength()
-                .HasComment("Primary key.");
+            .HasMaxLength(3)
+            .IsFixedLength()
+            .HasComment("Primary key.");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasComment("Unit of measure description.");
+            .HasMaxLength(50)
+            .HasComment("Unit of measure description.");
 
             OnConfigurePartial(entity);
         }

@@ -20,18 +20,18 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.Name, "AK_Department_Name").IsUnique();
 
             entity.Property(e => e.DepartmentId)
-                .HasComment("Primary key for Department records.")
-                .HasColumnName("DepartmentID");
+            .HasComment("Primary key for Department records.")
+            .HasColumnName("DepartmentID");
             entity.Property(e => e.GroupName)
-                .HasMaxLength(50)
-                .HasComment("Name of the group to which the department belongs.");
+            .HasMaxLength(50)
+            .HasComment("Name of the group to which the department belongs.");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.Name)
-                .HasMaxLength(50)
-                .HasComment("Name of the department.");
+            .HasMaxLength(50)
+            .HasComment("Name of the department.");
 
             OnConfigurePartial(entity);
         }

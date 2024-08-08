@@ -24,36 +24,36 @@ namespace SalesDashboard.Entities.Configurations
             entity.HasIndex(e => e.StateProvinceId, "IX_Address_StateProvinceID");
 
             entity.Property(e => e.AddressId)
-                .HasComment("Primary key for Address records.")
-                .HasColumnName("AddressID");
+            .HasComment("Primary key for Address records.")
+            .HasColumnName("AddressID");
             entity.Property(e => e.AddressLine1)
-                .HasMaxLength(60)
-                .HasComment("First street address line.");
+            .HasMaxLength(60)
+            .HasComment("First street address line.");
             entity.Property(e => e.AddressLine2)
-                .HasMaxLength(60)
-                .HasComment("Second street address line.");
+            .HasMaxLength(60)
+            .HasComment("Second street address line.");
             entity.Property(e => e.City)
-                .HasMaxLength(30)
-                .HasComment("Name of the city.");
+            .HasMaxLength(30)
+            .HasComment("Name of the city.");
             entity.Property(e => e.ModifiedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasComment("Date and time the record was last updated.")
-                .HasColumnType("datetime");
+            .HasDefaultValueSql("(getdate())")
+            .HasComment("Date and time the record was last updated.")
+            .HasColumnType("datetime");
             entity.Property(e => e.PostalCode)
-                .HasMaxLength(15)
-                .HasComment("Postal code for the street address.");
+            .HasMaxLength(15)
+            .HasComment("Postal code for the street address.");
             entity.Property(e => e.Rowguid)
-                .HasDefaultValueSql("(newid())")
-                .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
-                .HasColumnName("rowguid");
+            .HasDefaultValueSql("(newid())")
+            .HasComment("ROWGUIDCOL number uniquely identifying the record. Used to support a merge replication sample.")
+            .HasColumnName("rowguid");
             entity.Property(e => e.SpatialLocation).HasComment("Latitude and longitude of this address.");
             entity.Property(e => e.StateProvinceId)
-                .HasComment("Unique identification number for the state or province. Foreign key to StateProvince table.")
-                .HasColumnName("StateProvinceID");
+            .HasComment("Unique identification number for the state or province. Foreign key to StateProvince table.")
+            .HasColumnName("StateProvinceID");
 
             entity.HasOne(d => d.StateProvince).WithMany(p => p.Addresses)
-                .HasForeignKey(d => d.StateProvinceId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            .HasForeignKey(d => d.StateProvinceId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
             OnConfigurePartial(entity);
         }
