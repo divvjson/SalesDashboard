@@ -36,6 +36,14 @@
     grid-area: number-of-employees;
 }
 
+.number-of-employees-by-department {
+    grid-area: number-of-employees-by-department;
+}
+
+.age-group {
+    grid-area: age-group;
+}
+
 @media (min-width: 0px) {
     .employee {
         padding: 0px;
@@ -51,7 +59,9 @@
         padding-right: 12px;
         grid-template-columns: 1fr;
         grid-template-areas:
-            "number-of-employees";
+            "number-of-employees"
+            "number-of-employees-by-department"
+            "age-group";
     }
 }
 

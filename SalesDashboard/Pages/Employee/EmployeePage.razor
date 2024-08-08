@@ -5,6 +5,7 @@
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Employee.AgeGroup
+@using SalesDashboard.Pages.Employee.NumberOfEmployeesByDepartment
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
@@ -24,6 +25,11 @@
             <div class="number-of-employees">
                 <PageBoxComponent Title="Number of Employees">
                     <FigureBoxComponent Value="@NumberOfEmployees.ToString()" IsLoading="IsFiguresLoading" />
+                </PageBoxComponent>
+            </div>
+            <div class="number-of-employees-by-department">
+                <PageBoxComponent Title="Number of Employees by Department">
+                    <NumberOfEmployeesByDepartmentComponent />
                 </PageBoxComponent>
             </div>
             <div class="age-group">
