@@ -5,15 +5,59 @@
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 @code {
+    [CascadingParameter]
+    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
     private bool IsChartDataLoading { get; set; } = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            await RequeryChartDataAsync();
+        }
+    }
 
     private async Task RequeryChartDataAsync()
     {
         IsChartDataLoading = true;
 
         await InvokeAsync(StateHasChanged);
+
+        using var context = DbFactory.CreateDbContext();
+
+        var today = DateTime.Today;
+
+        var items = await context.Employees
+            .Select(e => new
+            {
+                //Age = (int)((DateOnly.FromDateTime(today)).TotalDays / 365.25)
+                Age = 1
+            })
+            .GroupBy(x => new
+            {
+                AgeGroup =
+                    x.Age < 30 ? "0-29" :
+                    x.Age < 40 ? "30-39" :
+                    x.Age < 50 ? "40-49" :
+                    x.Age < 60 ? "50-59" :
+                    x.Age < 70 ? "60-69" :
+                    x.Age < 80 ? "70-79" :
+                    "80-above"
+            })
+            .Select(g => new AgeGroupItem
+            {
+                AgeGroup = g.Key.AgeGroup,
+                Count = g.Count()
+            })
+            .OrderBy(item => item.AgeGroup)
+            .ToListAsync();
 
         IsChartDataLoading = false;
 
