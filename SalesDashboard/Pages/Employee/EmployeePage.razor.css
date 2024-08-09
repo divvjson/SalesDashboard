@@ -45,6 +45,10 @@
     grid-area: age-group;
 }
 
+.gender-distribution {
+    grid-area: gender-distribution;
+}
+
 @media (min-width: 0px) {
     .employee {
         padding: 0px;
@@ -62,7 +66,8 @@
         grid-template-areas:
             "number-of-employees"
             "number-of-employees-by-department"
-            "age-group";
+            "age-group"
+            "gender-distribution";
     }
 }
 
@@ -82,10 +87,6 @@
     .grid {
         padding-left: 24px;
         padding-right: 24px;
-        grid-template-columns: 200px 1fr;
-        grid-template-areas:
-            "number-of-employees number-of-employees-by-department"
-            "age-group age-group";
     }
 }
 

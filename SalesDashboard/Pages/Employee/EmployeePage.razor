@@ -5,6 +5,7 @@
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Employee.AgeGroup
+@using SalesDashboard.Pages.Employee.GenderDistribution
 @using SalesDashboard.Pages.Employee.NumberOfEmployeesByDepartment
 
 @implements IDisposable
@@ -35,6 +36,11 @@
             <div class="age-group">
                 <PageBoxComponent Title="Age Group Distribution">
                     <AgeGroupComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="gender-distribution">
+                <PageBoxComponent Title="Gender Distribution">
+                    <GenderDistributionComponent />
                 </PageBoxComponent>
             </div>
         </div>
