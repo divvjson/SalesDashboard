@@ -1,0 +1,179 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+@using SalesDashboard.Helpers
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsLoading">
+    <MudTable ContainerClass="summary-matrix"
+              FixedHeader="true"
+              T="EmployeeSummaryMatrixItem"
+              Items="EmployeeSummaryMatrixGridItems"
+              GroupBy="GroupDefinition"
+              Breakpoint="Breakpoint.None"
+              Dense="true"
+              Striped="true">
+        <HeaderContent>
+            <MudTh>Department</MudTh>
+            <MudTh>Employee</MudTh>
+            <MudTh>Age</MudTh>
+            <MudTh>Years of Employment</MudTh>
+            <MudTh>Vacation Days per Year</MudTh>
+            <MudTh>Sick Leave Days per Year</MudTh>
+        </HeaderContent>
+        <GroupHeaderTemplate>
+            @if (context.GroupName is nameof(EmployeeSummaryMatrixItem.DepartmentName))
+            {
+                <MudTh colspan="2" style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
+            }
+            else if (context.GroupName is nameof(EmployeeSummaryMatrixItem.EmployeeName))
+            {
+                <MudTh></MudTh>
+                <MudTh style="@GetGroupHeaderRowStyle(context)">@context.Key</MudTh>
+            }
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @Math.Round(@context.Items.Average(item => item.Age))
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @Math.Round(@context.Items.Sum(item => item.YearsOfEmployment))
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @Math.Round(@context.Items.Sum(item => item.VacationDaysPerYear))
+            </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @Math.Round(@context.Items.Sum(item => item.SickLeaveDaysPerYear))
+            </MudTh>
+        </GroupHeaderTemplate>
+        <RowTemplate>
+            <MudTd DataLabel="Department">@context.DepartmentName</MudTd>
+            <MudTd DataLabel="Employee">@context.EmployeeName</MudTd>
+            <MudTd DataLabel="Age">@context.Age</MudTd>
+            <MudTd DataLabel="Years of Employment">@context.YearsOfEmployment</MudTd>
+            <MudTd DataLabel="Vacation Days per Year">@context.VacationDaysPerYear</MudTd>
+            <MudTd DataLabel="Sick Leave Days per Year">@context.SickLeaveDaysPerYear</MudTd>
+        </RowTemplate>
+    </MudTable>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private bool IsLoading { get; set; } = false;
+
+    private List<EmployeeSummaryMatrixItem> EmployeeSummaryMatrixGridItems { get; set; } = [];
+
+    private TableGroupDefinition<EmployeeSummaryMatrixItem> GroupDefinition { get; set; } = new()
+    {
+        GroupName = nameof(EmployeeSummaryMatrixItem.DepartmentName),
+        IsInitiallyExpanded = false,
+        Indentation = true,
+        Expandable = true,
+        Selector = (item) => item.DepartmentName,
+        InnerGroup = new()
+        {
+            GroupName = nameof(EmployeeSummaryMatrixItem.EmployeeName),
+            IsInitiallyExpanded = false,
+            Indentation = true,
+            Expandable = false,
+            Selector = (item) => item.EmployeeName
+        }
+    };
+
+    private string GetGroupHeaderRowStyle(TableGroupData<object, EmployeeSummaryMatrixItem> context)
+    {
+        var styleString = "";
+
+        switch (context.GroupName)
+        {
+            case nameof(EmployeeSummaryMatrixItem.DepartmentName):
+                styleString += " font-weight: 400;";
+                break;
+            case nameof(EmployeeSummaryMatrixItem.EmployeeName):
+                styleString += " font-weight: 300;";
+                break;
+        }
+
+        return styleString;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryAsync());
+
+            await RequeryAsync();
+        }
+    }
+
+    private async Task RequeryAsync()
+    {
+        IsLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        using var context = DbFactory.CreateDbContext();
+
+        var today = SimulatedDateTime.Today;
+
+        var employees = await context.EmployeeDepartmentHistories
+            .Where(edh => edh.EndDate == null)
+            .Select(edh => new
+            {
+                DepartmentName = edh.Department.Name,
+                EmployeeName = $"{edh.BusinessEntity.BusinessEntity.FirstName} {edh.BusinessEntity.BusinessEntity.LastName}",
+                Age = (today.Year - edh.BusinessEntity.BirthDate.Year) - (edh.BusinessEntity.BirthDate > today.AddYears(-(today.Year - edh.BusinessEntity.BirthDate.Year)) ? 1 : 0),
+                YearsOfEmployment = (today - edh.BusinessEntity.HireDate).TotalDays / 365.25,
+                VacationHours = edh.BusinessEntity.VacationHours,
+                SickLeaveHours = edh.BusinessEntity.SickLeaveHours
+            })
+            .ToListAsync();
+
+        var items = employees
+            .Select(e => new EmployeeSummaryMatrixItem
+            {
+                DepartmentName = e.DepartmentName,
+                EmployeeName = e.EmployeeName,
+                Age = e.Age,
+                YearsOfEmployment = Math.Floor(e.YearsOfEmployment),
+                VacationDaysPerYear = Math.Round((e.VacationHours / 8) / e.YearsOfEmployment),
+                SickLeaveDaysPerYear = Math.Round((e.SickLeaveHours / 8) / e.YearsOfEmployment)
+            })
+            .OrderBy(item => item.DepartmentName)
+            .ThenBy(item => item.EmployeeName)
+            .ToList();
+
+        if (items.Any())
+        {
+            EmployeeSummaryMatrixItem summaryRow = new()
+            {
+                DepartmentName = string.Empty,
+                EmployeeName = string.Empty,
+                Age = (int)Math.Round(items.Average(item => item.Age)),
+                YearsOfEmployment = Math.Round(items.Sum(item => item.YearsOfEmployment)),
+                VacationDaysPerYear = Math.Round(items.Sum(item => item.VacationDaysPerYear)),
+                SickLeaveDaysPerYear = Math.Round(items.Sum(item => item.SickLeaveDaysPerYear))
+            };
+
+            items.Add(summaryRow);
+        }
+
+        EmployeeSummaryMatrixGridItems = items;
+
+        IsLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        EmployeeFilterChangedSubscription?.Dispose();
+    }
+}
