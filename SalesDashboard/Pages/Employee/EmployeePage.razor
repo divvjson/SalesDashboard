@@ -5,6 +5,7 @@
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Employee.AgeGroup
+@using SalesDashboard.Pages.Employee.GenderDistribution
 @using SalesDashboard.Pages.Employee.NumberOfEmployeesByDepartment
 
 @implements IDisposable
@@ -22,9 +23,9 @@
             </MudTooltip>
         </div>
         <div class="grid">
-            <div class="number-of-employees">
-                <PageBoxComponent Title="Number of Employees">
-                    <FigureBoxComponent Value="@NumberOfEmployees.ToString()" IsLoading="IsFiguresLoading" />
+            <div class="total-number-of-employees">
+                <PageBoxComponent Title="Total Number of Employees">
+                    <FigureBoxComponent Value="@TotalNumberOfEmployees.ToString()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="number-of-employees-by-department">
@@ -35,6 +36,11 @@
             <div class="age-group">
                 <PageBoxComponent Title="Age Group Distribution">
                     <AgeGroupComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="gender-distribution">
+                <PageBoxComponent Title="Gender Distribution">
+                    <GenderDistributionComponent />
                 </PageBoxComponent>
             </div>
         </div>
@@ -49,7 +55,7 @@
 
     private bool IsFiguresLoading { get; set; } = true;
 
-    private int NumberOfEmployees { get; set; }
+    private int TotalNumberOfEmployees { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -76,7 +82,7 @@
 
         using var context = DbFactory.CreateDbContext();
 
-        NumberOfEmployees = await context.Employees.CountAsync();
+        TotalNumberOfEmployees = await context.Employees.CountAsync();
 
         IsFiguresLoading = false;
 

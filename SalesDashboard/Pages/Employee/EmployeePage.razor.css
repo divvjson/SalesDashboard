@@ -32,9 +32,9 @@
     gap: 12px;
 }
 
-.number-of-employees {
+.total-number-of-employees {
     align-self: start;
-    grid-area: number-of-employees;
+    grid-area: total-number-of-employees;
 }
 
 .number-of-employees-by-department {
@@ -43,6 +43,10 @@
 
 .age-group {
     grid-area: age-group;
+}
+
+.gender-distribution {
+    grid-area: gender-distribution;
 }
 
 @media (min-width: 0px) {
@@ -60,9 +64,10 @@
         padding-right: 12px;
         grid-template-columns: 1fr;
         grid-template-areas:
-            "number-of-employees"
+            "total-number-of-employees"
             "number-of-employees-by-department"
-            "age-group";
+            "age-group"
+            "gender-distribution";
     }
 }
 
@@ -82,10 +87,6 @@
     .grid {
         padding-left: 24px;
         padding-right: 24px;
-        grid-template-columns: 200px 1fr;
-        grid-template-areas:
-            "number-of-employees number-of-employees-by-department"
-            "age-group age-group";
     }
 }
 

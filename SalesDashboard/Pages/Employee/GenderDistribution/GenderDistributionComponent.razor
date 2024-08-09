@@ -1,0 +1,96 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+@using SalesDashboard.Extensions
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsChartDataLoading">
+    <div class="gender-distribution">
+        @if (Data is null)
+        {
+            
+        }
+        else
+        {
+            <MudChart ChartType="ChartType.Pie"
+                      InputData="Data"
+                      InputLabels="Labels"
+                      Height="110px" />
+        }
+    </div>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private bool IsChartDataLoading { get; set; } = false;
+
+    private int DataSize { get; set; } = 2;
+
+    private double[]? Data { get; set; } = null;
+
+    private string[]? Labels { get; set; } = null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            await RequeryChartDataAsync();
+        }
+    }
+
+    private async Task RequeryChartDataAsync()
+    {
+        IsChartDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        using var context = DbFactory.CreateDbContext();
+
+        int totalEmployees = await context.Employees.CountAsync();
+
+        var items = await context.Employees
+            .GroupBy(e => e.Gender)
+            .Select(g => new GenderDistributionItem
+            {
+                Gender = g.Key == "M" ? "Male" : "Female",
+                Percentage = (double)g.Count() / totalEmployees * 100
+            })
+            .OrderByDescending(item => item.Percentage)
+            .ToListAsync();
+
+        if (items.Any())
+        {
+            Data = items
+                .Select(item => item.Percentage)
+                .ToArray();
+
+            Labels = items
+                .Select(item => $"{item.Gender} ({item.Percentage.ToString("0.##")}%)")
+                .ToArray();
+        }
+        else
+        {
+            Data = null;
+            Labels = null;
+        }
+
+        IsChartDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        EmployeeFilterChangedSubscription?.Dispose();
+    }
+}
