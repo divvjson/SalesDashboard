@@ -27,13 +27,13 @@
                 <SummaryMatrixThComponent Title="Age" AggregationMethod="EnumAggregationMethod.Average" />
             </MudTh>
             <MudTh>
-                <SummaryMatrixThComponent Title="Years of Employment" AggregationMethod="EnumAggregationMethod.Sum" />
+                <SummaryMatrixThComponent Title="Years of Employment" AggregationMethod="EnumAggregationMethod.Average" />
             </MudTh>
             <MudTh>
-                <SummaryMatrixThComponent Title="Vacation Days per Year" AggregationMethod="EnumAggregationMethod.Sum" />
+                <SummaryMatrixThComponent Title="Vacation Days per Year" AggregationMethod="EnumAggregationMethod.Average" />
             </MudTh>
             <MudTh>
-                <SummaryMatrixThComponent Title="Sick Leave Days per Year" AggregationMethod="EnumAggregationMethod.Sum" />
+                <SummaryMatrixThComponent Title="Sick Leave Days per Year" AggregationMethod="EnumAggregationMethod.Average" />
             </MudTh>
         </HeaderContent>
         <GroupHeaderTemplate>
@@ -50,13 +50,13 @@
                 @Math.Round(@context.Items.Average(item => item.Age))
             </MudTh>
             <MudTh style="@GetGroupHeaderRowStyle(context)">
-                @Math.Round(@context.Items.Sum(item => item.YearsOfEmployment))
+                @Math.Round(@context.Items.Average(item => item.YearsOfEmployment))
             </MudTh>
             <MudTh style="@GetGroupHeaderRowStyle(context)">
-                @Math.Round(@context.Items.Sum(item => item.VacationDaysPerYear))
+                @Math.Round(@context.Items.Average(item => item.VacationDaysPerYear))
             </MudTh>
             <MudTh style="@GetGroupHeaderRowStyle(context)">
-                @Math.Round(@context.Items.Sum(item => item.SickLeaveDaysPerYear))
+                @Math.Round(@context.Items.Average(item => item.SickLeaveDaysPerYear))
             </MudTh>
         </GroupHeaderTemplate>
         <RowTemplate>
@@ -170,9 +170,9 @@
                 DepartmentName = string.Empty,
                 EmployeeName = string.Empty,
                 Age = (int)Math.Round(items.Average(item => item.Age)),
-                YearsOfEmployment = Math.Round(items.Sum(item => item.YearsOfEmployment)),
-                VacationDaysPerYear = Math.Round(items.Sum(item => item.VacationDaysPerYear)),
-                SickLeaveDaysPerYear = Math.Round(items.Sum(item => item.SickLeaveDaysPerYear))
+                YearsOfEmployment = Math.Round(items.Average(item => item.YearsOfEmployment)),
+                VacationDaysPerYear = Math.Round(items.Average(item => item.VacationDaysPerYear)),
+                SickLeaveDaysPerYear = Math.Round(items.Average(item => item.SickLeaveDaysPerYear))
             };
 
             items.Add(summaryRow);
