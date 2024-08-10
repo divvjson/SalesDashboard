@@ -1,0 +1,10 @@
+﻿.summary-matrix-th {
+    display: flex;
+    align-items: center;
+    column-gap: 4px;
+}
+
+.aggregation-method {
+    font-size: 10px;
+    font-style: italic;
+}

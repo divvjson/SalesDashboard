@@ -1,5 +1,6 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Components.Shared.SummaryMatrixTh
 @using SalesDashboard.Entities
 @using SalesDashboard.Helpers
 
@@ -16,12 +17,24 @@
               Dense="true"
               Striped="true">
         <HeaderContent>
-            <MudTh>Department</MudTh>
-            <MudTh>Employee</MudTh>
-            <MudTh>Age</MudTh>
-            <MudTh>Years of Employment</MudTh>
-            <MudTh>Vacation Days per Year</MudTh>
-            <MudTh>Sick Leave Days per Year</MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Department" />
+            </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Employee" />
+            </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Age" AggregationMethod="EnumAggregationMethod.Average" />
+            </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Years of Employment" AggregationMethod="EnumAggregationMethod.Sum" />
+            </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Vacation Days per Year" AggregationMethod="EnumAggregationMethod.Sum" />
+            </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Sick Leave Days per Year" AggregationMethod="EnumAggregationMethod.Sum" />
+            </MudTh>
         </HeaderContent>
         <GroupHeaderTemplate>
             @if (context.GroupName is nameof(EmployeeSummaryMatrixItem.DepartmentName))

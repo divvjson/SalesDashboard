@@ -1,0 +1,19 @@
+﻿<div class="summary-matrix-th">
+    <div>@Title</div>
+    @if (AggregationMethod is EnumAggregationMethod.Average)
+    {
+        <div class="aggregation-method">(avg.)</div>
+    }
+    else if (AggregationMethod is EnumAggregationMethod.Sum)
+    {
+        <div class="aggregation-method">(sum)</div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public required string Title { get; set; }
+
+    [Parameter]
+    public EnumAggregationMethod? AggregationMethod { get; set; } = EnumAggregationMethod.None;
+}
