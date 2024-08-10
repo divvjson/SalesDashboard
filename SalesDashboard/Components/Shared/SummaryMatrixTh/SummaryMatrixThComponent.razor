@@ -1,12 +1,19 @@
 ﻿<div class="summary-matrix-th">
     <div>@Title</div>
-    @if (AggregationMethod is EnumAggregationMethod.Average)
+    @if (AggregationMethod is not null)
     {
-        <div class="aggregation-method">(avg.)</div>
-    }
-    else if (AggregationMethod is EnumAggregationMethod.Sum)
-    {
-        <div class="aggregation-method">(sum)</div>
+        <MudTooltip Text="Aggregation used when grouping" Placement="Placement.Top" Delay="500">
+            <div class="aggregation-method">
+                @if (AggregationMethod is EnumAggregationMethod.Average)
+                {
+                    <div>(avg.)</div>
+                }
+                else if (AggregationMethod is EnumAggregationMethod.Sum)
+                {
+                    <div>(sum)</div>
+                }
+            </div>
+        </MudTooltip>
     }
 </div>
 
