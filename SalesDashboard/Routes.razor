@@ -1,5 +1,4 @@
 ﻿@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
-@using SalesDashboard.Components.StateProviders.CurrencyStateProvider
 @using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
 @using SalesDashboard.Pages.Employee
@@ -11,17 +10,15 @@
         <BreakpointStateProviderComponent>
             <DeviceStateProviderComponent>
                 <DrawerStateProviderComponent>
-                    <CurrencyStateProviderComponent>
-                        <RegionalFilterStateProviderComponent>
-                            <RegionalDataProviderComponent>
-                                <ProductFilterStateProviderComponent>
-                                    <EmployeeFilterStateProviderComponent>
-                                        <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
-                                    </EmployeeFilterStateProviderComponent>
-                                </ProductFilterStateProviderComponent>
-                            </RegionalDataProviderComponent>
-                        </RegionalFilterStateProviderComponent>
-                    </CurrencyStateProviderComponent>
+                    <RegionalFilterStateProviderComponent>
+                        <RegionalDataProviderComponent>
+                            <ProductFilterStateProviderComponent>
+                                <EmployeeFilterStateProviderComponent>
+                                    <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
+                                </EmployeeFilterStateProviderComponent>
+                            </ProductFilterStateProviderComponent>
+                        </RegionalDataProviderComponent>
+                    </RegionalFilterStateProviderComponent>
                 </DrawerStateProviderComponent>
             </DeviceStateProviderComponent>
         </BreakpointStateProviderComponent>
