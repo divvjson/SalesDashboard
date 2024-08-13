@@ -1,5 +1,6 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Components.Shared.SummaryMatrixTh
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
 @using SalesDashboard.Helpers
@@ -20,11 +21,21 @@
             <MudTh>Region</MudTh>
             <MudTh>State</MudTh>
             <MudTh>City</MudTh>
-            <MudTh>Qty Sold</MudTh>
-            <MudTh>Sales</MudTh>
-            <MudTh>Costs</MudTh>
-            <MudTh>Gross Profit</MudTh>
-            <MudTh>Gross Margin</MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Qty Sold" AggregationMethod="EnumAggregationMethod.Sum" />
+            </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Sales" AggregationMethod="EnumAggregationMethod.Sum" />
+            </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Costs" AggregationMethod="EnumAggregationMethod.Sum" />
+            </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Gross Profit" AggregationMethod="EnumAggregationMethod.Sum" />
+            </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Gross Margin" AggregationMethod="EnumAggregationMethod.Average" />
+            </MudTh>
         </HeaderContent>
         <GroupHeaderTemplate>
             @if (context.GroupName is nameof(RegionalSummaryMatrixItem.CountryRegionName))

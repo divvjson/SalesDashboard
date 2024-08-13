@@ -49,6 +49,10 @@
     grid-area: gender-distribution;
 }
 
+.employee-summary-matrix {
+    grid-area: employee-summary-matrix;
+}
+
 @media (min-width: 0px) {
     .employee {
         padding: 0px;
@@ -67,7 +71,8 @@
             "total-number-of-employees"
             "number-of-employees-by-department"
             "age-group"
-            "gender-distribution";
+            "gender-distribution"
+            "employee-summary-matrix";
     }
 }
 

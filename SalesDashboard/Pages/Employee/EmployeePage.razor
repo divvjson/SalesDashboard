@@ -5,6 +5,7 @@
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Employee.AgeGroup
+@using SalesDashboard.Pages.Employee.EmployeeSummaryMatrix
 @using SalesDashboard.Pages.Employee.GenderDistribution
 @using SalesDashboard.Pages.Employee.NumberOfEmployeesByDepartment
 
@@ -41,6 +42,11 @@
             <div class="gender-distribution">
                 <PageBoxComponent Title="Gender Distribution">
                     <GenderDistributionComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="employee-summary-matrix">
+                <PageBoxComponent Title="Summary Matrix">
+                    <EmployeeSummaryMatrixComponent />
                 </PageBoxComponent>
             </div>
         </div>
