@@ -14,6 +14,6 @@
 
         public required double SickLeaveDaysPerYear { get; set; }
 
-        public decimal MonthlySalary { get; set; }
+        public required decimal MonthlySalary { get; set; }
     }
 }

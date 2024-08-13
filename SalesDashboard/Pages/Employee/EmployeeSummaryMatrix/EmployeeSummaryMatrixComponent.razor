@@ -2,6 +2,7 @@
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Components.Shared.SummaryMatrixTh
 @using SalesDashboard.Entities
+@using SalesDashboard.Extensions
 @using SalesDashboard.Helpers
 
 @implements IDisposable
@@ -35,6 +36,9 @@
             <MudTh>
                 <SummaryMatrixThComponent Title="Sick Leave Days per Year" AggregationMethod="EnumAggregationMethod.Average" />
             </MudTh>
+            <MudTh>
+                <SummaryMatrixThComponent Title="Monthly Salary" AggregationMethod="EnumAggregationMethod.Average" />
+            </MudTh>
         </HeaderContent>
         <GroupHeaderTemplate>
             @if (context.GroupName is nameof(EmployeeSummaryMatrixItem.DepartmentName))
@@ -58,6 +62,9 @@
             <MudTh style="@GetGroupHeaderRowStyle(context)">
                 @Math.Round(@context.Items.Average(item => item.SickLeaveDaysPerYear))
             </MudTh>
+            <MudTh style="@GetGroupHeaderRowStyle(context)">
+                @context.Items.Average(item => item.MonthlySalary).ToCurrencyWithTwoDecimals()
+            </MudTh>
         </GroupHeaderTemplate>
         <RowTemplate>
             <MudTd DataLabel="Department">@context.DepartmentName</MudTd>
@@ -66,6 +73,7 @@
             <MudTd DataLabel="Years of Employment">@context.YearsOfEmployment</MudTd>
             <MudTd DataLabel="Vacation Days per Year">@context.VacationDaysPerYear</MudTd>
             <MudTd DataLabel="Sick Leave Days per Year">@context.SickLeaveDaysPerYear</MudTd>
+            <MudTd DataLabel="Monthly Salary">@context.MonthlySalary</MudTd>
         </RowTemplate>
     </MudTable>
 </SpinnerOverlayComponent>
@@ -145,7 +153,8 @@
                 Age = (today.Year - edh.BusinessEntity.BirthDate.Year) - (edh.BusinessEntity.BirthDate > today.AddYears(-(today.Year - edh.BusinessEntity.BirthDate.Year)) ? 1 : 0),
                 YearsOfEmployment = (today - edh.BusinessEntity.HireDate).TotalDays / 365.25,
                 VacationHours = edh.BusinessEntity.VacationHours,
-                SickLeaveHours = edh.BusinessEntity.SickLeaveHours
+                SickLeaveHours = edh.BusinessEntity.SickLeaveHours,
+                Rate = edh.BusinessEntity.EmployeePayHistories.OrderByDescending(eph => eph.RateChangeDate).Select(eph => eph.Rate).FirstOrDefault()
             })
             .ToListAsync();
 
@@ -157,7 +166,8 @@
                 Age = e.Age,
                 YearsOfEmployment = Math.Floor(e.YearsOfEmployment),
                 VacationDaysPerYear = Math.Round((e.VacationHours / 8) / e.YearsOfEmployment),
-                SickLeaveDaysPerYear = Math.Round((e.SickLeaveHours / 8) / e.YearsOfEmployment)
+                SickLeaveDaysPerYear = Math.Round((e.SickLeaveHours / 8) / e.YearsOfEmployment),
+                MonthlySalary = e.Rate * 40 * 4
             })
             .OrderBy(item => item.DepartmentName)
             .ThenBy(item => item.EmployeeName)
@@ -172,7 +182,8 @@
                 Age = (int)Math.Round(items.Average(item => item.Age)),
                 YearsOfEmployment = Math.Round(items.Average(item => item.YearsOfEmployment)),
                 VacationDaysPerYear = Math.Round(items.Average(item => item.VacationDaysPerYear)),
-                SickLeaveDaysPerYear = Math.Round(items.Average(item => item.SickLeaveDaysPerYear))
+                SickLeaveDaysPerYear = Math.Round(items.Average(item => item.SickLeaveDaysPerYear)),
+                MonthlySalary = items.Average(item => item.MonthlySalary)
             };
 
             items.Add(summaryRow);
