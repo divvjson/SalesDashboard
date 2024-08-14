@@ -20,19 +20,23 @@
 
     private bool IsClickToUnlockVisible { get; set; } = true;
 
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     if (firstRender)
-    //     {
-    //         await JSRuntime.InvokeVoidAsync("initializeMap");
+    private IJSObjectReference JSModule { get; set; } = null!;
 
-    //         EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
-    //             .Throttle(TimeSpan.FromMilliseconds(25))
-    //             .Subscribe(async _ => await RequeryMapDataAsync());
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Pages/Employee/EmployeeLocation/{nameof(EmployeeLocationComponent)}.razor.js");
 
-    //         await RequeryMapDataAsync();
-    //     }
-    // }
+            await JSModule.InvokeVoidAsync("initializeMap");
+
+            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryMapDataAsync());
+
+            await RequeryMapDataAsync();
+        }
+    }
 
     private void HandleUnlockClicked()
     {
