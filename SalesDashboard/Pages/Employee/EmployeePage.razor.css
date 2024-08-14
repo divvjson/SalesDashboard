@@ -49,6 +49,10 @@
     grid-area: gender-distribution;
 }
 
+.employee-location {
+    grid-area: employee-location;
+}
+
 .employee-summary-matrix {
     grid-area: employee-summary-matrix;
 }
@@ -72,6 +76,7 @@
             "number-of-employees-by-department"
             "age-group"
             "gender-distribution"
+            "employee-location"
             "employee-summary-matrix";
     }
 }

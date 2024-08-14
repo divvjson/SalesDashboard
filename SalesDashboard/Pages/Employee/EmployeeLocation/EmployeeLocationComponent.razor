@@ -1,0 +1,62 @@
+﻿@using SalesDashboard.Components.Shared.ClickToUnlockOverlay
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+
+<SpinnerOverlayComponent IsVisible="IsMapDataLoading">
+    <ClickToUnlockOverlayComponent IsVisible="IsClickToUnlockVisible" OnUnlockClicked="HandleUnlockClicked" OnLockClicked="HandleLockClicked">
+        <div id="employeeLocationMap" style="flex-grow: 1; min-height: 500px;"></div>
+    </ClickToUnlockOverlayComponent>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private bool IsMapDataLoading { get; set; } = false;
+
+    private bool IsClickToUnlockVisible { get; set; } = true;
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         await JSRuntime.InvokeVoidAsync("initializeMap");
+
+    //         EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+    //             .Throttle(TimeSpan.FromMilliseconds(25))
+    //             .Subscribe(async _ => await RequeryMapDataAsync());
+
+    //         await RequeryMapDataAsync();
+    //     }
+    // }
+
+    private void HandleUnlockClicked()
+    {
+        IsClickToUnlockVisible = false;
+    }
+
+    private void HandleLockClicked()
+    {
+        IsClickToUnlockVisible = true;
+    }
+
+    private async Task RequeryMapDataAsync()
+    {
+        IsMapDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        IsMapDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        EmployeeFilterChangedSubscription?.Dispose();
+    }
+}
