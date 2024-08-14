@@ -1,8 +1,11 @@
-﻿@using SalesDashboard.Components.Shared.ClickToUnlockOverlay
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.ClickToUnlockOverlay
 @using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
 
 @implements IDisposable
 @inject IJSRuntime JSRuntime
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
 
 <SpinnerOverlayComponent IsVisible="IsMapDataLoading">
     <ClickToUnlockOverlayComponent IsVisible="IsClickToUnlockVisible" OnUnlockClicked="HandleUnlockClicked" OnLockClicked="HandleLockClicked">
@@ -53,6 +56,54 @@
         IsMapDataLoading = true;
 
         await InvokeAsync(StateHasChanged);
+
+        using var context = DbFactory.CreateDbContext();
+
+        var employees = await context.EmployeeDepartmentHistories
+            .Where(edh => edh.EndDate == null)
+            .Select(edh => new
+            {
+                BusinessEntityId = edh.BusinessEntityId,
+                FirstName = edh.BusinessEntity.BusinessEntity.FirstName,
+                LastName = edh.BusinessEntity.BusinessEntity.LastName,
+                JobTitle = edh.BusinessEntity.JobTitle,
+                DepartmentName = edh.Department.Name,
+                Address = edh.BusinessEntity.BusinessEntity.BusinessEntity.BusinessEntityAddresses
+                    .Where(bea => bea.AddressType.Name == "Home")
+                    .Select(bea => new
+                    {
+                        Address = bea.Address.AddressLine1,
+                        City = bea.Address.City,
+                        StateProvinceName = bea.Address.StateProvince.Name,
+                        CountryRegionName = bea.Address.StateProvince.CountryRegionCodeNavigation.Name,
+                        Latitude = bea.Address.SpatialLocation == null ? null : bea.Address.SpatialLocation.PointOnSurface.Y as double?,
+                        Longitude = bea.Address.SpatialLocation == null ? null : bea.Address.SpatialLocation.PointOnSurface.X as double?
+                    })
+                    .FirstOrDefault()
+            })
+            .ToListAsync();
+
+        List<EmployeeLocationItem> items = [];
+
+        foreach (var employee in employees)
+        {
+            EmployeeLocationItem item = new()
+            {
+                BusinessEntityId = employee.BusinessEntityId,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                JobTitle = employee.JobTitle,
+                DepartmentName = employee.DepartmentName,
+                Address = employee.Address?.Address,
+                City = employee.Address?.City,
+                StateProvinceName = employee.Address?.StateProvinceName,
+                CountryRegionName = employee.Address?.CountryRegionName,
+                Latitude = employee.Address?.Latitude,
+                Longitude = employee.Address?.Longitude
+            };
+
+            items.Add(item);
+        }
 
         IsMapDataLoading = false;
 
