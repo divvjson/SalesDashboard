@@ -4,7 +4,7 @@ let circles = [];
 const baseMaxRadius = 750000; // Base maximum radius for the largest circle
 const baseMinRadius = 50000; // Base minimum radius for the smallest circle
 
-window.initializeMap = () => {
+export function initializeMap() {
     const distributionOfSalesMapElement = document.getElementById('distributionOfSalesMap');
 
     if (distributionOfSalesMapElement) {
@@ -20,9 +20,9 @@ window.initializeMap = () => {
 
         distributionOfSalesMap.addListener('zoom_changed', updateCircles);
     }
-};
+}
 
-window.updateMap = (stateProvinceSalesParam) => {
+export function updateMap(stateProvinceSalesParam) {
     stateProvinceSales = [];
 
     for (const circle of circles) {
@@ -45,7 +45,7 @@ window.updateMap = (stateProvinceSalesParam) => {
         const circle = createCircle(stateProvinceSaleParam, minSales, maxSales);
         circles.push(circle);
     }
-};
+}
 
 function updateCircles() {
     let maxSales = -Infinity;
