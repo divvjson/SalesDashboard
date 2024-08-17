@@ -41,7 +41,18 @@ export function updateMap(employeeLocationItems) {
 
             marker.addListener('click', () => {
                 infoWindow.close();
-                infoWindow.setContent(`<div><strong>${employeeLocationItem.firstName} ${employeeLocationItem.lastName}</strong></div>`);
+                //infoWindow.setContent(`<div><strong>${employeeLocationItem.firstName} ${employeeLocationItem.lastName}</strong></div>`);
+                infoWindow.setContent(`
+                    <div>
+                        <p><strong>Name:</strong> ${employeeLocationItem.firstName} ${employeeLocationItem.lastName}</p>
+                        <p><strong>Job Title:</strong> ${employeeLocationItem.jobTitle}</p>
+                        <p><strong>Department:</strong> ${employeeLocationItem.department}</p>
+                        <p><strong>Address:</strong> ${employeeLocationItem.address}</p>
+                        <p><strong>City:</strong> ${employeeLocationItem.city}</p>
+                        <p><strong>State:</strong> ${employeeLocationItem.stateProvinceName}</p>
+                        <p><strong>Country:</strong> ${employeeLocationItem.countryRegionName}</p>
+                    </div>
+                `);
                 infoWindow.open(marker.map, marker);
             });
         }
