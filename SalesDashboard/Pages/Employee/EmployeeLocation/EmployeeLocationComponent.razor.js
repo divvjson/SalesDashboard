@@ -41,16 +41,36 @@ export function updateMap(employeeLocationItems) {
 
             marker.addListener('click', () => {
                 infoWindow.close();
-                //infoWindow.setContent(`<div><strong>${employeeLocationItem.firstName} ${employeeLocationItem.lastName}</strong></div>`);
                 infoWindow.setContent(`
-                    <div>
-                        <p><strong>Name:</strong> ${employeeLocationItem.firstName} ${employeeLocationItem.lastName}</p>
-                        <p><strong>Job Title:</strong> ${employeeLocationItem.jobTitle}</p>
-                        <p><strong>Department:</strong> ${employeeLocationItem.department}</p>
-                        <p><strong>Address:</strong> ${employeeLocationItem.address}</p>
-                        <p><strong>City:</strong> ${employeeLocationItem.city}</p>
-                        <p><strong>State:</strong> ${employeeLocationItem.stateProvinceName}</p>
-                        <p><strong>Country:</strong> ${employeeLocationItem.countryRegionName}</p>
+                    <div style="display: grid; grid-template-columns: auto 1fr; column-gap: 4px; row-gap: 2px;">
+                        <div style="display: contents;">
+                            <p style="margin: 0;"><strong>Name:</strong></p>
+                            <p style="margin: 0;">${employeeLocationItem.firstName} ${employeeLocationItem.lastName}</p>
+                        </div>
+                        <div style="display: contents;">
+                            <p style="margin: 0;"><strong>Job Title:</strong></p>
+                            <p style="margin: 0;">${employeeLocationItem.jobTitle}</p>
+                        </div>
+                        <div style="display: contents;">
+                            <p style="margin: 0;"><strong>Department:</strong></p>
+                            <p style="margin: 0;">${employeeLocationItem.departmentName}</p>
+                        </div>
+                        <div style="display: contents;">
+                            <p style="margin: 0;"><strong>Address:</strong></p>
+                            <p style="margin: 0;">${employeeLocationItem.address}</p>
+                        </div>
+                        <div style="display: contents;">
+                            <p style="margin: 0;"><strong>City:</strong></p>
+                            <p style="margin: 0;">${employeeLocationItem.city}</p>
+                        </div>
+                        <div style="display: contents;">
+                            <p style="margin: 0;"><strong>State:</strong></p>
+                            <p style="margin: 0;">${employeeLocationItem.stateProvinceName}</p>
+                        </div>
+                        <div style="display: contents;">
+                            <p style="margin: 0;"><strong>Country:</strong></p>
+                            <p style="margin: 0;">${employeeLocationItem.countryRegionName}</p>
+                        </div>
                     </div>
                 `);
                 infoWindow.open(marker.map, marker);
