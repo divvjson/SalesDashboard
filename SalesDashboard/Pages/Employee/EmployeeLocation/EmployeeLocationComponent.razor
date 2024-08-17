@@ -105,6 +105,8 @@
             items.Add(item);
         }
 
+        await JSModule.InvokeVoidAsync("updateMap", items);
+
         IsMapDataLoading = false;
 
         await InvokeAsync(StateHasChanged);
