@@ -12,7 +12,8 @@ export function initializeMap() {
             mapTypeControl: false,
             streetViewControl: false,
             zoomControl: false,
-            zoom: 2
+            zoom: 2,
+            mapId: 'employeeLocationMap'
         });
     }
 }
@@ -24,20 +25,22 @@ export function updateMap(employeeLocationItems) {
 
     for (const employeeLocationItem of employeeLocationItems) {
         if (employeeLocationItem.latitude && employeeLocationItem.longitude) {
-            const marker = new google.maps.Marker({
+            const marker = new google.maps.marker.AdvancedMarkerElement({
+                map: employeeLocationMap,
                 position: {
                     lat: employeeLocationItem.latitude,
                     lng: employeeLocationItem.longitude
                 },
-                map: employeeLocationMap,
-                title: `${employeeLocationItem.firstName} ${employeeLocationItem.lastName}`
+                title: `${employeeLocationItem.firstName} ${employeeLocationItem.lastName}`,
+                gmpClickable: true,
             });
 
             markers.push(marker);
 
             marker.addListener('click', () => {
+                infoWindow.close();
                 infoWindow.setContent(`<div><strong>${employeeLocationItem.firstName} ${employeeLocationItem.lastName}</strong></div>`);
-                infoWindow.open(employeeLocationMap, marker);
+                infoWindow.open(marker.map, marker);
             });
         }
     }
