@@ -25,6 +25,7 @@ export function updateMap(employeeLocationItems) {
 
     for (const employeeLocationItem of employeeLocationItems) {
         if (employeeLocationItem.latitude && employeeLocationItem.longitude) {
+            const markerElement = getMarkerElement(employeeLocationItem);
             const marker = new google.maps.marker.AdvancedMarkerElement({
                 map: employeeLocationMap,
                 position: {
@@ -32,6 +33,7 @@ export function updateMap(employeeLocationItems) {
                     lng: employeeLocationItem.longitude
                 },
                 title: `${employeeLocationItem.firstName} ${employeeLocationItem.lastName}`,
+                content: markerElement,
                 gmpClickable: true,
             });
 
@@ -51,4 +53,24 @@ function clearMarkers() {
         markers[i].setMap(null);
     }
     markers = [];
+}
+
+function getMarkerElement(employeeLocationItem) {
+    const markerElement = document.createElement('div');
+
+    markerElement.style.backgroundColor = '#003366'; // Dark blue color
+    markerElement.style.color = 'white';
+    markerElement.style.width = '40px';
+    markerElement.style.height = '40px';
+    markerElement.style.borderRadius = '50%';
+    markerElement.style.display = 'flex';
+    markerElement.style.justifyContent = 'center';
+    markerElement.style.alignItems = 'center';
+    markerElement.style.fontWeight = 'bold';
+    markerElement.style.fontSize = '14px';
+    markerElement.style.border = '2px solid white'; // Optional: for a better contrast
+    markerElement.style.boxShadow = '0 2px 6px rgba(0, 0, 0, 0.3)'; // Optional: to add some depth
+    markerElement.textContent = `${employeeLocationItem.firstName.charAt(0)}${employeeLocationItem.lastName.charAt(0)}`.toUpperCase();
+
+    return markerElement;
 }
