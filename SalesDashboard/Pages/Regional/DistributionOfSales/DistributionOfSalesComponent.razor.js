@@ -84,10 +84,19 @@ function createCircle(stateProvinceSale, minSales, maxSales) {
 
     const infoWindow = new google.maps.InfoWindow({
         content: `
-            <div>
-                <p><strong>State:</strong> ${stateProvinceSale.stateProvinceName}</p>
-                <p><strong>Country:</strong> ${stateProvinceSale.countryRegionName}</p>
-                <p><strong>Sales:</strong> ${formattedSales}</p>
+            <div style="display: grid; grid-template-columns: auto 1fr; column-gap: 4px; row-gap: 2px;">
+                <div style="display: contents;">
+                    <p style="margin: 0;"><strong>State:</strong></p>
+                    <p style="margin: 0;">${stateProvinceSale.stateProvinceName}</p>
+                </div>
+                <div style="display: contents;">
+                    <p style="margin: 0;"><strong>Country:</strong></p>
+                    <p style="margin: 0;">${stateProvinceSale.countryRegionName}</p>
+                </div>
+                <div style="display: contents;">
+                    <p style="margin: 0;"><strong>Sales:</strong></p>
+                    <p style="margin: 0;">${formattedSales}</p>
+                </div>
             </div>
         `
     });
