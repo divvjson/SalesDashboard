@@ -58,7 +58,7 @@ function clearMarkers() {
 function getMarkerElement(employeeLocationItem) {
     const markerElement = document.createElement('div');
 
-    markerElement.style.backgroundColor = '#003366'; // Dark blue color
+    markerElement.style.backgroundColor = 'var(--mud-palette-primary)';
     markerElement.style.color = 'white';
     markerElement.style.width = '40px';
     markerElement.style.height = '40px';
