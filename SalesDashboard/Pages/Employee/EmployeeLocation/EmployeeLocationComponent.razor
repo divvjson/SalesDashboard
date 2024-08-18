@@ -10,7 +10,7 @@
 <SpinnerOverlayComponent IsVisible="IsMapDataLoading">
     <ClickToUnlockOverlayComponent IsVisible="IsClickToUnlockVisible" OnUnlockClicked="HandleUnlockClicked" OnLockClicked="HandleLockClicked">
         <div class="search-container">
-            <input class="search-input mud-elevation-2" placeholder="Search..." @bind="SearchFilter" @onkeypress="HandleKeyPressAsync" />
+            <input class="search-input mud-elevation-2" placeholder="Search..." @bind="SearchFilter" @bind:event="oninput" @onkeypress="HandleKeyPressAsync" />
             <MudIconButton class="search-button"
                            Icon="@Icons.Material.Outlined.Search"
                            Variant="Variant.Filled"
@@ -77,7 +77,7 @@
 
         using var context = DbFactory.CreateDbContext();
 
-        var employees = await context.EmployeeDepartmentHistories
+        var query = context.EmployeeDepartmentHistories
             .Where(edh => edh.EndDate == null)
             .Select(edh => new
             {
@@ -98,8 +98,23 @@
                         Longitude = bea.Address.SpatialLocation == null ? null : bea.Address.SpatialLocation.PointOnSurface.X as double?
                     })
                     .FirstOrDefault()
-            })
-            .ToListAsync();
+            });
+
+        if (string.IsNullOrEmpty(SearchFilter) == false)
+        {
+            query = query.Where(x =>
+                SearchFilter.Contains(x.FirstName) ||
+                SearchFilter.Contains(x.LastName) ||
+                SearchFilter.Contains(x.JobTitle) ||
+                SearchFilter.Contains(x.DepartmentName) ||
+                SearchFilter.Contains(x.Address == null ? string.Empty : x.Address.Address) ||
+                SearchFilter.Contains(x.Address == null ? string.Empty : x.Address.City) ||
+                SearchFilter.Contains(x.Address == null ? string.Empty : x.Address.StateProvinceName) ||
+                SearchFilter.Contains(x.Address == null ? string.Empty : x.Address.CountryRegionName)
+            );
+        }
+
+        var employees = await query.ToListAsync();
 
         List<EmployeeLocationItem> items = [];
 
