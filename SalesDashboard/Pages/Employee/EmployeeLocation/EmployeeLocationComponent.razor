@@ -9,6 +9,14 @@
 
 <SpinnerOverlayComponent IsVisible="IsMapDataLoading">
     <ClickToUnlockOverlayComponent IsVisible="IsClickToUnlockVisible" OnUnlockClicked="HandleUnlockClicked" OnLockClicked="HandleLockClicked">
+        <div class="search-container">
+            <input class="search-input mud-elevation-2" placeholder="Search..." @bind="SearchFilter" @onkeypress="HandleKeyPressAsync" />
+            <MudIconButton class="search-button"
+                           Icon="@Icons.Material.Outlined.Search"
+                           Variant="Variant.Filled"
+                           Size="Size.Medium"
+                           OnClick="RequeryMapDataAsync" />
+        </div>
         <div id="employeeLocationMap" style="flex-grow: 1; min-height: 500px;"></div>
     </ClickToUnlockOverlayComponent>
 </SpinnerOverlayComponent>
@@ -24,6 +32,8 @@
     private bool IsClickToUnlockVisible { get; set; } = true;
 
     private IJSObjectReference JSModule { get; set; } = null!;
+
+    private string SearchFilter { get; set; } = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -49,6 +59,14 @@
     private void HandleLockClicked()
     {
         IsClickToUnlockVisible = true;
+    }
+
+    private async Task HandleKeyPressAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await RequeryMapDataAsync();
+        }
     }
 
     private async Task RequeryMapDataAsync()
