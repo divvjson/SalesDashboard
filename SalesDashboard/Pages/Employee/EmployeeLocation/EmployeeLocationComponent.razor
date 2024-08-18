@@ -103,14 +103,14 @@
         if (string.IsNullOrEmpty(SearchFilter) == false)
         {
             query = query.Where(x =>
-                SearchFilter.Contains(x.FirstName) ||
-                SearchFilter.Contains(x.LastName) ||
-                SearchFilter.Contains(x.JobTitle) ||
-                SearchFilter.Contains(x.DepartmentName) ||
-                SearchFilter.Contains(x.Address == null ? string.Empty : x.Address.Address) ||
-                SearchFilter.Contains(x.Address == null ? string.Empty : x.Address.City) ||
-                SearchFilter.Contains(x.Address == null ? string.Empty : x.Address.StateProvinceName) ||
-                SearchFilter.Contains(x.Address == null ? string.Empty : x.Address.CountryRegionName)
+                x.FirstName.Contains(SearchFilter) ||
+                x.LastName.Contains(SearchFilter) ||
+                x.JobTitle.Contains(SearchFilter) ||
+                x.DepartmentName.Contains(SearchFilter) ||
+                (x.Address != null && x.Address.Address.Contains(SearchFilter)) ||
+                (x.Address != null && x.Address.City.Contains(SearchFilter)) ||
+                (x.Address != null && x.Address.StateProvinceName.Contains(SearchFilter)) ||
+                (x.Address != null && x.Address.CountryRegionName.Contains(SearchFilter))
             );
         }
 
