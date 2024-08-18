@@ -4,7 +4,7 @@ let circles = [];
 const baseMaxRadius = 750000; // Base maximum radius for the largest circle
 const baseMinRadius = 50000; // Base minimum radius for the smallest circle
 
-window.initializeMap = () => {
+export function initializeMap() {
     const distributionOfSalesMapElement = document.getElementById('distributionOfSalesMap');
 
     if (distributionOfSalesMapElement) {
@@ -20,9 +20,9 @@ window.initializeMap = () => {
 
         distributionOfSalesMap.addListener('zoom_changed', updateCircles);
     }
-};
+}
 
-window.updateMap = (stateProvinceSalesParam) => {
+export function updateMap(stateProvinceSalesParam) {
     stateProvinceSales = [];
 
     for (const circle of circles) {
@@ -45,7 +45,7 @@ window.updateMap = (stateProvinceSalesParam) => {
         const circle = createCircle(stateProvinceSaleParam, minSales, maxSales);
         circles.push(circle);
     }
-};
+}
 
 function updateCircles() {
     let maxSales = -Infinity;
@@ -84,10 +84,19 @@ function createCircle(stateProvinceSale, minSales, maxSales) {
 
     const infoWindow = new google.maps.InfoWindow({
         content: `
-            <div>
-                <p><strong>State:</strong> ${stateProvinceSale.stateProvinceName}</p>
-                <p><strong>Country:</strong> ${stateProvinceSale.countryRegionName}</p>
-                <p><strong>Sales:</strong> ${formattedSales}</p>
+            <div style="display: grid; grid-template-columns: auto 1fr; column-gap: 4px; row-gap: 2px;">
+                <div style="display: contents;">
+                    <p style="margin: 0;"><strong>State:</strong></p>
+                    <p style="margin: 0;">${stateProvinceSale.stateProvinceName}</p>
+                </div>
+                <div style="display: contents;">
+                    <p style="margin: 0;"><strong>Country:</strong></p>
+                    <p style="margin: 0;">${stateProvinceSale.countryRegionName}</p>
+                </div>
+                <div style="display: contents;">
+                    <p style="margin: 0;"><strong>Sales:</strong></p>
+                    <p style="margin: 0;">${formattedSales}</p>
+                </div>
             </div>
         `
     });

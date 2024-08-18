@@ -1,0 +1,26 @@
+﻿.search-container {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    column-gap: 6px;
+}
+
+.search-input {
+    height: 36px;
+    max-width: 180px;
+    font-size: 16px;
+    border-radius: var(--mud-default-borderradius);
+    padding: 6px;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.search-input:focus {
+    outline: none;
+}
+
+::deep .search-button {
+    background-color: rgba(255, 255, 255, 0.9);
+}

@@ -1,0 +1,152 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.ClickToUnlockOverlay
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsMapDataLoading">
+    <ClickToUnlockOverlayComponent IsVisible="IsClickToUnlockVisible" OnUnlockClicked="HandleUnlockClicked" OnLockClicked="HandleLockClicked">
+        <div class="search-container">
+            <input class="search-input mud-elevation-2" placeholder="Search..." @bind="SearchFilter" @bind:event="oninput" @onkeypress="HandleKeyPressAsync" />
+            <MudIconButton class="search-button"
+                           Icon="@Icons.Material.Outlined.Search"
+                           Variant="Variant.Filled"
+                           Size="Size.Medium"
+                           OnClick="RequeryMapDataAsync" />
+        </div>
+        <div id="employeeLocationMap" style="flex-grow: 1; min-height: 500px;"></div>
+    </ClickToUnlockOverlayComponent>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private bool IsMapDataLoading { get; set; } = false;
+
+    private bool IsClickToUnlockVisible { get; set; } = true;
+
+    private IJSObjectReference JSModule { get; set; } = null!;
+
+    private string SearchFilter { get; set; } = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Pages/Employee/EmployeeLocation/{nameof(EmployeeLocationComponent)}.razor.js");
+
+            await JSModule.InvokeVoidAsync("initializeMap");
+
+            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryMapDataAsync());
+
+            await RequeryMapDataAsync();
+        }
+    }
+
+    private void HandleUnlockClicked()
+    {
+        IsClickToUnlockVisible = false;
+    }
+
+    private void HandleLockClicked()
+    {
+        IsClickToUnlockVisible = true;
+    }
+
+    private async Task HandleKeyPressAsync(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await RequeryMapDataAsync();
+        }
+    }
+
+    private async Task RequeryMapDataAsync()
+    {
+        IsMapDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        using var context = DbFactory.CreateDbContext();
+
+        var query = context.EmployeeDepartmentHistories
+            .Where(edh => edh.EndDate == null)
+            .Select(edh => new
+            {
+                BusinessEntityId = edh.BusinessEntityId,
+                FirstName = edh.BusinessEntity.BusinessEntity.FirstName,
+                LastName = edh.BusinessEntity.BusinessEntity.LastName,
+                JobTitle = edh.BusinessEntity.JobTitle,
+                DepartmentName = edh.Department.Name,
+                Address = edh.BusinessEntity.BusinessEntity.BusinessEntity.BusinessEntityAddresses
+                    .Where(bea => bea.AddressType.Name == "Home")
+                    .Select(bea => new
+                    {
+                        Address = bea.Address.AddressLine1,
+                        City = bea.Address.City,
+                        StateProvinceName = bea.Address.StateProvince.Name,
+                        CountryRegionName = bea.Address.StateProvince.CountryRegionCodeNavigation.Name,
+                        Latitude = bea.Address.SpatialLocation == null ? null : bea.Address.SpatialLocation.PointOnSurface.Y as double?,
+                        Longitude = bea.Address.SpatialLocation == null ? null : bea.Address.SpatialLocation.PointOnSurface.X as double?
+                    })
+                    .FirstOrDefault()
+            });
+
+        if (string.IsNullOrEmpty(SearchFilter) == false)
+        {
+            query = query.Where(x =>
+                x.FirstName.Contains(SearchFilter) ||
+                x.LastName.Contains(SearchFilter) ||
+                x.JobTitle.Contains(SearchFilter) ||
+                x.DepartmentName.Contains(SearchFilter) ||
+                (x.Address != null && x.Address.Address.Contains(SearchFilter)) ||
+                (x.Address != null && x.Address.City.Contains(SearchFilter)) ||
+                (x.Address != null && x.Address.StateProvinceName.Contains(SearchFilter)) ||
+                (x.Address != null && x.Address.CountryRegionName.Contains(SearchFilter))
+            );
+        }
+
+        var employees = await query.ToListAsync();
+
+        List<EmployeeLocationItem> items = [];
+
+        foreach (var employee in employees)
+        {
+            EmployeeLocationItem item = new()
+            {
+                BusinessEntityId = employee.BusinessEntityId,
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                JobTitle = employee.JobTitle,
+                DepartmentName = employee.DepartmentName,
+                Address = employee.Address?.Address,
+                City = employee.Address?.City,
+                StateProvinceName = employee.Address?.StateProvinceName,
+                CountryRegionName = employee.Address?.CountryRegionName,
+                Latitude = employee.Address?.Latitude,
+                Longitude = employee.Address?.Longitude
+            };
+
+            items.Add(item);
+        }
+
+        await JSModule.InvokeVoidAsync("updateMap", items);
+
+        IsMapDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        EmployeeFilterChangedSubscription?.Dispose();
+    }
+}

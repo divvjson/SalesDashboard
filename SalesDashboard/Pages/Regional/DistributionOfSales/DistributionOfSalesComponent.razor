@@ -23,11 +23,15 @@
 
     private bool IsClickToUnlockVisible { get; set; } = true;
 
+    private IJSObjectReference JSModule { get; set; } = null!;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("initializeMap");
+            JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Pages/Regional/DistributionOfSales/{nameof(DistributionOfSalesComponent)}.razor.js");
+
+            await JSModule.InvokeVoidAsync("initializeMap");
 
             RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
@@ -116,7 +120,7 @@
             })
             .ToListAsync();
 
-        await JSRuntime.InvokeVoidAsync("updateMap", stateProvinceSales);
+        await JSModule.InvokeVoidAsync("updateMap", stateProvinceSales);
 
         IsMapDataLoading = false;
 
