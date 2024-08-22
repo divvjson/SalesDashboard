@@ -1,6 +1,7 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Helpers
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
@@ -50,7 +51,7 @@
 
         using var context = DbFactory.CreateDbContext();
 
-        var today = DateTime.Today;
+        var today = SimulatedDateTime.Today;
 
         var birthDates = await context.Employees
             .Select(e => e.BirthDate)
