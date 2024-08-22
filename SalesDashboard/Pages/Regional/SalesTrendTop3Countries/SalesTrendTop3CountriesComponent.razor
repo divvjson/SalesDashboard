@@ -42,7 +42,7 @@
     private ChartOptions ChartOptions { get; set; } = new()
     {
         YAxisTicks = 2,
-        YAxisFormat = "0M"
+        YAxisFormat = "$0M"
     };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
