@@ -57,6 +57,14 @@
     grid-area: employee-location;
 }
 
+.top-5-best-selling-sales-persons-ytd {
+    grid-area: top-5-best-selling-sales-persons-ytd;
+}
+
+.top-5-best-selling-sales-persons-last-year {
+    grid-area: top-5-best-selling-sales-persons-last-year;
+}
+
 .employee-summary-matrix {
     grid-area: employee-summary-matrix;
 }
@@ -82,6 +90,8 @@
             "gender-distribution"
             "marital-status"
             "employee-location"
+            "top-5-best-selling-sales-persons-ytd"
+            "top-5-best-selling-sales-persons-last-year"
             "employee-summary-matrix";
     }
 }

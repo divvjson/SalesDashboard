@@ -10,6 +10,7 @@
 @using SalesDashboard.Pages.Employee.GenderDistribution
 @using SalesDashboard.Pages.Employee.MaritalStatus
 @using SalesDashboard.Pages.Employee.NumberOfEmployeesByDepartment
+@using SalesDashboard.Pages.Employee.Top5BestSellingSalesPersonsYTD
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
@@ -54,6 +55,16 @@
             <div class="employee-location">
                 <PageBoxComponent Title="Employee Location">
                     <EmployeeLocationComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="top-5-best-selling-sales-persons-ytd">
+                <PageBoxComponent Title="Top 5 Best Selling Sales Persons (YTD)">
+                    <Top5BestSellingSalesPersonsYTDComponent />
+                </PageBoxComponent>
+            </div>
+            <div class="top-5-best-selling-sales-persons-last-year">
+                <PageBoxComponent Title="Top 5 Best Selling Sales Persons (Last Year)">
+
                 </PageBoxComponent>
             </div>
             <div class="employee-summary-matrix">
