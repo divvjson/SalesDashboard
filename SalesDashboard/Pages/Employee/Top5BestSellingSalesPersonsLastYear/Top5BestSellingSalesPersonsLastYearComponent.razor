@@ -1,0 +1,92 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Entities
+@using SalesDashboard.Extensions
+
+@implements IDisposable
+@inject IDbContextFactory<AdventureWorksContext> DbFactory
+
+<SpinnerOverlayComponent IsVisible="IsChartDataLoading">
+    <div class="top-5-best-selling-sales-persons-last-year">
+        <MudChart ChartType="ChartType.StackedBar"
+                  ChartSeries="ChartSeries"
+                  ChartOptions="ChartOptions"
+                  Width="100%"
+                  Height="300" />
+    </div>
+</SpinnerOverlayComponent>
+
+@code {
+    [CascadingParameter]
+    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private bool IsChartDataLoading { get; set; } = false;
+
+    public List<ChartSeries> ChartSeries { get; set; } = new();
+
+    private ChartOptions ChartOptions { get; set; } = new()
+    {
+        YAxisTicks = 500000,
+        YAxisFormat = "$0"
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+                .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            await RequeryChartDataAsync();
+        }
+    }
+
+    private async Task RequeryChartDataAsync()
+    {
+        IsChartDataLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        using var context = DbFactory.CreateDbContext();
+
+        var items = await context.SalesPeople
+            .OrderByDescending(sp => sp.SalesLastYear)
+            .Take(5)
+            .Select(sp => new Top5BestSellingSalesPersonsLastYearItem
+                {
+                    FirstName = sp.BusinessEntity.BusinessEntity.FirstName,
+                    LastName = sp.BusinessEntity.BusinessEntity.LastName,
+                    SalesLastYear = (double)sp.SalesLastYear
+                })
+            .ToListAsync();
+
+        List<ChartSeries> chartSeries = new();
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            ChartSeries chartSerie = new()
+            {
+                Name = $"{items[i].FirstName} {items[i].LastName} ({items[i].SalesLastYear.ToCurrencyWithTwoDecimals()})",
+                Data = new double[items.Count]
+            };
+
+            chartSerie.Data[i] = items[i].SalesLastYear;
+
+            chartSeries.Add(chartSerie);
+        }
+
+        ChartSeries = chartSeries;
+
+        IsChartDataLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        EmployeeFilterChangedSubscription?.Dispose();
+    }
+}

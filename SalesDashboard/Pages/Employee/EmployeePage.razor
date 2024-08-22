@@ -10,6 +10,7 @@
 @using SalesDashboard.Pages.Employee.GenderDistribution
 @using SalesDashboard.Pages.Employee.MaritalStatus
 @using SalesDashboard.Pages.Employee.NumberOfEmployeesByDepartment
+@using SalesDashboard.Pages.Employee.Top5BestSellingSalesPersonsLastYear
 @using SalesDashboard.Pages.Employee.Top5BestSellingSalesPersonsYTD
 
 @implements IDisposable
@@ -64,7 +65,7 @@
             </div>
             <div class="top-5-best-selling-sales-persons-last-year">
                 <PageBoxComponent Title="Top 5 Best Selling Sales Persons (Last Year)">
-
+                    <Top5BestSellingSalesPersonsLastYearComponent />
                 </PageBoxComponent>
             </div>
             <div class="employee-summary-matrix">
