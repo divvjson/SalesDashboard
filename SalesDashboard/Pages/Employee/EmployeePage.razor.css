@@ -49,6 +49,10 @@
     grid-area: gender-distribution;
 }
 
+.marital-status {
+    grid-area: marital-status;
+}
+
 .employee-location {
     grid-area: employee-location;
 }
@@ -76,6 +80,7 @@
             "number-of-employees-by-department"
             "age-group"
             "gender-distribution"
+            "marital-status"
             "employee-location"
             "employee-summary-matrix";
     }
