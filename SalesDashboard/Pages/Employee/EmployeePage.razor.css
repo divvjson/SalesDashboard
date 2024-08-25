@@ -112,6 +112,16 @@
     .grid {
         padding-left: 24px;
         padding-right: 24px;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "total-number-of-employees total-number-of-employees"
+            "number-of-employees-by-department number-of-employees-by-department"
+            "age-group age-group"
+            "gender-distribution marital-status"
+            "employee-location employee-location"
+            "top-5-best-selling-sales-persons-ytd top-5-best-selling-sales-persons-ytd"
+            "top-5-best-selling-sales-persons-last-year top-5-best-selling-sales-persons-last-year"
+            "employee-summary-matrix employee-summary-matrix";
     }
 }
 
@@ -120,7 +130,14 @@
 
 @media (min-width: 1440px) {
     .grid {
-
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-areas:
+            "total-number-of-employees total-number-of-employees total-number-of-employees total-number-of-employees"
+            "number-of-employees-by-department number-of-employees-by-department age-group age-group"
+            "employee-location employee-location employee-location gender-distribution"
+            "employee-location employee-location employee-location marital-status"
+            "top-5-best-selling-sales-persons-ytd top-5-best-selling-sales-persons-ytd top-5-best-selling-sales-persons-last-year top-5-best-selling-sales-persons-last-year"
+            "employee-summary-matrix employee-summary-matrix employee-summary-matrix employee-summary-matrix";
     }
 }
 
