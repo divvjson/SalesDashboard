@@ -7,6 +7,8 @@
 @code {
     public BehaviorSubject<EnumBreakpointState?> BreakpointStateSubject = new(null);
 
+    private IJSObjectReference JSModule { get; set; } = null!;
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
@@ -14,7 +16,9 @@
     {
         if (firstRender)
         {
-            await JSRuntime.InvokeVoidAsync("resizeListener", DotNetObjectReference.Create(this));
+            JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Components/StateProviders/BreakpointStateProvider/{nameof(BreakpointStateProviderComponent)}.razor.js");
+
+            await JSModule.InvokeVoidAsync("initializeResizeListener", DotNetObjectReference.Create(this));
 
             var newBreakpointState = await GetBreakpointStateAsync();
 
@@ -39,7 +43,7 @@
 
     private async Task<EnumBreakpointState> GetBreakpointStateAsync()
     {
-        var width = await JSRuntime.InvokeAsync<int>("getScreenWidth");
+        var width = await JSModule.InvokeAsync<int>("getScreenWidth");
 
         // https://m2.material.io/design/layout/responsive-layout-grid.html#breakpoints
         return width switch
