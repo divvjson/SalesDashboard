@@ -43,7 +43,10 @@
     {
         if (firstRender)
         {
-            HasFinePointer = await JSRuntime.InvokeAsync<bool>("hasFinePointer");
+            var jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Components/StateProviders/DeviceStateProvider/{nameof(DeviceStateProviderComponent)}.razor.js");
+
+            HasFinePointer = await jsModule.InvokeAsync<bool>("hasFinePointer");
+
             StateHasChanged();
         }
     }
