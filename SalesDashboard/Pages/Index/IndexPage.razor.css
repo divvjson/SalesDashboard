@@ -1,2 +1,37 @@
-﻿body {
+﻿.home {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--gray-100);
+}
+
+.home-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+@media (min-width: 0px) {
+    .home {
+        padding: 0px;
+    }
+}
+
+@media (min-width: 600px) {
+
+}
+
+@media (min-width: 905px) {
+    .home {
+        padding: 24px;
+    }
+}
+
+@media (min-width: 1240px) {
+
+}
+
+@media (min-width: 1440px) {
+
 }
