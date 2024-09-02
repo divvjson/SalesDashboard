@@ -2,6 +2,8 @@
     height: 100%;
     display: grid;
     grid-template-columns: var(--bar-height) 1fr var(--bar-height);
+    background-color: var(--mud-palette-primary);
+    color: white;
 }
 
 .bar-button {
@@ -9,7 +11,6 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    background-color: white;
 }
 
 @media (pointer: fine) {
