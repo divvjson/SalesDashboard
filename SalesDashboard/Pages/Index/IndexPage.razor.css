@@ -12,9 +12,49 @@
     background-color: white;
 }
 
+.header {
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: Caveat, "Helvetica Neue", sans-serif;
+}
+
+.header-title {
+    font-size: 60px;
+    font-weight: 600;
+}
+
+.header-subtitle {
+    font-size: 32px;
+    font-weight: 500;
+}
+
+.about {
+    padding-top: 24px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.about-text {
+    max-width: 600px;
+}
+
 @media (min-width: 0px) {
     .home {
         padding: 0px;
+    }
+
+    .header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .about {
+        padding-left: 12px;
+        padding-right: 12px;
     }
 }
 
@@ -25,6 +65,16 @@
 @media (min-width: 905px) {
     .home {
         padding: 24px;
+    }
+
+    .header {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .about {
+        padding-left: 24px;
+        padding-right: 24px;
     }
 }
 
