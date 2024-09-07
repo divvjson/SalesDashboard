@@ -12,9 +12,95 @@
     background-color: white;
 }
 
+.header {
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: Caveat, "Helvetica Neue", sans-serif;
+}
+
+.header-title {
+    font-size: 60px;
+    font-weight: 600;
+}
+
+.header-subtitle {
+    font-size: 32px;
+    font-weight: 500;
+}
+
+.about {
+    padding-top: 24px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+.about-container {
+    max-width: 600px;
+}
+
+.pages {
+    padding-top: 24px;
+    padding-bottom: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.pages-container {
+    display: grid;
+    column-gap: 24px;
+    row-gap: 30px;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 6px;
+}
+
+.page-title {
+    font-size: 18px;
+    font-weight: 300;
+}
+
+.page-link {
+    height: 100%;
+}
+
+.page-image {
+    width: 250px;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--mud-default-borderradius);
+    cursor: pointer;
+}
+
 @media (min-width: 0px) {
     .home {
         padding: 0px;
+    }
+
+    .header {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .about {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .pages {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .pages-container {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -25,6 +111,25 @@
 @media (min-width: 905px) {
     .home {
         padding: 24px;
+    }
+
+    .header {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .about {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .pages {
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+
+    .pages-container {
+        grid-template-columns: 1fr 1fr 1fr;
     }
 }
 
