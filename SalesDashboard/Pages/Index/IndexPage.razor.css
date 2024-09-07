@@ -52,6 +52,7 @@
 .pages-container {
     display: grid;
     column-gap: 24px;
+    row-gap: 30px;
 }
 
 .page {
