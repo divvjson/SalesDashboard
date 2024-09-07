@@ -50,19 +50,32 @@
 }
 
 .pages-container {
-    display: flex;
+    display: grid;
+    column-gap: 24px;
 }
 
 .page {
     display: flex;
     flex-direction: column;
-    row-gap: 12px;
+    align-items: center;
+    row-gap: 6px;
+}
+
+.page-title {
+    font-size: 18px;
+    font-weight: 300;
+}
+
+.page-link {
+    height: 100%;
 }
 
 .page-image {
     width: 250px;
+    height: 100%;
+    object-fit: cover;
     border-radius: var(--mud-default-borderradius);
-    border: 1px solid var(--gray-300);
+    cursor: pointer;
 }
 
 @media (min-width: 0px) {
@@ -86,8 +99,7 @@
     }
 
     .pages-container {
-        flex-direction: column;
-        gap: 48px;
+        grid-template-columns: 1fr;
     }
 }
 
@@ -116,7 +128,7 @@
     }
 
     .pages-container {
-        flex-direction: row;
+        grid-template-columns: 1fr 1fr 1fr;
     }
 }
 

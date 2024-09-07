@@ -1,5 +1,7 @@
 ﻿@page "/"
 
+@inject NavigationManager NavigationManager
+
 <PageTitle>Home</PageTitle>
 
 <div class="home">
@@ -16,28 +18,23 @@
         <div class="pages">
             <div class="pages-container">
                 <div class="page">
-                    <img class="page-image" src="/images/regional.png" />
-                    <MudButton Variant="Variant.Filled"
-                               Href="/Regional"
-                               DropShadow="false">
-                        Regional
-                    </MudButton>
+                    <div class="page-title">Regional</div>
+                    <a class="page-link" href="/Regional">
+                        <img class="page-image mud-elevation-4" src="/images/regional.png" />
+                    </a>
+                    
                 </div>
                 <div class="page">
-                    <img class="page-image" src="/images/regional.png" />
-                    <MudButton Variant="Variant.Filled"
-                               Href="/Regional"
-                               DropShadow="false">
-                        Regional
-                    </MudButton>
+                    <div class="page-title">Product</div>
+                    <a class="page-link" href="/Product">
+                        <img class="page-image mud-elevation-4" src="/images/product.png" />
+                    </a>
                 </div>
                 <div class="page">
-                    <img class="page-image" src="/images/regional.png" />
-                    <MudButton Variant="Variant.Filled"
-                               Href="/Regional"
-                               DropShadow="false">
-                        Regional
-                    </MudButton>
+                    <div class="page-title">Regional</div>
+                    <a class="page-link" href="/Regional">
+                        <img class="page-image mud-elevation-4" src="/images/regional.png" />
+                    </a>
                 </div>
             </div>
         </div>
