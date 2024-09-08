@@ -2,10 +2,12 @@
     flex-grow: 1;
     background-color: #282C34;
     color: white;
-    overflow-y: auto;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    align-items: start;
 }
 
 .console-area {
-    flex-grow: 1;
+    height: 100%;
+    overflow-y: auto;
 }
