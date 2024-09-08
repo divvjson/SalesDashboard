@@ -1,4 +1,5 @@
-﻿@using SalesDashboard.Components.StateProviders.DeviceStateProvider
+﻿@using SalesDashboard.Components.StateProviders.ConsoleStateProvider
+@using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
 
 @inherits LayoutComponentBase
@@ -26,7 +27,7 @@
             @Body
         </div>
     </div>
-    <div class="console-container mud-elevation-4">
+    <div style="@GetConsoleContainerStyle()" class="console-container mud-elevation-4">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis at nisi sit amet nisi feugiat mattis sed posuere lectus. Duis cursus dolor ut dui ornare tempus. Ut consequat ac metus eget pretium. Fusce non odio orci. Integer id auctor nunc, sit amet mattis augue. Sed pharetra purus non ligula efficitur, ac lacinia orci porttitor. Proin egestas quis eros in porta. Aenean eget metus egestas, feugiat purus sit amet, accumsan nibh. Mauris urna velit, tempus nec turpis ut, molestie blandit quam. Sed in neque lobortis, pellentesque ligula at, feugiat turpis. Curabitur imperdiet efficitur nibh, vel auctor nunc consectetur in. Maecenas a pulvinar lorem. Pellentesque lacinia, justo in porttitor venenatis, sem purus blandit nisl, at accumsan leo quam nec risus.
 
         Ut congue pharetra quam non finibus. Ut vitae hendrerit turpis, consequat iaculis mauris. Praesent suscipit mauris quis molestie pretium. Vestibulum maximus massa nec consequat dapibus. Vivamus feugiat aliquam mi. Duis facilisis luctus odio. Nam dictum ullamcorper facilisis. Nullam feugiat bibendum sem, ac rhoncus eros eleifend quis.
@@ -47,6 +48,9 @@
 
     [CascadingParameter]
     public DrawerStateProviderComponent DrawerStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
+    public ConsoleStateProviderComponent ConsoleStateProviderComponent { get; set; } = null!;
 
     public IDisposable? FormFactorStateSubscription { get; set; }
 
@@ -113,6 +117,18 @@
         else
         {
             return "left: 0px; width: 100%;";
+        }
+    }
+
+    private string GetConsoleContainerStyle()
+    {
+        if (ConsoleStateProviderComponent.ConsoleStateSubject.Value is EnumConsoleState.Open)
+        {
+            return "bottom: 0px;";
+        }
+        else
+        {
+            return "bottom: -300px;";
         }
     }
 

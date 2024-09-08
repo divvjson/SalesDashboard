@@ -1,4 +1,5 @@
-﻿@using SalesDashboard.Components.StateProviders.DeviceStateProvider
+﻿@using SalesDashboard.Components.StateProviders.ConsoleStateProvider
+@using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
 
 @inject IDialogService DialogService
@@ -11,7 +12,7 @@
         <div class="title">Adventure Works</div>
         <div class="sub-title">Sales Dashboard</div>
     </div>
-    <div class="bar-button mud-ripple">
+    <div class="bar-button mud-ripple" @onclick="ConsoleStateProviderComponent.Toggle">
         <MudIcon Icon="@Icons.Material.Outlined.WebAsset" Title="Console" />
     </div>
 </div>
@@ -19,6 +20,9 @@
 @code {
     [CascadingParameter]
     public DrawerStateProviderComponent DrawerStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
+    public ConsoleStateProviderComponent ConsoleStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
     public DeviceStateProviderComponent DeviceStateProviderComponent { get; set; } = null!;

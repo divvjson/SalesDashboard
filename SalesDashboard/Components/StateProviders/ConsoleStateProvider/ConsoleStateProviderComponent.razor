@@ -1,0 +1,38 @@
+﻿<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    public BehaviorSubject<EnumConsoleState> ConsoleStateSubject = new(EnumConsoleState.Closed);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    public void Toggle()
+    {
+        if (ConsoleStateSubject.Value is EnumConsoleState.Open)
+        {
+            Close();
+        }
+        else if (ConsoleStateSubject.Value is EnumConsoleState.Closed)
+        {
+            Open();
+        }
+    }
+
+    public void Open()
+    {
+        if (ConsoleStateSubject.Value is EnumConsoleState.Closed)
+        {
+            ConsoleStateSubject.OnNext(EnumConsoleState.Open);
+        }
+    }
+
+    public void Close()
+    {
+        if (ConsoleStateSubject.Value is EnumConsoleState.Open)
+        {
+            ConsoleStateSubject.OnNext(EnumConsoleState.Closed);
+        }
+    }
+}

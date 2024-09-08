@@ -1,4 +1,5 @@
 ﻿@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
+@using SalesDashboard.Components.StateProviders.ConsoleStateProvider
 @using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
 @using SalesDashboard.Pages.Employee
@@ -10,15 +11,17 @@
         <BreakpointStateProviderComponent>
             <DeviceStateProviderComponent>
                 <DrawerStateProviderComponent>
-                    <RegionalFilterStateProviderComponent>
-                        <RegionalDataProviderComponent>
-                            <ProductFilterStateProviderComponent>
-                                <EmployeeFilterStateProviderComponent>
-                                    <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
-                                </EmployeeFilterStateProviderComponent>
-                            </ProductFilterStateProviderComponent>
-                        </RegionalDataProviderComponent>
-                    </RegionalFilterStateProviderComponent>
+                    <ConsoleStateProviderComponent>
+                        <RegionalFilterStateProviderComponent>
+                            <RegionalDataProviderComponent>
+                                <ProductFilterStateProviderComponent>
+                                    <EmployeeFilterStateProviderComponent>
+                                        <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
+                                    </EmployeeFilterStateProviderComponent>
+                                </ProductFilterStateProviderComponent>
+                            </RegionalDataProviderComponent>
+                        </RegionalFilterStateProviderComponent>
+                    </ConsoleStateProviderComponent>
                 </DrawerStateProviderComponent>
             </DeviceStateProviderComponent>
         </BreakpointStateProviderComponent>
