@@ -1,0 +1,20 @@
+﻿@using SalesDashboard.Components.StateProviders.ConsoleStateProvider
+
+<div class="console">
+    <div class="console-area">
+
+    </div>
+    <div class="console-actions">
+        <MudTooltip Text="Clear">
+            <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" Color="Color.Inherit" />
+        </MudTooltip>
+        <MudTooltip Text="Close">
+            <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="ConsoleStateProviderComponent.Close" Color="Color.Inherit" />
+        </MudTooltip>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ConsoleStateProviderComponent ConsoleStateProviderComponent { get; set; } = null!;
+}

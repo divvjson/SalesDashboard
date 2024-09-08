@@ -1,0 +1,11 @@
+﻿.console {
+    flex-grow: 1;
+    background-color: #282C34;
+    color: white;
+    overflow-y: auto;
+    display: flex;
+}
+
+.console-area {
+    flex-grow: 1;
+}
