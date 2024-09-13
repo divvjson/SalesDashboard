@@ -12,9 +12,6 @@
 }
 
 .page-box-header {
-/*    display: flex;
-    justify-content: center;
-    align-items: center;*/
     display: grid;
     grid-template-columns: 30px 1fr 30px;
     justify-content: center;
