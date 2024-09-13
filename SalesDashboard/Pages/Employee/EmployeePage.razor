@@ -36,7 +36,9 @@
                 </PageBoxComponent>
             </div>
             <div class="number-of-employees-by-department">
-                <PageBoxComponent Title="Number of Employees by Department">
+                <PageBoxComponent Title="Number of Employees by Department"
+                                  ShowRefreshButton="true"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.NumberOfEmployeesByDepartmentRefreshed.OnNext(Unit.Default)">
                     <NumberOfEmployeesByDepartmentComponent />
                 </PageBoxComponent>
             </div>

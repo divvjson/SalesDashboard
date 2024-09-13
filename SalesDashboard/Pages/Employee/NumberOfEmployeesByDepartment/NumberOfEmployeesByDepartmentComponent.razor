@@ -21,6 +21,8 @@
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
+    private IDisposable? NumberOfEmployeesByDepartmentRefreshedSubscription { get; set; }
+
     private bool IsChartDataLoading { get; set; } = false;
 
     public List<ChartSeries> ChartSeries { get; set; } = new();
@@ -36,6 +38,9 @@
         {
             EmployeeFilterChangedSubscription = EmployeeStateProviderComponent.EmployeeFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            NumberOfEmployeesByDepartmentRefreshedSubscription = EmployeeStateProviderComponent.NumberOfEmployeesByDepartmentRefreshed
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
             await RequeryChartDataAsync();
@@ -86,5 +91,6 @@
     public void Dispose()
     {
         EmployeeFilterChangedSubscription?.Dispose();
+        NumberOfEmployeesByDepartmentRefreshedSubscription?.Dispose();
     }
 }

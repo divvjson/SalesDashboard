@@ -7,6 +7,8 @@
 
     public Subject<Unit> TotalNumberOfEmployeesRefreshed { get; private set; } = new();
 
+    public Subject<Unit> NumberOfEmployeesByDepartmentRefreshed { get; private set; } = new();
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 }
