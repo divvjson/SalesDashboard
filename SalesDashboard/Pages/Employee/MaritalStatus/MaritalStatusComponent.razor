@@ -23,7 +23,7 @@
 
 @code {
     [CascadingParameter]
-    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+    public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
@@ -39,7 +39,7 @@
     {
         if (firstRender)
         {
-            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+            EmployeeFilterChangedSubscription = EmployeeStateProviderComponent.EmployeeFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryChartDataAsync());
 

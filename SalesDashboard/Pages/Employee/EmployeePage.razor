@@ -31,7 +31,7 @@
             <div class="total-number-of-employees">
                 <PageBoxComponent Title="Total Number of Employees"
                                   ShowRefreshButton="true"
-                                  OnRefreshClicked="() => EmployeeFilterStateProviderComponent.TotalNumberOfEmployeesRefreshed.OnNext(Unit.Default)">
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.TotalNumberOfEmployeesRefreshed.OnNext(Unit.Default)">
                     <FigureBoxComponent Value="@TotalNumberOfEmployees.ToString()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
@@ -81,7 +81,7 @@
 
 @code {
     [CascadingParameter]
-    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+    public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
@@ -95,11 +95,11 @@
     {
         if (firstRender)
         {
-            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+            EmployeeFilterChangedSubscription = EmployeeStateProviderComponent.EmployeeFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
-            TotalNumberOfEmployeesRefreshedSubscription = EmployeeFilterStateProviderComponent.TotalNumberOfEmployeesRefreshed
+            TotalNumberOfEmployeesRefreshedSubscription = EmployeeStateProviderComponent.TotalNumberOfEmployeesRefreshed
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
             await RequeryFiguresAsync();
@@ -108,7 +108,7 @@
 
     private void HandleRefreshClicked()
     {
-        EmployeeFilterStateProviderComponent.EmployeeFilterChanged.OnNext(Unit.Default);
+        EmployeeStateProviderComponent.EmployeeFilterChanged.OnNext(Unit.Default);
     }
 
     private async Task RequeryFiguresAsync()

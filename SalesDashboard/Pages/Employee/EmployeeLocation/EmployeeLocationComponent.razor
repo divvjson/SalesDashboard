@@ -23,7 +23,7 @@
 
 @code {
     [CascadingParameter]
-    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+    public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
@@ -43,7 +43,7 @@
 
             await JSModule.InvokeVoidAsync("initializeMap");
 
-            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+            EmployeeFilterChangedSubscription = EmployeeStateProviderComponent.EmployeeFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryMapDataAsync());
 
