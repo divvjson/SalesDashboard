@@ -1,6 +1,20 @@
 ﻿<div class="page-box">
     <div class="@GetPageBoxHeaderClass()">
-        @Title
+        @if (ShowRefreshButton)
+        {
+            <MudTooltip Text="Refresh" Delay="500">
+                <MudIconButton Icon="@Icons.Material.Outlined.Refresh"
+                               Variant="Variant.Filled"
+                               Size="MudBlazor.Size.Small"
+                               OnClick="HandleRefreshClickedAsync" />
+            </MudTooltip>
+        }
+        else
+        {
+            <div></div>
+        }
+        <div>@Title</div>
+        <div></div>
     </div>
     @ChildContent
 </div>
@@ -14,7 +28,18 @@
     public EnumPageBoxSize Size { get; set; } = EnumPageBoxSize.Medium;
 
     [Parameter]
+    public bool ShowRefreshButton { get; set; }
+
+    [Parameter]
     public required RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnRefreshClicked { get; set; }
+
+    private async Task HandleRefreshClickedAsync()
+    {
+        await OnRefreshClicked.InvokeAsync();
+    }
 
     public string GetPageBoxHeaderClass()
     {

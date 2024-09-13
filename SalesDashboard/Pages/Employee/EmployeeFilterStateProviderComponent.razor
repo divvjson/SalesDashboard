@@ -5,6 +5,8 @@
 @code {
     public Subject<Unit> EmployeeFilterChanged { get; private set; } = new();
 
+    public Subject<Unit> TotalNumberOfEmployeesRefreshed { get; private set; } = new();
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 }

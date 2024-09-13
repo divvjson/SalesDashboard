@@ -29,7 +29,9 @@
         </div>
         <div class="grid">
             <div class="total-number-of-employees">
-                <PageBoxComponent Title="Total Number of Employees">
+                <PageBoxComponent Title="Total Number of Employees"
+                                  ShowRefreshButton="true"
+                                  OnRefreshClicked="() => EmployeeFilterStateProviderComponent.TotalNumberOfEmployeesRefreshed.OnNext(Unit.Default)">
                     <FigureBoxComponent Value="@TotalNumberOfEmployees.ToString()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
@@ -83,6 +85,8 @@
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
+    private IDisposable? TotalNumberOfEmployeesRefreshedSubscription { get; set; }
+
     private bool IsFiguresLoading { get; set; } = true;
 
     private int TotalNumberOfEmployees { get; set; }
@@ -93,6 +97,9 @@
         {
             EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+
+            TotalNumberOfEmployeesRefreshedSubscription = EmployeeFilterStateProviderComponent.TotalNumberOfEmployeesRefreshed
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
             await RequeryFiguresAsync();
@@ -122,5 +129,6 @@
     public void Dispose()
     {
         EmployeeFilterChangedSubscription?.Dispose();
+        TotalNumberOfEmployeesRefreshedSubscription?.Dispose();
     }
 }

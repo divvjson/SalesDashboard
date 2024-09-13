@@ -12,9 +12,14 @@
 }
 
 .page-box-header {
-    display: flex;
+/*    display: flex;
+    justify-content: center;
+    align-items: center;*/
+    display: grid;
+    grid-template-columns: 30px 1fr 30px;
     justify-content: center;
     align-items: center;
+    text-align: center;
     color: var(--gray-100);
     padding: 8px;
     font-weight: 500;
@@ -44,4 +49,13 @@
 
 .page-box-header--medium {
     background-color: var(--mud-palette-primary);
+}
+
+::deep .mud-icon-button {
+    color: var(--gray-100);
+    padding: 3px;
+}
+
+::deep .mud-svg-icon {
+    font-size: 14px;
 }
