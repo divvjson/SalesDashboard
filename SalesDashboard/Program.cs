@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using MudBlazor.Services;
 using SalesDashboard;
 using SalesDashboard.Entities;
 using SalesDashboard.Helpers;
+using SalesDashboard.Interceptors;
+using SalesDashboard.Services.Scoped.AdventureWorksDbCommand;
 using SalesDashboard.Services.Scoped.LocalStorage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +22,8 @@ builder.Services.AddControllers();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddMudServices();
 builder.Services.AddScoped<LocalStorageService>();
+builder.Services.AddSingleton<AdventureWorksDbCommandService>();
+builder.Services.AddSingleton<DbCommandInterceptor, AdventureWorksDbCommandInterceptor>();
 
 var app = builder.Build();
 

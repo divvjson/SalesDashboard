@@ -1,15 +1,20 @@
 ﻿@using SalesDashboard.Components.StateProviders.ConsoleStateProvider
 
+@implements IDisposable
+
 <div class="console">
     <div class="console-area">
-        Console here
+        @foreach (var log in ConsoleLog)
+        {
+            <p>@log</p>
+        }
     </div>
     <div class="console-actions">
         <MudTooltip Text="Close" Placement="Placement.Left" Delay="500">
             <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="ConsoleStateProviderComponent.Close" Color="Color.Inherit" />
         </MudTooltip>
         <MudTooltip Text="Clear" Placement="Placement.Left" Delay="500">
-            <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" Color="Color.Inherit" />
+            <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" OnClick="Clear" Color="Color.Inherit" />
         </MudTooltip>
     </div>
 </div>
@@ -17,4 +22,45 @@
 @code {
     [CascadingParameter]
     public ConsoleStateProviderComponent ConsoleStateProviderComponent { get; set; } = null!;
+
+    public IDisposable? LatestConsoleLogEntrySubscription { get; set; }
+
+    public List<string> ConsoleLog { get; set; } = [];
+
+    private static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            LatestConsoleLogEntrySubscription = ConsoleStateProviderComponent.LatestConsoleLogEntrySubject
+                .Subscribe(async latestConsoleLogEntry =>
+                {
+                    await semaphore.WaitAsync();
+
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(latestConsoleLogEntry))
+                        {
+                            ConsoleLog.Add(latestConsoleLogEntry);
+                            await InvokeAsync(StateHasChanged);
+                        }
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+        }
+    }
+
+    private void Clear()
+    {
+        ConsoleLog.Clear();
+    }
+
+    public void Dispose()
+    {
+        LatestConsoleLogEntrySubscription?.Dispose();
+    }
 }

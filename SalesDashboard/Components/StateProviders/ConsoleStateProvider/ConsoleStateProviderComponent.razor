@@ -1,12 +1,36 @@
-﻿<CascadingValue Value="this">
+﻿@using SalesDashboard.Services.Scoped.AdventureWorksDbCommand
+
+@implements IDisposable
+@inject AdventureWorksDbCommandService AdventureWorksDbCommandService
+
+<CascadingValue Value="this">
     @ChildContent
 </CascadingValue>
 
 @code {
     public BehaviorSubject<EnumConsoleState> ConsoleStateSubject = new(EnumConsoleState.Closed);
 
+    public BehaviorSubject<string?> LatestConsoleLogEntrySubject = new(null);
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    private IDisposable? LatestDbCommandTextSubcription { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            LatestDbCommandTextSubcription = AdventureWorksDbCommandService.LatestDbCommandTextSubject
+                .Subscribe(commandText =>
+                {
+                    if (!string.IsNullOrEmpty(commandText))
+                    {
+                        LatestConsoleLogEntrySubject.OnNext(commandText);
+                    }
+                });
+        }
+    }
 
     public void Toggle()
     {
@@ -34,5 +58,10 @@
         {
             ConsoleStateSubject.OnNext(EnumConsoleState.Closed);
         }
+    }
+
+    public void Dispose()
+    {
+        LatestDbCommandTextSubcription?.Dispose();
     }
 }
