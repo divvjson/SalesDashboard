@@ -14,10 +14,19 @@ namespace SalesDashboard.Services
 
         public override InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
         {
+            ExecuteTagRoutine(command);
+
             return result;
         }
 
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
+        {
+            ExecuteTagRoutine(command);
+
+            return new ValueTask<InterceptionResult<DbDataReader>>(result);
+        }
+
+        private void ExecuteTagRoutine(DbCommand command)
         {
             var circuitId = GetCircuitId(command.CommandText);
 
@@ -27,8 +36,6 @@ namespace SalesDashboard.Services
 
                 _service.LatestDbCommandTextSubject.OnNext(new(circuitId, sanitized));
             }
-
-            return new ValueTask<InterceptionResult<DbDataReader>>(result);
         }
 
         private static string? GetCircuitId(string commandText)
@@ -49,7 +56,7 @@ namespace SalesDashboard.Services
             return circuitId;
         }
 
-        public static string SanitizeTagFromCommandText(string commandText)
+        private static string SanitizeTagFromCommandText(string commandText)
         {
             // Loop to remove all tags following the pattern
             while (true)
