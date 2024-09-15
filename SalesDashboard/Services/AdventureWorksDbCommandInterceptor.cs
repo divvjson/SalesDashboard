@@ -12,12 +12,10 @@ namespace SalesDashboard.Services
             _service = service;
         }
 
-        //public override InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
-        //{
-        //    _service.LatestDbCommandTextSubject.OnNext(command.CommandText);
-
-        //    return result;
-        //}
+        public override InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
+        {
+            return result;
+        }
 
         public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
         {
