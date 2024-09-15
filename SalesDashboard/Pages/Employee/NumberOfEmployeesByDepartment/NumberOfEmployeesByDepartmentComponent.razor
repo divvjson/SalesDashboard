@@ -1,5 +1,6 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
+@using SalesDashboard.Components.StateProviders.CircuitIdStateProvider
 @using SalesDashboard.Entities
 
 @implements IDisposable
@@ -18,6 +19,9 @@
 @code {
     [CascadingParameter]
     public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
+    public CircuitIdStateProviderComponent CircuitIdStateProviderComponent { get; set; } = null!;
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
@@ -56,6 +60,7 @@
         using var context = DbFactory.CreateDbContext();
 
         var items = await context.Employees
+            .TagWith(CircuitIdStateProviderComponent.CircuitIdTag)
             .SelectMany(e => e.EmployeeDepartmentHistories.Where(edh => edh.EndDate == null).Select(edh => edh.Department))
             .GroupBy(d => d.Name)
             .Select(g => new NumberOfEmployeesByDepartmentItem

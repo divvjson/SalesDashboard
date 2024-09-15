@@ -4,6 +4,6 @@ namespace SalesDashboard.Services
 {
     public class AdventureWorksDbCommandService
     {
-        public BehaviorSubject<string?> LatestDbCommandTextSubject = new(null);
+        public BehaviorSubject<KeyValuePair<string?, string?>> LatestDbCommandTextSubject = new(new(null, null));
     }
 }
