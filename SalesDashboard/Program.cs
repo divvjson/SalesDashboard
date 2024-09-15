@@ -10,9 +10,12 @@ using SalesDashboard.Services.Scoped.LocalStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
+builder.Services.AddDbContextFactory<AdventureWorksContext>((serviceProvider, options) =>
 {
+    var dbCommandService = serviceProvider.GetRequiredService<AdventureWorksDbCommandService>();
+
     options
+        .AddInterceptors(new AdventureWorksDbCommandInterceptor(dbCommandService))
         .UseLazyLoadingProxies()
         .UseSqlServer(SecretsHelper.GetConnectionString(builder.Configuration), options => options.UseNetTopologySuite());
 });
