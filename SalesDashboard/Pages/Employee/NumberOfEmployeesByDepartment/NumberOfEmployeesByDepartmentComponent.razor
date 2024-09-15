@@ -61,8 +61,8 @@
         using var context = DbFactory.CreateDbContext();
 
         var items = await context.Employees
-            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag("CommandName", "Number of Employees by Department"))
-            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag("CircuitId", CircuitIdStateProviderComponent.CircuitId))
+            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Number of Employees by Department"))
+            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitIdStateProviderComponent.CircuitId))
             .SelectMany(e => e.EmployeeDepartmentHistories.Where(edh => edh.EndDate == null).Select(edh => edh.Department))
             .GroupBy(d => d.Name)
             .Select(g => new NumberOfEmployeesByDepartmentItem

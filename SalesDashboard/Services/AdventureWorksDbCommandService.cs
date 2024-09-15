@@ -6,15 +6,15 @@ namespace SalesDashboard.Services
     {
         public BehaviorSubject<KeyValuePair<string?, AdventureWorksDbCommandInfo?>> LatestDbCommandInfoSubject = new(new(null, null));
 
-        public static string GetDbCommandTag(string key, string value)
+        public static string GetDbCommandTag(EnumDbCommandTag tag, string value)
         {
-            switch (key)
+            switch (tag)
             {
-                case "CircuitId":
+                case EnumDbCommandTag.CIRCUIT_ID:
                 {
                     return $"CIRCUIT_ID_TAG_START{value}CIRCUIT_ID_TAG_END";
                 }
-                case "CommandName":
+                case EnumDbCommandTag.COMMAND_NAME:
                 {
                     return $"COMMAND_NAME_TAG_START{value}COMMAND_NAME_TAG_END";
                 }
@@ -31,5 +31,11 @@ namespace SalesDashboard.Services
         public string? CommandName { get; set; }
 
         public required string CommandText { get; set; }
+    }
+
+    public enum EnumDbCommandTag
+    {
+        CIRCUIT_ID,
+        COMMAND_NAME
     }
 }
