@@ -48,11 +48,11 @@
     background-color: var(--mud-palette-primary);
 }
 
-::deep .mud-icon-button {
+::deep .refresh-button.mud-icon-button {
     color: var(--gray-100);
     padding: 3px;
 }
 
-::deep .mud-svg-icon {
+::deep .refresh-button > .mud-icon-button-label > .mud-svg-icon {
     font-size: 14px;
 }
