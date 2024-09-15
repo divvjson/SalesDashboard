@@ -1,7 +1,7 @@
 ﻿using Microsoft.JSInterop;
 using System.Text.Json;
 
-namespace SalesDashboard.Services.Scoped.LocalStorage
+namespace SalesDashboard.Services
 {
     public class LocalStorageService(IJSRuntime jSRuntime)
     {

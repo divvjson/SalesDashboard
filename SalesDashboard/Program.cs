@@ -4,9 +4,7 @@ using MudBlazor.Services;
 using SalesDashboard;
 using SalesDashboard.Entities;
 using SalesDashboard.Helpers;
-using SalesDashboard.Interceptors;
-using SalesDashboard.Services.Scoped.AdventureWorksDbCommand;
-using SalesDashboard.Services.Scoped.LocalStorage;
+using SalesDashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

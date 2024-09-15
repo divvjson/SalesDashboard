@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Diagnostics;
-using SalesDashboard.Services.Scoped.AdventureWorksDbCommand;
 using System.Data.Common;
 
-namespace SalesDashboard.Interceptors
+namespace SalesDashboard.Services
 {
     public class AdventureWorksDbCommandInterceptor : DbCommandInterceptor
     {

@@ -1,6 +1,6 @@
 ﻿using System.Reactive.Subjects;
 
-namespace SalesDashboard.Services.Scoped.AdventureWorksDbCommand
+namespace SalesDashboard.Services
 {
     public class AdventureWorksDbCommandService
     {
