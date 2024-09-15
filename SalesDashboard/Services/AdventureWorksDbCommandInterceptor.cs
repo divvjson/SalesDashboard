@@ -48,8 +48,8 @@ namespace SalesDashboard.Services
 
         private static string? GetCircuitId(string commandText)
         {
-            var startTag = "CIRCUIT_ID_TAG_START";
-            var endTag = "CIRCUIT_ID_TAG_END";
+            var startTag = AdventureWorksDbCommandService.CIRCUIT_ID_TAG_START;
+            var endTag = AdventureWorksDbCommandService.CIRCUIT_ID_TAG_END;
 
             int startIndex = commandText.IndexOf(startTag) + startTag.Length;
             int endIndex = commandText.IndexOf(endTag);
@@ -66,8 +66,8 @@ namespace SalesDashboard.Services
 
         private static string? GetCommandName(string commandText)
         {
-            var startTag = "COMMAND_NAME_TAG_START";
-            var endTag = "COMMAND_NAME_TAG_END";
+            var startTag = AdventureWorksDbCommandService.COMMAND_NAME_TAG_START;
+            var endTag = AdventureWorksDbCommandService.COMMAND_NAME_TAG_END;
 
             int startIndex = commandText.IndexOf(startTag) + startTag.Length;
             int endIndex = commandText.IndexOf(endTag);

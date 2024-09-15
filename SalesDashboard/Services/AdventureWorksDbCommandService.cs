@@ -12,11 +12,11 @@ namespace SalesDashboard.Services
             {
                 case EnumDbCommandTag.CIRCUIT_ID:
                 {
-                    return $"CIRCUIT_ID_TAG_START{value}CIRCUIT_ID_TAG_END";
+                    return $"{CIRCUIT_ID_TAG_START}{value}{CIRCUIT_ID_TAG_END}";
                 }
                 case EnumDbCommandTag.COMMAND_NAME:
                 {
-                    return $"COMMAND_NAME_TAG_START{value}COMMAND_NAME_TAG_END";
+                    return $"{COMMAND_NAME_TAG_START}{value}{COMMAND_NAME_TAG_END}";
                 }
                 default:
                 {
@@ -24,6 +24,12 @@ namespace SalesDashboard.Services
                 }
             }
         }
+
+        public const string CIRCUIT_ID_TAG_START = "CIRCUIT_ID_TAG_START";
+        public const string CIRCUIT_ID_TAG_END = "CIRCUIT_ID_TAG_END";
+
+        public const string COMMAND_NAME_TAG_START = "COMMAND_NAME_TAG_START";
+        public const string COMMAND_NAME_TAG_END = "COMMAND_NAME_TAG_END";
     }
 
     public class AdventureWorksDbCommandInfo
