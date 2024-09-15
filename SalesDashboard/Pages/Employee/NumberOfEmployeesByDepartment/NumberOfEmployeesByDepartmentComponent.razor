@@ -2,6 +2,7 @@
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Components.StateProviders.CircuitIdStateProvider
 @using SalesDashboard.Entities
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
@@ -60,7 +61,8 @@
         using var context = DbFactory.CreateDbContext();
 
         var items = await context.Employees
-            .TagWith(CircuitIdStateProviderComponent.CircuitIdTag)
+            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag("CommandName", "Number of Employees by Department"))
+            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag("CircuitId", CircuitIdStateProviderComponent.CircuitId))
             .SelectMany(e => e.EmployeeDepartmentHistories.Where(edh => edh.EndDate == null).Select(edh => edh.Department))
             .GroupBy(d => d.Name)
             .Select(g => new NumberOfEmployeesByDepartmentItem

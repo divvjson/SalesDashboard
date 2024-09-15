@@ -32,9 +32,17 @@ namespace SalesDashboard.Services
 
             if (!string.IsNullOrEmpty(circuitId))
             {
-                var sanitized = SanitizeTagFromCommandText(command.CommandText);
+                var commandName = GetCommandName(command.CommandText);
 
-                _service.LatestDbCommandTextSubject.OnNext(new(circuitId, sanitized));
+                var sanitizedCommandText = SanitizeTagFromCommandText(command.CommandText);
+
+                AdventureWorksDbCommandInfo info = new()
+                {
+                    CommandName = commandName,
+                    CommandText = sanitizedCommandText
+                };
+
+                _service.LatestDbCommandInfoSubject.OnNext(new(circuitId, info));
             }
         }
 
@@ -54,6 +62,24 @@ namespace SalesDashboard.Services
             var circuitId = commandText[startIndex..endIndex];
 
             return circuitId;
+        }
+
+        private static string? GetCommandName(string commandText)
+        {
+            var startTag = "COMMAND_NAME_TAG_START";
+            var endTag = "COMMAND_NAME_TAG_END";
+
+            int startIndex = commandText.IndexOf(startTag) + startTag.Length;
+            int endIndex = commandText.IndexOf(endTag);
+
+            if (startIndex == -1 || endIndex == -1)
+            {
+                return null;
+            }
+
+            var commandName = commandText[startIndex..endIndex];
+
+            return commandName;
         }
 
         private static string SanitizeTagFromCommandText(string commandText)

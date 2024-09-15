@@ -9,8 +9,6 @@
 @code {
     public string CircuitId { get; private set; } = string.Empty;
 
-    public string CircuitIdTag => $"CIRCUIT_ID_TAG_START{CircuitId}CIRCUIT_ID_TAG_END";
-
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 

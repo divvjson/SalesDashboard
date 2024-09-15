@@ -11,12 +11,12 @@
 @code {
     public BehaviorSubject<EnumConsoleState> ConsoleStateSubject = new(EnumConsoleState.Closed);
 
-    public BehaviorSubject<string?> LatestConsoleLogEntrySubject = new(null);
+    public BehaviorSubject<AdventureWorksDbCommandInfo?> LatestConsoleLogEntrySubject = new(null);
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    private IDisposable? LatestDbCommandTextSubcription { get; set; }
+    private IDisposable? LatestDbCommandInfoSubcription { get; set; }
 
     [CascadingParameter]
     public CircuitIdStateProviderComponent CircuitIdStateProviderComponent { get; set; } = null!;
@@ -25,21 +25,21 @@
     {
         if (firstRender)
         {
-            LatestDbCommandTextSubcription = AdventureWorksDbCommandService.LatestDbCommandTextSubject.Subscribe(keyValuePair =>
+            LatestDbCommandInfoSubcription = AdventureWorksDbCommandService.LatestDbCommandInfoSubject.Subscribe(keyValuePair =>
             {
                 if (keyValuePair.Key == CircuitIdStateProviderComponent.CircuitId == false)
                 {
                     return;
                 }
 
-                var latestCommandTextForThisCircuit = keyValuePair.Value;
+                var latestCommandInfoForThisCircuit = keyValuePair.Value;
 
-                if (string.IsNullOrEmpty(latestCommandTextForThisCircuit))
+                if (latestCommandInfoForThisCircuit is null)
                 {
                     return;
                 }
 
-                LatestConsoleLogEntrySubject.OnNext(latestCommandTextForThisCircuit);
+                LatestConsoleLogEntrySubject.OnNext(latestCommandInfoForThisCircuit);
             });
         }
     }
@@ -74,6 +74,6 @@
 
     public void Dispose()
     {
-        LatestDbCommandTextSubcription?.Dispose();
+        LatestDbCommandInfoSubcription?.Dispose();
     }
 }

@@ -1,4 +1,5 @@
 ﻿@using SalesDashboard.Components.StateProviders.ConsoleStateProvider
+@using SalesDashboard.Services
 
 @implements IDisposable
 
@@ -6,7 +7,9 @@
     <div class="console-area">
         @foreach (var log in ConsoleLog)
         {
-            <p>@log</p>
+            <p>@log.CommandName</p>
+            <p>@log.CommandText</p>
+            <br />
         }
     </div>
     <div class="console-actions">
@@ -25,7 +28,7 @@
 
     public IDisposable? LatestConsoleLogEntrySubscription { get; set; }
 
-    public List<string> ConsoleLog { get; set; } = [];
+    public List<AdventureWorksDbCommandInfo> ConsoleLog { get; set; } = [];
 
     private static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
@@ -40,7 +43,7 @@
 
                     try
                     {
-                        if (!string.IsNullOrEmpty(latestConsoleLogEntry))
+                        if (latestConsoleLogEntry is not null)
                         {
                             ConsoleLog.Add(latestConsoleLogEntry);
                             await InvokeAsync(StateHasChanged);
