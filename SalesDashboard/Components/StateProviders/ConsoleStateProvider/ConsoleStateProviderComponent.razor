@@ -1,8 +1,8 @@
-﻿@using SalesDashboard.Components.StateProviders.CircuitIdStateProvider
-@using SalesDashboard.Services
+﻿@using SalesDashboard.Services
 
 @implements IDisposable
 @inject AdventureWorksDbCommandService AdventureWorksDbCommandService
+@inject CircuitAccessor CircuitAccessor
 
 <CascadingValue Value="this">
     @ChildContent
@@ -18,30 +18,37 @@
 
     private IDisposable? LatestDbCommandInfoSubcription { get; set; }
 
-    [CascadingParameter]
-    public CircuitIdStateProviderComponent CircuitIdStateProviderComponent { get; set; } = null!;
-
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            LatestDbCommandInfoSubcription = AdventureWorksDbCommandService.LatestDbCommandInfoSubject.Subscribe(keyValuePair =>
-            {
-                if (keyValuePair.Key == CircuitIdStateProviderComponent.CircuitId == false)
-                {
-                    return;
-                }
-
-                var latestCommandInfoForThisCircuit = keyValuePair.Value;
-
-                if (latestCommandInfoForThisCircuit is null)
-                {
-                    return;
-                }
-
-                LatestConsoleLogEntrySubject.OnNext(latestCommandInfoForThisCircuit);
-            });
+            LatestDbCommandInfoSubcription = AdventureWorksDbCommandService.DbCommandInfoEntries
+                .Subscribe(keyValuePair => HandleLatestDbCommandInfo(keyValuePair));
         }
+    }
+
+    public IReadOnlyList<KeyValuePair<string, AdventureWorksDbCommandInfo>> GetDbCommandInfoEntries()
+    {
+        return AdventureWorksDbCommandService.GetDbCommandInfoEntries
+            .Where(keyValuePair => keyValuePair.Key == CircuitAccessor.CircuitId)
+            .ToList();
+    }
+
+    private void HandleLatestDbCommandInfo(KeyValuePair<string, AdventureWorksDbCommandInfo> keyValuePair)
+    {
+        if (keyValuePair.Key == CircuitAccessor.CircuitId == false)
+        {
+            return;
+        }
+
+        var latestCommandInfoForThisCircuit = keyValuePair.Value;
+
+        if (latestCommandInfoForThisCircuit is null)
+        {
+            return;
+        }
+
+        LatestConsoleLogEntrySubject.OnNext(latestCommandInfoForThisCircuit);
     }
 
     public void Toggle()

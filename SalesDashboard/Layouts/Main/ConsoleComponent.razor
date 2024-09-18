@@ -42,8 +42,6 @@
 
     private List<AdventureWorksDbCommandInfo> ConsoleLog { get; set; } = [];
 
-    private static SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
-
     private IJSObjectReference JSModule { get; set; } = null!;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -52,6 +50,13 @@
         {
             JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Layouts/Main/{nameof(ConsoleComponent)}.razor.js");
 
+            ConsoleLog = ConsoleStateProviderComponent
+                .GetDbCommandInfoEntries()
+                .Select(keyValuePair => keyValuePair.Value)
+                .ToList();
+
+            await JSRuntime.InvokeVoidAsync("hljs.highlightAll");
+
             LatestConsoleLogEntrySubscription = ConsoleStateProviderComponent.LatestConsoleLogEntrySubject
                 .Subscribe(async entry => await HandleLatestConsoleLogEntry(entry));
         }
@@ -59,26 +64,17 @@
 
     private async Task HandleLatestConsoleLogEntry(AdventureWorksDbCommandInfo? latestConsoleLogEntry)
     {
-        await semaphore.WaitAsync();
-
-        try
+        if (latestConsoleLogEntry is not null)
         {
-            if (latestConsoleLogEntry is not null)
-            {
-                var formattedCommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", latestConsoleLogEntry.CommandText);
+            var formattedCommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", latestConsoleLogEntry.CommandText);
 
-                latestConsoleLogEntry.CommandText = formattedCommandText;
+            latestConsoleLogEntry.CommandText = formattedCommandText;
 
-                ConsoleLog.Add(latestConsoleLogEntry);
+            ConsoleLog.Add(latestConsoleLogEntry);
 
-                await InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
 
-                await JSRuntime.InvokeVoidAsync("hljs.highlightAll");
-            }
-        }
-        finally
-        {
-            semaphore.Release();
+            await JSRuntime.InvokeVoidAsync("hljs.highlightAll");
         }
     }
 

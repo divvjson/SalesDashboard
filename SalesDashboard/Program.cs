@@ -23,6 +23,7 @@ builder.Services.AddDbContextFactory<AdventureWorksContext>((serviceProvider, op
 builder.Services.AddControllers();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddMudServices();
+builder.Services.AddScoped<CircuitAccessor>();
 builder.Services.AddScoped<CircuitHandler, CircuitService>();
 builder.Services.AddScoped<LocalStorageService>();
 builder.Services.AddSingleton<AdventureWorksDbCommandService>();

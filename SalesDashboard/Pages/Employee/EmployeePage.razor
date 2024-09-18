@@ -3,7 +3,6 @@
 @using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.FigureBox
 @using SalesDashboard.Components.Shared.PageBox
-@using SalesDashboard.Components.StateProviders.CircuitIdStateProvider
 @using SalesDashboard.Entities
 @using SalesDashboard.Pages.Employee.AgeGroup
 @using SalesDashboard.Pages.Employee.EmployeeLocation
@@ -17,6 +16,7 @@
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <PageTitle>Employee Analysis</PageTitle>
 
@@ -87,9 +87,6 @@
     [CascadingParameter]
     public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
 
-    [CascadingParameter]
-    public CircuitIdStateProviderComponent CircuitIdStateProviderComponent { get; set; } = null!;
-
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
 
     private IDisposable? TotalNumberOfEmployeesRefreshedSubscription { get; set; }
@@ -128,7 +125,7 @@
 
         TotalNumberOfEmployees = await context.Employees
             .TagWith(AdventureWorksDbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Total Number of Employees"))
-            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitIdStateProviderComponent.CircuitId))
+            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .CountAsync();
 
         IsFiguresLoading = false;

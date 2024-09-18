@@ -1,10 +1,22 @@
-﻿using System.Reactive.Subjects;
+﻿using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace SalesDashboard.Services
 {
     public class AdventureWorksDbCommandService
     {
-        public BehaviorSubject<KeyValuePair<string?, AdventureWorksDbCommandInfo?>> LatestDbCommandInfoSubject = new(new(null, null));
+        private readonly List<KeyValuePair<string, AdventureWorksDbCommandInfo>> _dbCommandInfoEntries = [];
+        private readonly Subject<KeyValuePair<string, AdventureWorksDbCommandInfo>> _dbCommandInfoSubject = new();
+
+        public IObservable<KeyValuePair<string, AdventureWorksDbCommandInfo>> DbCommandInfoEntries => _dbCommandInfoSubject.AsObservable();
+
+        public void AddDbCommandInfo(KeyValuePair<string, AdventureWorksDbCommandInfo> keyValuePair)
+        {
+            _dbCommandInfoEntries.Add(keyValuePair);
+            _dbCommandInfoSubject.OnNext(keyValuePair);
+        }
+
+        public IReadOnlyList<KeyValuePair<string, AdventureWorksDbCommandInfo>> GetDbCommandInfoEntries => _dbCommandInfoEntries.AsReadOnly();
 
         public static string GetDbCommandTag(EnumDbCommandTag tag, string value)
         {

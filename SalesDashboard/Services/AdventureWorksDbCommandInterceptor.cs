@@ -42,7 +42,7 @@ namespace SalesDashboard.Services
                     CommandText = sanitizedCommandText
                 };
 
-                _service.LatestDbCommandInfoSubject.OnNext(new(circuitId, info));
+                _service.AddDbCommandInfo(new(circuitId, info));
             }
         }
 
