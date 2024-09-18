@@ -10,7 +10,7 @@
         {
             <p class="console-command-name">@log.CommandName</p>
             <pre>
-                <code>@log.CommandText</code>
+                <code class="language-sql">@log.CommandText</code>
             </pre>
             <br />
         }
@@ -63,6 +63,8 @@
                 ConsoleLog.Add(latestConsoleLogEntry);
 
                 await InvokeAsync(StateHasChanged);
+
+                await JSRuntime.InvokeVoidAsync("hljs.highlightAll");
             }
         }
         finally
