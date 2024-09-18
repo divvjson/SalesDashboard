@@ -8,9 +8,9 @@
     <div class="console-area">
         @foreach (var log in ConsoleLog)
         {
-            <p class="console-command-name">@log.CommandName</p>
+            <MudChip T="string" Color="Color.Dark">@log.CommandName</MudChip>
             <pre>
-                <code class="language-sql">@log.CommandText</code>
+                <code class="command-text language-sql">@log.CommandText</code>
             </pre>
             <br />
         }
