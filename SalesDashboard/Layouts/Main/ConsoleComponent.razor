@@ -55,14 +55,14 @@
                 .Select(keyValuePair => keyValuePair.Value)
                 .ToList();
 
-            await JSRuntime.InvokeVoidAsync("hljs.highlightAll");
+            await JSModule.InvokeVoidAsync("highlightCommandText");
 
             LatestConsoleLogEntrySubscription = ConsoleStateProviderComponent.LatestConsoleLogEntrySubject
-                .Subscribe(async entry => await HandleLatestConsoleLogEntry(entry));
+                .Subscribe(async entry => await HandleLatestConsoleLogEntryAsync(entry));
         }
     }
 
-    private async Task HandleLatestConsoleLogEntry(AdventureWorksDbCommandInfo? latestConsoleLogEntry)
+    private async Task HandleLatestConsoleLogEntryAsync(AdventureWorksDbCommandInfo? latestConsoleLogEntry)
     {
         if (latestConsoleLogEntry is not null)
         {
@@ -74,7 +74,7 @@
 
             await InvokeAsync(StateHasChanged);
 
-            await JSRuntime.InvokeVoidAsync("hljs.highlightAll");
+            await JSModule.InvokeVoidAsync("highlightCommandText");
         }
     }
 
