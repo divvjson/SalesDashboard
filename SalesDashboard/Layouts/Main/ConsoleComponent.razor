@@ -8,11 +8,20 @@
     <div class="console-area">
         @foreach (var log in ConsoleLog)
         {
-            <MudChip T="string" Color="Color.Dark">@log.CommandName</MudChip>
-            <pre>
-                <code class="command-text language-sql">@log.CommandText</code>
-            </pre>
-            <br />
+            @if (ConsoleLog.Count > 1)
+            {
+                <MudDivider />
+            }
+            <div class="console-log">
+                <MudChip T="string"
+                         Color="Color.Dark"
+                         Icon="@Icons.Material.Outlined.ContentCopy"
+                         OnClick="HandleCommandNameClicked"
+                         style="margin: 0;">
+                    @log.CommandName
+                </MudChip>
+                <pre><code class="command-text language-sql">@log.CommandText</code></pre>
+            </div>
         }
     </div>
     <div class="console-actions">
@@ -71,6 +80,11 @@
         {
             semaphore.Release();
         }
+    }
+
+    private void HandleCommandNameClicked()
+    {
+        
     }
 
     private void Clear()
