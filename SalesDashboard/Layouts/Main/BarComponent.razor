@@ -5,16 +5,20 @@
 @inject IDialogService DialogService
 
 <div class="bar">
-    <div class="bar-button mud-ripple" @onclick="DrawerStateProviderComponent.Toggle">
-        <MudIcon Icon="@Icons.Material.Outlined.Menu" Title="Menu" />
-    </div>
+    <MudTooltip Text="Menu" Delay="500" Placement="Placement.Right">
+        <div class="bar-button mud-ripple" @onclick="DrawerStateProviderComponent.Toggle">
+            <MudIcon Icon="@Icons.Material.Outlined.Menu" />
+        </div>
+    </MudTooltip>
     <div class="title-container">
         <div class="title">Adventure Works</div>
         <div class="sub-title">Sales Dashboard</div>
     </div>
-    <div class="bar-button mud-ripple" @onclick="ConsoleStateProviderComponent.Toggle">
-        <MudIcon Icon="@Icons.Material.Outlined.WebAsset" Title="Console" />
-    </div>
+    <MudTooltip Text="Console" Delay="500" Placement="Placement.Left">
+        <div class="bar-button mud-ripple" @onclick="ConsoleStateProviderComponent.Toggle">
+            <MudIcon Icon="@Icons.Material.Outlined.WebAsset" />
+        </div>
+    </MudTooltip>
 </div>
 
 @code {
