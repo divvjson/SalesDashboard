@@ -16,6 +16,18 @@ namespace SalesDashboard.Services
             _dbCommandInfoSubject.OnNext(keyValuePair);
         }
 
+        public void RemoveDbCommandInfoByCircuitId(string circuitId)
+        {
+            var itemsToRemove = _dbCommandInfoEntries
+                .Where(keyValuePair => keyValuePair.Key == circuitId)
+                .ToList();
+
+            foreach (var itemToRemove in itemsToRemove)
+            {
+                _dbCommandInfoEntries.Remove(itemToRemove);
+            }
+        }
+
         public IReadOnlyList<KeyValuePair<string, AdventureWorksDbCommandInfo>> GetDbCommandInfoEntries => _dbCommandInfoEntries.AsReadOnly();
 
         public static string GetDbCommandTag(EnumDbCommandTag tag, string value)

@@ -2,6 +2,7 @@
 @using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
 
+@implements IDisposable
 @inject IDialogService DialogService
 
 <div class="bar">
@@ -16,7 +17,12 @@
     </div>
     <MudTooltip Text="Console" Delay="500" Placement="Placement.Left">
         <div class="bar-button mud-ripple" @onclick="ConsoleStateProviderComponent.Toggle">
-            <MudIcon Icon="@Icons.Material.Outlined.WebAsset" />
+            <MudBadge Content="NumberOfNewConsoleLogEntries"
+                      Visible="NumberOfNewConsoleLogEntries > 0"
+                      Overlap="true"
+                      Color="Color.Error">
+                <MudIcon Icon="@Icons.Material.Outlined.WebAsset" />
+            </MudBadge>
         </div>
     </MudTooltip>
 </div>
@@ -30,4 +36,26 @@
 
     [CascadingParameter]
     public DeviceStateProviderComponent DeviceStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? NumberOfNewConsoleLogEntriesSubcription { get; set; }
+
+    public int NumberOfNewConsoleLogEntries { get; set; } = 0;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            NumberOfNewConsoleLogEntriesSubcription = ConsoleStateProviderComponent.NumberOfNewConsoleLogEntriesSubject
+                .Subscribe(async value =>
+                {
+                    NumberOfNewConsoleLogEntries = value;
+                    await InvokeAsync(StateHasChanged);
+                });
+        }
+    }
+
+    public void Dispose()
+    {
+        NumberOfNewConsoleLogEntriesSubcription?.Dispose();
+    }
 }

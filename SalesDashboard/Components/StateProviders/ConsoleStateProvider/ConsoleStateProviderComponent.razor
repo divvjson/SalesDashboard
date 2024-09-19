@@ -13,6 +13,8 @@
 
     public BehaviorSubject<AdventureWorksDbCommandInfo?> LatestConsoleLogEntrySubject = new(null);
 
+    public BehaviorSubject<int> NumberOfNewConsoleLogEntriesSubject = new(0);
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
@@ -24,10 +26,12 @@
         {
             LatestDbCommandInfoSubcription = AdventureWorksDbCommandService.DbCommandInfoEntries
                 .Subscribe(keyValuePair => HandleLatestDbCommandInfo(keyValuePair));
+
+            NumberOfNewConsoleLogEntriesSubject.OnNext(GetDbCommandInfoEntriesForThisCircuit().Count);
         }
     }
 
-    public IReadOnlyList<KeyValuePair<string, AdventureWorksDbCommandInfo>> GetDbCommandInfoEntries()
+    public IReadOnlyList<KeyValuePair<string, AdventureWorksDbCommandInfo>> GetDbCommandInfoEntriesForThisCircuit()
     {
         return AdventureWorksDbCommandService.GetDbCommandInfoEntries
             .Where(keyValuePair => keyValuePair.Key == CircuitAccessor.CircuitId)
@@ -43,12 +47,13 @@
 
         var latestCommandInfoForThisCircuit = keyValuePair.Value;
 
-        if (latestCommandInfoForThisCircuit is null)
-        {
-            return;
-        }
-
         LatestConsoleLogEntrySubject.OnNext(latestCommandInfoForThisCircuit);
+
+        // Only emit the number of new console log entries if the console is closed.
+        if (ConsoleStateSubject.Value is EnumConsoleState.Closed)
+        {
+            NumberOfNewConsoleLogEntriesSubject.OnNext(NumberOfNewConsoleLogEntriesSubject.Value + 1);
+        }
     }
 
     public void Toggle()
@@ -68,6 +73,7 @@
         if (ConsoleStateSubject.Value is EnumConsoleState.Closed)
         {
             ConsoleStateSubject.OnNext(EnumConsoleState.Open);
+            NumberOfNewConsoleLogEntriesSubject.OnNext(0);
         }
     }
 
@@ -77,6 +83,12 @@
         {
             ConsoleStateSubject.OnNext(EnumConsoleState.Closed);
         }
+    }
+
+    public void Clear()
+    {
+        AdventureWorksDbCommandService.RemoveDbCommandInfoByCircuitId(CircuitAccessor.CircuitId);
+        NumberOfNewConsoleLogEntriesSubject.OnNext(0);
     }
 
     public void Dispose()

@@ -23,7 +23,7 @@
             <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="ConsoleStateProviderComponent.Close" Color="Color.Inherit" />
         </MudTooltip>
         <MudTooltip Text="Clear" Placement="Placement.Left" Delay="500">
-            <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" OnClick="ConsoleLog.Clear" Color="Color.Inherit" />
+            <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" OnClick="Clear" Color="Color.Inherit" />
         </MudTooltip>
     </div>
 </div>
@@ -45,7 +45,7 @@
             JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Layouts/Main/{nameof(ConsoleComponent)}.razor.js");
 
             ConsoleLog = ConsoleStateProviderComponent
-                .GetDbCommandInfoEntries()
+                .GetDbCommandInfoEntriesForThisCircuit()
                 .Select(keyValuePair => keyValuePair.Value)
                 .ToList();
 
@@ -72,6 +72,12 @@
         await InvokeAsync(StateHasChanged);
 
         await JSModule.InvokeVoidAsync("highlightCommandText");
+    }
+
+    public void Clear()
+    {
+        ConsoleLog.Clear();
+        ConsoleStateProviderComponent.Clear();
     }
 
     public void Dispose()
