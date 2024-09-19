@@ -29,7 +29,7 @@
             <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="ConsoleStateProviderComponent.Close" Color="Color.Inherit" />
         </MudTooltip>
         <MudTooltip Text="Clear" Placement="Placement.Left" Delay="500">
-            <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" OnClick="Clear" Color="Color.Inherit" />
+            <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" OnClick="ConsoleLog.Clear" Color="Color.Inherit" />
         </MudTooltip>
     </div>
 </div>
@@ -64,28 +64,25 @@
 
     private async Task HandleLatestConsoleLogEntryAsync(AdventureWorksDbCommandInfo? latestConsoleLogEntry)
     {
-        if (latestConsoleLogEntry is not null)
+        if (latestConsoleLogEntry is null)
         {
-            var formattedCommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", latestConsoleLogEntry.CommandText);
-
-            latestConsoleLogEntry.CommandText = formattedCommandText;
-
-            ConsoleLog.Add(latestConsoleLogEntry);
-
-            await InvokeAsync(StateHasChanged);
-
-            await JSModule.InvokeVoidAsync("highlightCommandText");
+            return;
         }
+
+        var formattedCommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", latestConsoleLogEntry.CommandText);
+
+        latestConsoleLogEntry.CommandText = formattedCommandText;
+
+        ConsoleLog.Add(latestConsoleLogEntry);
+
+        await InvokeAsync(StateHasChanged);
+
+        await JSModule.InvokeVoidAsync("highlightCommandText");
     }
 
     private void HandleCommandNameClicked()
     {
         
-    }
-
-    private void Clear()
-    {
-        ConsoleLog.Clear();
     }
 
     public void Dispose()
