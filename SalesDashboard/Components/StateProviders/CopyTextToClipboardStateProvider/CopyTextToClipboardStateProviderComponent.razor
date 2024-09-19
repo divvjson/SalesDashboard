@@ -1,0 +1,22 @@
+﻿@inject IJSRuntime JSRuntime
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private IJSObjectReference JSModule { get; set; } = null!;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Components/StateProviders/CopyTextToClipboardStateProvider/{nameof(CopyTextToClipboardStateProviderComponent)}.razor.js");
+    }
+
+    public async Task CopyTextToClipboardAsync(string text)
+    {
+        await JSModule.InvokeVoidAsync("copyTextToClipboardAsync", text);
+    }
+}

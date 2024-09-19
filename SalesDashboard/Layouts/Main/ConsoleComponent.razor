@@ -1,4 +1,5 @@
 ﻿@using SalesDashboard.Components.StateProviders.ConsoleStateProvider
+@using SalesDashboard.Components.StateProviders.CopyTextToClipboardStateProvider
 @using SalesDashboard.Services
 
 @implements IDisposable
@@ -16,7 +17,7 @@
                 <MudChip T="string"
                          Color="Color.Dark"
                          Icon="@Icons.Material.Outlined.ContentCopy"
-                         OnClick="HandleCommandNameClicked"
+                         OnClick="_ => HandleCommandNameClickedAsync(log.CommandText)"
                          style="margin: 0;">
                     @log.CommandName
                 </MudChip>
@@ -37,6 +38,9 @@
 @code {
     [CascadingParameter]
     public ConsoleStateProviderComponent ConsoleStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
+    public CopyTextToClipboardStateProviderComponent CopyTextToClipboardStateProviderComponent { get; set; } = null!;
 
     private IDisposable? LatestConsoleLogEntrySubscription { get; set; }
 
@@ -80,9 +84,9 @@
         await JSModule.InvokeVoidAsync("highlightCommandText");
     }
 
-    private void HandleCommandNameClicked()
+    private async Task HandleCommandNameClickedAsync(string commandText)
     {
-        
+        await CopyTextToClipboardStateProviderComponent.CopyTextToClipboardAsync(commandText);
     }
 
     public void Dispose()

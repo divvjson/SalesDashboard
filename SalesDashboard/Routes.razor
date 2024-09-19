@@ -1,5 +1,6 @@
 ﻿@using SalesDashboard.Components.StateProviders.BreakpointStateProvider
 @using SalesDashboard.Components.StateProviders.ConsoleStateProvider
+@using SalesDashboard.Components.StateProviders.CopyTextToClipboardStateProvider
 @using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
 @using SalesDashboard.Pages.Employee
@@ -8,22 +9,24 @@
 
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
-        <BreakpointStateProviderComponent>
-            <DeviceStateProviderComponent>
-                <DrawerStateProviderComponent>
-                    <ConsoleStateProviderComponent>
-                        <RegionalFilterStateProviderComponent>
-                            <RegionalDataProviderComponent>
-                                <ProductFilterStateProviderComponent>
-                                    <EmployeeStateProviderComponent>
-                                        <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
-                                    </EmployeeStateProviderComponent>
-                                </ProductFilterStateProviderComponent>
-                            </RegionalDataProviderComponent>
-                        </RegionalFilterStateProviderComponent>
-                    </ConsoleStateProviderComponent>
-                </DrawerStateProviderComponent>
-            </DeviceStateProviderComponent>
-        </BreakpointStateProviderComponent>
+        <CopyTextToClipboardStateProviderComponent>
+            <BreakpointStateProviderComponent>
+                <DeviceStateProviderComponent>
+                    <DrawerStateProviderComponent>
+                        <ConsoleStateProviderComponent>
+                            <RegionalFilterStateProviderComponent>
+                                <RegionalDataProviderComponent>
+                                    <ProductFilterStateProviderComponent>
+                                        <EmployeeStateProviderComponent>
+                                            <RouteView RouteData="routeData" DefaultLayout="typeof(Layouts.Main.MainLayout)" />
+                                        </EmployeeStateProviderComponent>
+                                    </ProductFilterStateProviderComponent>
+                                </RegionalDataProviderComponent>
+                            </RegionalFilterStateProviderComponent>
+                        </ConsoleStateProviderComponent>
+                    </DrawerStateProviderComponent>
+                </DeviceStateProviderComponent>
+            </BreakpointStateProviderComponent>
+        </CopyTextToClipboardStateProviderComponent>
     </Found>
 </Router>
