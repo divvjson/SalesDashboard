@@ -19,12 +19,8 @@
         }
     </div>
     <div class="console-actions">
-        <MudTooltip Text="Close" Placement="Placement.Left" Delay="500">
-            <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="ConsoleStateProviderComponent.Close" Color="Color.Inherit" />
-        </MudTooltip>
-        <MudTooltip Text="Clear" Placement="Placement.Left" Delay="500">
-            <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" OnClick="Clear" Color="Color.Inherit" />
-        </MudTooltip>
+        <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="ConsoleStateProviderComponent.Close" Color="Color.Inherit" title="Close" />
+        <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" OnClick="Clear" Color="Color.Inherit" title="Clear" />
     </div>
 </div>
 
