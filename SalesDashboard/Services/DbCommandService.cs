@@ -5,12 +5,12 @@ namespace SalesDashboard.Services
 {
     public class DbCommandService
     {
-        private readonly List<KeyValuePair<string, DbCommandItem>> _dbCommandItems = [];
-        private readonly Subject<KeyValuePair<string, DbCommandItem>> _dbCommandItemSubject = new();
+        private readonly List<DbCommandItem> _dbCommandItems = [];
+        private readonly Subject<DbCommandItem> _dbCommandItemSubject = new();
 
-        public IObservable<KeyValuePair<string, DbCommandItem>> DbCommandItems => _dbCommandItemSubject.AsObservable();
+        public IObservable<DbCommandItem> DbCommandItems => _dbCommandItemSubject.AsObservable();
 
-        public void AddDbCommandItem(KeyValuePair<string, DbCommandItem> item)
+        public void AddDbCommandItem(DbCommandItem item)
         {
             _dbCommandItems.Add(item);
             _dbCommandItemSubject.OnNext(item);
@@ -19,7 +19,7 @@ namespace SalesDashboard.Services
         public void RemoveDbCommandItemsForCircuit(string circuitId)
         {
             var itemsToRemove = _dbCommandItems
-                .Where(item => item.Key == circuitId)
+                .Where(item => item.CircuitId == circuitId)
                 .ToList();
 
             foreach (var itemToRemove in itemsToRemove)
@@ -28,7 +28,7 @@ namespace SalesDashboard.Services
             }
         }
 
-        public IReadOnlyList<KeyValuePair<string, DbCommandItem>> DbCommandItemsReadOnly => _dbCommandItems.AsReadOnly();
+        public IReadOnlyList<DbCommandItem> DbCommandItemsReadOnly => _dbCommandItems.AsReadOnly();
 
         public static string GetDbCommandTag(EnumDbCommandTag tag, string value)
         {
@@ -58,6 +58,8 @@ namespace SalesDashboard.Services
 
     public class DbCommandItem
     {
+        public required string CircuitId { get; set; }
+
         public string? CommandName { get; set; }
 
         public required string CommandText { get; set; }

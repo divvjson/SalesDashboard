@@ -29,13 +29,14 @@ namespace SalesDashboard.Services
 
                 var sanitizedCommandText = SanitizeTagFromCommandText(command.CommandText);
 
-                DbCommandItem info = new()
+                DbCommandItem item = new()
                 {
+                    CircuitId = circuitId,
                     CommandName = commandName,
                     CommandText = sanitizedCommandText
                 };
 
-                dbCommandService.AddDbCommandItem(new(circuitId, info));
+                dbCommandService.AddDbCommandItem(item);
             }
         }
 

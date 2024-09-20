@@ -25,27 +25,27 @@
         if (firstRender)
         {
             LatestDbCommandInfoSubcription = DbCommandService.DbCommandItems
-                .Subscribe(keyValuePair => HandleLatestDbCommandItem(keyValuePair));
+                .Subscribe(item => HandleLatestDbCommandItem(item));
 
             NumberOfNewDbCommandItemsSubject.OnNext(GetDbCommandItemsForThisCircuit().Count);
         }
     }
 
-    public IReadOnlyList<KeyValuePair<string, DbCommandItem>> GetDbCommandItemsForThisCircuit()
+    public IReadOnlyList<DbCommandItem> GetDbCommandItemsForThisCircuit()
     {
         return DbCommandService.DbCommandItemsReadOnly
-            .Where(keyValuePair => keyValuePair.Key == CircuitAccessor.CircuitId)
+            .Where(item => item.CircuitId == CircuitAccessor.CircuitId)
             .ToList();
     }
 
-    private void HandleLatestDbCommandItem(KeyValuePair<string, DbCommandItem> keyValuePair)
+    private void HandleLatestDbCommandItem(DbCommandItem item)
     {
-        if (keyValuePair.Key == CircuitAccessor.CircuitId == false)
+        if (item.CircuitId != CircuitAccessor.CircuitId)
         {
             return;
         }
 
-        var latestCommandInfoForThisCircuit = keyValuePair.Value;
+        var latestCommandInfoForThisCircuit = item;
 
         LatestDbCommandItemSubject.OnNext(latestCommandInfoForThisCircuit);
 

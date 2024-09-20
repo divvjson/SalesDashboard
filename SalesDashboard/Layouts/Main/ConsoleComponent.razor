@@ -42,7 +42,6 @@
 
             ConsoleLog = ConsoleStateProviderComponent
                 .GetDbCommandItemsForThisCircuit()
-                .Select(keyValuePair => keyValuePair.Value)
                 .ToList();
 
             await JSModule.InvokeVoidAsync("highlightCommandText");
