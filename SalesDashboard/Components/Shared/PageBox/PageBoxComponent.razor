@@ -2,13 +2,12 @@
     <div class="@GetPageBoxHeaderClass()">
         @if (ShowRefreshButton)
         {
-            <MudTooltip Text="Refresh" Delay="500">
-                <MudIconButton Icon="@Icons.Material.Outlined.Refresh"
-                               Variant="Variant.Filled"
-                               Size="MudBlazor.Size.Small"
-                               Class="refresh-button"
-                               OnClick="HandleRefreshClickedAsync" />
-            </MudTooltip>
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh"
+                           Variant="Variant.Filled"
+                           Size="MudBlazor.Size.Small"
+                           Class="refresh-button"
+                           title="Refresh"
+                           OnClick="HandleRefreshClickedAsync" />
         }
         else
         {
