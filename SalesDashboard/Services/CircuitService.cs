@@ -2,7 +2,7 @@
 
 namespace SalesDashboard.Services
 {
-    public class CircuitService(CircuitAccessor circuitAccessor, AdventureWorksDbCommandService dbCommandService) : CircuitHandler
+    public class CircuitService(CircuitAccessor circuitAccessor, DbCommandService dbCommandService) : CircuitHandler
     {
         public override async Task OnCircuitOpenedAsync(Circuit circuit, CancellationToken cancellationToken)
         {
@@ -13,7 +13,7 @@ namespace SalesDashboard.Services
 
         public override async Task OnCircuitClosedAsync(Circuit circuit, CancellationToken cancellationToken)
         {
-            dbCommandService.RemoveDbCommandInfoByCircuitId(circuit.Id);
+            dbCommandService.RemoveDbCommandItemsForCircuit(circuit.Id);
 
             await base.OnCircuitClosedAsync(circuit, cancellationToken);
         }

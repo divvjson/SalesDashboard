@@ -3,32 +3,32 @@ using System.Reactive.Subjects;
 
 namespace SalesDashboard.Services
 {
-    public class AdventureWorksDbCommandService
+    public class DbCommandService
     {
-        private readonly List<KeyValuePair<string, AdventureWorksDbCommandInfo>> _dbCommandInfoEntries = [];
-        private readonly Subject<KeyValuePair<string, AdventureWorksDbCommandInfo>> _dbCommandInfoSubject = new();
+        private readonly List<KeyValuePair<string, DbCommandItem>> _dbCommandItems = [];
+        private readonly Subject<KeyValuePair<string, DbCommandItem>> _dbCommandItemSubject = new();
 
-        public IObservable<KeyValuePair<string, AdventureWorksDbCommandInfo>> DbCommandInfoEntries => _dbCommandInfoSubject.AsObservable();
+        public IObservable<KeyValuePair<string, DbCommandItem>> DbCommandItems => _dbCommandItemSubject.AsObservable();
 
-        public void AddDbCommandInfo(KeyValuePair<string, AdventureWorksDbCommandInfo> keyValuePair)
+        public void AddDbCommandItem(KeyValuePair<string, DbCommandItem> item)
         {
-            _dbCommandInfoEntries.Add(keyValuePair);
-            _dbCommandInfoSubject.OnNext(keyValuePair);
+            _dbCommandItems.Add(item);
+            _dbCommandItemSubject.OnNext(item);
         }
 
-        public void RemoveDbCommandInfoByCircuitId(string circuitId)
+        public void RemoveDbCommandItemsForCircuit(string circuitId)
         {
-            var itemsToRemove = _dbCommandInfoEntries
-                .Where(keyValuePair => keyValuePair.Key == circuitId)
+            var itemsToRemove = _dbCommandItems
+                .Where(item => item.Key == circuitId)
                 .ToList();
 
             foreach (var itemToRemove in itemsToRemove)
             {
-                _dbCommandInfoEntries.Remove(itemToRemove);
+                _dbCommandItems.Remove(itemToRemove);
             }
         }
 
-        public IReadOnlyList<KeyValuePair<string, AdventureWorksDbCommandInfo>> GetDbCommandInfoEntries => _dbCommandInfoEntries.AsReadOnly();
+        public IReadOnlyList<KeyValuePair<string, DbCommandItem>> DbCommandItemsReadOnly => _dbCommandItems.AsReadOnly();
 
         public static string GetDbCommandTag(EnumDbCommandTag tag, string value)
         {
@@ -56,7 +56,7 @@ namespace SalesDashboard.Services
         public const string COMMAND_NAME_TAG_END = "COMMAND_NAME_TAG_END";
     }
 
-    public class AdventureWorksDbCommandInfo
+    public class DbCommandItem
     {
         public string? CommandName { get; set; }
 

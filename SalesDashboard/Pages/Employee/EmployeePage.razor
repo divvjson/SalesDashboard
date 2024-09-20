@@ -122,8 +122,8 @@
         using var context = DbFactory.CreateDbContext();
 
         TotalNumberOfEmployees = await context.Employees
-            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Total Number of Employees"))
-            .TagWith(AdventureWorksDbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Total Number of Employees"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .CountAsync();
 
         IsFiguresLoading = false;

@@ -3,15 +3,8 @@ using System.Data.Common;
 
 namespace SalesDashboard.Services
 {
-    public class AdventureWorksDbCommandInterceptor : DbCommandInterceptor
+    public class DbCommandInterceptorImpl(DbCommandService dbCommandService) : DbCommandInterceptor
     {
-        private readonly AdventureWorksDbCommandService _service;
-
-        public AdventureWorksDbCommandInterceptor(AdventureWorksDbCommandService service)
-        {
-            _service = service;
-        }
-
         public override InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
         {
             ExecuteTagRoutine(command);
@@ -36,20 +29,20 @@ namespace SalesDashboard.Services
 
                 var sanitizedCommandText = SanitizeTagFromCommandText(command.CommandText);
 
-                AdventureWorksDbCommandInfo info = new()
+                DbCommandItem info = new()
                 {
                     CommandName = commandName,
                     CommandText = sanitizedCommandText
                 };
 
-                _service.AddDbCommandInfo(new(circuitId, info));
+                dbCommandService.AddDbCommandItem(new(circuitId, info));
             }
         }
 
         private static string? GetCircuitId(string commandText)
         {
-            var startTag = AdventureWorksDbCommandService.CIRCUIT_ID_TAG_START;
-            var endTag = AdventureWorksDbCommandService.CIRCUIT_ID_TAG_END;
+            var startTag = DbCommandService.CIRCUIT_ID_TAG_START;
+            var endTag = DbCommandService.CIRCUIT_ID_TAG_END;
 
             int startIndex = commandText.IndexOf(startTag) + startTag.Length;
             int endIndex = commandText.IndexOf(endTag);
@@ -66,8 +59,8 @@ namespace SalesDashboard.Services
 
         private static string? GetCommandName(string commandText)
         {
-            var startTag = AdventureWorksDbCommandService.COMMAND_NAME_TAG_START;
-            var endTag = AdventureWorksDbCommandService.COMMAND_NAME_TAG_END;
+            var startTag = DbCommandService.COMMAND_NAME_TAG_START;
+            var endTag = DbCommandService.COMMAND_NAME_TAG_END;
 
             int startIndex = commandText.IndexOf(startTag) + startTag.Length;
             int endIndex = commandText.IndexOf(endTag);

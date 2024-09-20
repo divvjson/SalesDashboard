@@ -1,7 +1,7 @@
 ﻿@using SalesDashboard.Services
 
 @implements IDisposable
-@inject AdventureWorksDbCommandService AdventureWorksDbCommandService
+@inject DbCommandService DbCommandService
 @inject CircuitAccessor CircuitAccessor
 
 <CascadingValue Value="this">
@@ -11,9 +11,9 @@
 @code {
     public BehaviorSubject<EnumConsoleState> ConsoleStateSubject = new(EnumConsoleState.Closed);
 
-    public BehaviorSubject<AdventureWorksDbCommandInfo?> LatestConsoleLogEntrySubject = new(null);
+    public BehaviorSubject<DbCommandItem?> LatestDbCommandItemSubject = new(null);
 
-    public BehaviorSubject<int> NumberOfNewConsoleLogEntriesSubject = new(0);
+    public BehaviorSubject<int> NumberOfNewDbCommandItemsSubject = new(0);
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -24,21 +24,21 @@
     {
         if (firstRender)
         {
-            LatestDbCommandInfoSubcription = AdventureWorksDbCommandService.DbCommandInfoEntries
-                .Subscribe(keyValuePair => HandleLatestDbCommandInfo(keyValuePair));
+            LatestDbCommandInfoSubcription = DbCommandService.DbCommandItems
+                .Subscribe(keyValuePair => HandleLatestDbCommandItem(keyValuePair));
 
-            NumberOfNewConsoleLogEntriesSubject.OnNext(GetDbCommandInfoEntriesForThisCircuit().Count);
+            NumberOfNewDbCommandItemsSubject.OnNext(GetDbCommandItemsForThisCircuit().Count);
         }
     }
 
-    public IReadOnlyList<KeyValuePair<string, AdventureWorksDbCommandInfo>> GetDbCommandInfoEntriesForThisCircuit()
+    public IReadOnlyList<KeyValuePair<string, DbCommandItem>> GetDbCommandItemsForThisCircuit()
     {
-        return AdventureWorksDbCommandService.GetDbCommandInfoEntries
+        return DbCommandService.DbCommandItemsReadOnly
             .Where(keyValuePair => keyValuePair.Key == CircuitAccessor.CircuitId)
             .ToList();
     }
 
-    private void HandleLatestDbCommandInfo(KeyValuePair<string, AdventureWorksDbCommandInfo> keyValuePair)
+    private void HandleLatestDbCommandItem(KeyValuePair<string, DbCommandItem> keyValuePair)
     {
         if (keyValuePair.Key == CircuitAccessor.CircuitId == false)
         {
@@ -47,12 +47,12 @@
 
         var latestCommandInfoForThisCircuit = keyValuePair.Value;
 
-        LatestConsoleLogEntrySubject.OnNext(latestCommandInfoForThisCircuit);
+        LatestDbCommandItemSubject.OnNext(latestCommandInfoForThisCircuit);
 
         // Only emit the number of new console log entries if the console is closed.
         if (ConsoleStateSubject.Value is EnumConsoleState.Closed)
         {
-            NumberOfNewConsoleLogEntriesSubject.OnNext(NumberOfNewConsoleLogEntriesSubject.Value + 1);
+            NumberOfNewDbCommandItemsSubject.OnNext(NumberOfNewDbCommandItemsSubject.Value + 1);
         }
     }
 
@@ -73,7 +73,7 @@
         if (ConsoleStateSubject.Value is EnumConsoleState.Closed)
         {
             ConsoleStateSubject.OnNext(EnumConsoleState.Open);
-            NumberOfNewConsoleLogEntriesSubject.OnNext(0);
+            NumberOfNewDbCommandItemsSubject.OnNext(0);
         }
     }
 
@@ -87,8 +87,8 @@
 
     public void Clear()
     {
-        AdventureWorksDbCommandService.RemoveDbCommandInfoByCircuitId(CircuitAccessor.CircuitId);
-        NumberOfNewConsoleLogEntriesSubject.OnNext(0);
+        DbCommandService.RemoveDbCommandItemsForCircuit(CircuitAccessor.CircuitId);
+        NumberOfNewDbCommandItemsSubject.OnNext(0);
     }
 
     public void Dispose()

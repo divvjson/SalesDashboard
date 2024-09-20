@@ -6,15 +6,15 @@
 
 <div class="console">
     <div class="console-area">
-        @foreach (var log in ConsoleLog)
+        @foreach (var item in ConsoleLog)
         {
-            @if (ConsoleLog.IndexOf(log) != 0)
+            @if (ConsoleLog.IndexOf(item) != 0)
             {
                 <MudDivider />
             }
             <div class="console-log">
-                <pre><code>@log.CommandName</code></pre>
-                <pre><code class="command-text language-sql">@log.CommandText</code></pre>
+                <pre><code>@item.CommandName</code></pre>
+                <pre><code class="command-text language-sql">@item.CommandText</code></pre>
             </div>
         }
     </div>
@@ -28,9 +28,9 @@
     [CascadingParameter]
     public ConsoleStateProviderComponent ConsoleStateProviderComponent { get; set; } = null!;
 
-    private IDisposable? LatestConsoleLogEntrySubscription { get; set; }
+    private IDisposable? LatestDbCommandItemSubscription { get; set; }
 
-    private List<AdventureWorksDbCommandInfo> ConsoleLog { get; set; } = [];
+    private List<DbCommandItem> ConsoleLog { get; set; } = [];
 
     private IJSObjectReference JSModule { get; set; } = null!;
 
@@ -41,29 +41,29 @@
             JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Layouts/Main/{nameof(ConsoleComponent)}.razor.js");
 
             ConsoleLog = ConsoleStateProviderComponent
-                .GetDbCommandInfoEntriesForThisCircuit()
+                .GetDbCommandItemsForThisCircuit()
                 .Select(keyValuePair => keyValuePair.Value)
                 .ToList();
 
             await JSModule.InvokeVoidAsync("highlightCommandText");
 
-            LatestConsoleLogEntrySubscription = ConsoleStateProviderComponent.LatestConsoleLogEntrySubject
-                .Subscribe(async entry => await HandleLatestConsoleLogEntryAsync(entry));
+            LatestDbCommandItemSubscription = ConsoleStateProviderComponent.LatestDbCommandItemSubject
+                .Subscribe(async item => await HandleLatestDbCommandItemAsync(item));
         }
     }
 
-    private async Task HandleLatestConsoleLogEntryAsync(AdventureWorksDbCommandInfo? latestConsoleLogEntry)
+    private async Task HandleLatestDbCommandItemAsync(DbCommandItem? item)
     {
-        if (latestConsoleLogEntry is null)
+        if (item is null)
         {
             return;
         }
 
-        var formattedCommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", latestConsoleLogEntry.CommandText);
+        var formattedCommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", item.CommandText);
 
-        latestConsoleLogEntry.CommandText = formattedCommandText;
+        item.CommandText = formattedCommandText;
 
-        ConsoleLog.Add(latestConsoleLogEntry);
+        ConsoleLog.Add(item);
 
         await InvokeAsync(StateHasChanged);
 
@@ -78,6 +78,6 @@
 
     public void Dispose()
     {
-        LatestConsoleLogEntrySubscription?.Dispose();
+        LatestDbCommandItemSubscription?.Dispose();
     }
 }

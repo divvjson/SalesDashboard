@@ -11,10 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContextFactory<AdventureWorksContext>((serviceProvider, options) =>
 {
-    var dbCommandService = serviceProvider.GetRequiredService<AdventureWorksDbCommandService>();
+    var dbCommandService = serviceProvider.GetRequiredService<DbCommandService>();
 
     options
-        .AddInterceptors(new AdventureWorksDbCommandInterceptor(dbCommandService))
+        .AddInterceptors(new DbCommandInterceptorImpl(dbCommandService))
         .UseLazyLoadingProxies()
         .UseSqlServer(SecretsHelper.GetConnectionString(builder.Configuration), options => options.UseNetTopologySuite());
 });
@@ -26,8 +26,8 @@ builder.Services.AddMudServices();
 builder.Services.AddScoped<CircuitAccessor>();
 builder.Services.AddScoped<CircuitHandler, CircuitService>();
 builder.Services.AddScoped<LocalStorageService>();
-builder.Services.AddSingleton<AdventureWorksDbCommandService>();
-builder.Services.AddSingleton<DbCommandInterceptor, AdventureWorksDbCommandInterceptor>();
+builder.Services.AddSingleton<DbCommandService>();
+builder.Services.AddSingleton<DbCommandInterceptor, DbCommandInterceptorImpl>();
 
 var app = builder.Build();
 

@@ -14,8 +14,8 @@
         <div class="sub-title">Sales Dashboard</div>
     </div>
     <div class="bar-button mud-ripple" @onclick="ConsoleStateProviderComponent.Toggle" title="Console">
-        <MudBadge Content="NumberOfNewConsoleLogEntries"
-                  Visible="NumberOfNewConsoleLogEntries > 0"
+        <MudBadge Content="NumberOfNewDbCommandItems"
+                  Visible="NumberOfNewDbCommandItems > 0"
                   Overlap="true"
                   Color="Color.Error">
             <MudIcon Icon="@Icons.Material.Outlined.WebAsset" />
@@ -33,18 +33,18 @@
     [CascadingParameter]
     public DeviceStateProviderComponent DeviceStateProviderComponent { get; set; } = null!;
 
-    private IDisposable? NumberOfNewConsoleLogEntriesSubcription { get; set; }
+    private IDisposable? NumberOfNewDbCommandItemsSubcription { get; set; }
 
-    public int NumberOfNewConsoleLogEntries { get; set; } = 0;
+    public int NumberOfNewDbCommandItems { get; set; } = 0;
 
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            NumberOfNewConsoleLogEntriesSubcription = ConsoleStateProviderComponent.NumberOfNewConsoleLogEntriesSubject
+            NumberOfNewDbCommandItemsSubcription = ConsoleStateProviderComponent.NumberOfNewDbCommandItemsSubject
                 .Subscribe(async value =>
                 {
-                    NumberOfNewConsoleLogEntries = value;
+                    NumberOfNewDbCommandItems = value;
                     await InvokeAsync(StateHasChanged);
                 });
         }
@@ -52,6 +52,6 @@
 
     public void Dispose()
     {
-        NumberOfNewConsoleLogEntriesSubcription?.Dispose();
+        NumberOfNewDbCommandItemsSubcription?.Dispose();
     }
 }
