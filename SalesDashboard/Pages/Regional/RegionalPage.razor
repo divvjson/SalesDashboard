@@ -31,9 +31,7 @@
         <div class="header">
             <div></div>
             <div class="header-title">Regional Analysis</div>
-            <MudTooltip Text="Refresh">
-                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
-            </MudTooltip>
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" title="Refresh" />
         </div>
         <FilterSettingsComponent NumberOfFilterSettingsSet="RegionalFilterStateProviderComponent.NumberOfFilterSettingsSet">
             <FilterSettingsItemComponent Key="Period" Value="RegionalFilterStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />

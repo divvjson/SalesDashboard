@@ -27,9 +27,7 @@
         <div class="header">
             <div></div>
             <div class="header-title">Product Analysis</div>
-            <MudTooltip Text="Refresh">
-                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
-            </MudTooltip>
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" title="Refresh" />
         </div>
         <FilterSettingsComponent NumberOfFilterSettingsSet="ProductFilterStateProviderComponent.NumberOfFilterSettingsSet">
             <FilterSettingsItemComponent Key="Period" Value="ProductFilterStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
