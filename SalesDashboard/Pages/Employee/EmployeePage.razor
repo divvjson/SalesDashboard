@@ -64,7 +64,9 @@
                 </PageBoxComponent>
             </div>
             <div class="employee-location">
-                <PageBoxComponent Title="Employee Location">
+                <PageBoxComponent Title="Employee Location"
+                                  ShowRefreshButton="true"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.EmployeeLocationRefreshed.OnNext(Unit.Default)">
                     <EmployeeLocationComponent />
                 </PageBoxComponent>
             </div>
