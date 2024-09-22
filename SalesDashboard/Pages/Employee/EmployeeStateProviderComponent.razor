@@ -17,6 +17,8 @@
 
     public Subject<Unit> EmployeeLocationRefreshed { get; private set; } = new();
 
+    public Subject<Unit> Top5BestSellingSalesPersonsYtdRefreshed { get; private set; } = new ();
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 }
