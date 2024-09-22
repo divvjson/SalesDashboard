@@ -30,63 +30,54 @@
         <div class="grid">
             <div class="total-number-of-employees">
                 <PageBoxComponent Title="Total Number of Employees"
-                                  ShowRefreshButton="true"
                                   OnRefreshClicked="() => EmployeeStateProviderComponent.TotalNumberOfEmployeesRefreshed.OnNext(Unit.Default)">
                     <FigureBoxComponent Value="@TotalNumberOfEmployees.ToString()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="number-of-employees-by-department">
                 <PageBoxComponent Title="Number of Employees by Department"
-                                  ShowRefreshButton="true"
                                   OnRefreshClicked="() => EmployeeStateProviderComponent.NumberOfEmployeesByDepartmentRefreshed.OnNext(Unit.Default)">
                     <NumberOfEmployeesByDepartmentComponent />
                 </PageBoxComponent>
             </div>
             <div class="age-group">
                 <PageBoxComponent Title="Age Group Distribution"
-                                  ShowRefreshButton="true"
                                   OnRefreshClicked="() => EmployeeStateProviderComponent.AgeGroupDistributionRefreshed.OnNext(Unit.Default)">
                     <AgeGroupComponent />
                 </PageBoxComponent>
             </div>
             <div class="gender-distribution">
                 <PageBoxComponent Title="Gender Distribution"
-                                  ShowRefreshButton="true"
                                   OnRefreshClicked="() => EmployeeStateProviderComponent.GenderDistributionRefreshed.OnNext(Unit.Default)">
                     <GenderDistributionComponent />
                 </PageBoxComponent>
             </div>
             <div class="marital-status">
                 <PageBoxComponent Title="Marital Status"
-                                  ShowRefreshButton="true"
                                   OnRefreshClicked="() => EmployeeStateProviderComponent.MaritalStatusRefreshed.OnNext(Unit.Default)">
                     <MaritalStatusComponent />
                 </PageBoxComponent>
             </div>
             <div class="employee-location">
                 <PageBoxComponent Title="Employee Location"
-                                  ShowRefreshButton="true"
                                   OnRefreshClicked="() => EmployeeStateProviderComponent.EmployeeLocationRefreshed.OnNext(Unit.Default)">
                     <EmployeeLocationComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-5-best-selling-sales-persons-ytd">
                 <PageBoxComponent Title="Top 5 Best Selling Sales Persons (YTD)"
-                                  ShowRefreshButton="true"
                                   OnRefreshClicked="() => EmployeeStateProviderComponent.Top5BestSellingSalesPersonsYtdRefreshed.OnNext(Unit.Default)">
                     <Top5BestSellingSalesPersonsYTDComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-5-best-selling-sales-persons-last-year">
                 <PageBoxComponent Title="Top 5 Best Selling Sales Persons (Last Year)"
-                                  ShowRefreshButton="true"
                                   OnRefreshClicked="() => EmployeeStateProviderComponent.Top5BestSellingSalesPersonsLastYearRefreshed.OnNext(Unit.Default)">
                     <Top5BestSellingSalesPersonsLastYearComponent />
                 </PageBoxComponent>
             </div>
             <div class="employee-summary-matrix">
                 <PageBoxComponent Title="Summary Matrix"
-                                  ShowRefreshButton="true"
                                   OnRefreshClicked="() => EmployeeStateProviderComponent.EmployeeSummaryMatrixRefreshed.OnNext(Unit.Default)">
                     <EmployeeSummaryMatrixComponent />
                 </PageBoxComponent>

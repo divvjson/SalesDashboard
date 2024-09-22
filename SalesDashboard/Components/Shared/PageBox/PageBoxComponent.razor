@@ -1,6 +1,6 @@
 ﻿<div class="page-box">
     <div class="@GetPageBoxHeaderClass()">
-        @if (ShowRefreshButton)
+        @if (OnRefreshClicked.HasDelegate)
         {
             <MudIconButton Icon="@Icons.Material.Outlined.Refresh"
                            Variant="Variant.Filled"
@@ -26,9 +26,6 @@
 
     [Parameter]
     public EnumPageBoxSize Size { get; set; } = EnumPageBoxSize.Medium;
-
-    [Parameter]
-    public bool ShowRefreshButton { get; set; }
 
     [Parameter]
     public required RenderFragment ChildContent { get; set; }
