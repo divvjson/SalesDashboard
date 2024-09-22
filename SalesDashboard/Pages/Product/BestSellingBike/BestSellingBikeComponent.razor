@@ -24,7 +24,7 @@
 
 @code {
     [CascadingParameter]
-    public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
+    public ProductStateProviderComponent ProductStateProviderComponent { get; set; } = null!;
 
     private IDisposable? ProductFilterChangedSubscription { get; set; }
 
@@ -36,7 +36,7 @@
     {
         if (firstRender)
         {
-            ProductFilterChangedSubscription = ProductFilterStateProviderComponent.ProductFilterChanged
+            ProductFilterChangedSubscription = ProductStateProviderComponent.ProductFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryAsync());
 
@@ -50,11 +50,11 @@
 
         await InvokeAsync(StateHasChanged);
 
-        var period = ProductFilterStateProviderComponent.Period.Value;
-        var countryRegionNames = ProductFilterStateProviderComponent.CountryRegionNames.Value;
-        var productCategoryNames = ProductFilterStateProviderComponent.ProductCategoryNames.Value;
-        var productSubcategoryNames = ProductFilterStateProviderComponent.ProductSubcategoryNames.Value;
-        var productNames = ProductFilterStateProviderComponent.ProductNames.Value;
+        var period = ProductStateProviderComponent.Period.Value;
+        var countryRegionNames = ProductStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = ProductStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = ProductStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = ProductStateProviderComponent.ProductNames.Value;
 
         using var context = DbFactory.CreateDbContext();
 
