@@ -149,36 +149,36 @@
 
         using var context = DbFactory.CreateDbContext();
 
-        var today = SimulatedDateTime.Today;
+        var today = DateTime.Today;
 
-        var employees = await context.EmployeeDepartmentHistories
+        var items = await context.EmployeeDepartmentHistories
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Employee Summary Matrix"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .Where(edh => edh.EndDate == null)
             .Select(edh => new
             {
                 DepartmentName = edh.Department.Name,
-                EmployeeName = $"{edh.BusinessEntity.BusinessEntity.FirstName} {edh.BusinessEntity.BusinessEntity.LastName}",
-                Age = (today.Year - edh.BusinessEntity.BirthDate.Year) - (edh.BusinessEntity.BirthDate > today.AddYears(-(today.Year - edh.BusinessEntity.BirthDate.Year)) ? 1 : 0),
-                YearsOfEmployment = (today - edh.BusinessEntity.HireDate).TotalDays / 365.25,
+                FirstName = edh.BusinessEntity.BusinessEntity.FirstName,
+                LastName = edh.BusinessEntity.BusinessEntity.LastName,
+                Age = EF.Functions.DateDiffYear(edh.BusinessEntity.BirthDate, today) - (edh.BusinessEntity.BirthDate > today.AddYears(-EF.Functions.DateDiffYear(edh.BusinessEntity.BirthDate, today)) ? 1 : 0),
+                YearsOfEmployment = EF.Functions.DateDiffYear(edh.BusinessEntity.HireDate, today) - (edh.BusinessEntity.HireDate > today.AddYears(-EF.Functions.DateDiffYear(edh.BusinessEntity.HireDate, today)) ? 1 : 0),
                 VacationHours = edh.BusinessEntity.VacationHours,
                 SickLeaveHours = edh.BusinessEntity.SickLeaveHours,
                 Rate = edh.BusinessEntity.EmployeePayHistories.OrderByDescending(eph => eph.RateChangeDate).Select(eph => eph.Rate).FirstOrDefault()
             })
-            .ToListAsync();
-
-        var items = employees
             .Select(e => new EmployeeSummaryMatrixItem
             {
                 DepartmentName = e.DepartmentName,
-                EmployeeName = e.EmployeeName,
+                EmployeeName = e.FirstName + " " + e.LastName,
                 Age = e.Age,
-                YearsOfEmployment = Math.Floor(e.YearsOfEmployment),
-                VacationDaysPerYear = Math.Round((e.VacationHours / 8) / e.YearsOfEmployment),
-                SickLeaveDaysPerYear = Math.Round((e.SickLeaveHours / 8) / e.YearsOfEmployment),
+                YearsOfEmployment = e.YearsOfEmployment,
+                VacationDaysPerYear = Math.Round((double)(e.VacationHours / 8) / e.YearsOfEmployment),
+                SickLeaveDaysPerYear = Math.Round((double)(e.SickLeaveHours / 8) / e.YearsOfEmployment),
                 MonthlySalary = e.Rate * 40 * 4
             })
             .OrderBy(item => item.DepartmentName)
             .ThenBy(item => item.EmployeeName)
-            .ToList();
+            .ToListAsync();
 
         if (items.Any())
         {
