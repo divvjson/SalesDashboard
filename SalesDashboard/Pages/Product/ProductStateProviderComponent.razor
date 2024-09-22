@@ -13,6 +13,8 @@
 @code {
     public Subject<Unit> ProductFilterChanged { get; private set; } = new();
 
+    public Subject<Unit> QuantitySoldRefreshed { get; private set; } = new();
+
     public BehaviorSubject<DateTimeRange?> Period { get; set; } = new(null);
 
     public BehaviorSubject<IEnumerable<string>> CountryRegionNames { get; private set; } = new([]);

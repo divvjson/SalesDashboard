@@ -44,7 +44,8 @@
         </FilterSettingsComponent>
         <div class="grid">
             <div class="quantity-sold">
-                <PageBoxComponent Title="Quantity Sold">
+                <PageBoxComponent Title="Quantity Sold"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.QuantitySoldRefreshed.OnNext(Unit.Default)">
                     <QuantitySoldComponent />
                 </PageBoxComponent>
             </div>
