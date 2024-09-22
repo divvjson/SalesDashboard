@@ -21,6 +21,8 @@
 
     public Subject<Unit> Top5BestSellingSalesPersonsLastYearRefreshed { get; private set; } = new();
 
+    public Subject<Unit> EmployeeSummaryMatrixRefreshed { get; private set; } = new();
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 }

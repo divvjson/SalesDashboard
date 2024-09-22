@@ -85,7 +85,9 @@
                 </PageBoxComponent>
             </div>
             <div class="employee-summary-matrix">
-                <PageBoxComponent Title="Summary Matrix">
+                <PageBoxComponent Title="Summary Matrix"
+                                  ShowRefreshButton="true"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.EmployeeSummaryMatrixRefreshed.OnNext(Unit.Default)">
                     <EmployeeSummaryMatrixComponent />
                 </PageBoxComponent>
             </div>
