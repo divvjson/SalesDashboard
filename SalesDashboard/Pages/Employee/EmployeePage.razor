@@ -43,7 +43,9 @@
                 </PageBoxComponent>
             </div>
             <div class="age-group">
-                <PageBoxComponent Title="Age Group Distribution">
+                <PageBoxComponent Title="Age Group Distribution"
+                                  ShowRefreshButton="true"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.AgeGroupDistributionRefreshed.OnNext(Unit.Default)">
                     <AgeGroupComponent />
                 </PageBoxComponent>
             </div>

@@ -2,9 +2,11 @@
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
 @using SalesDashboard.Helpers
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="age-group">
@@ -21,6 +23,8 @@
     public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private IDisposable? AgeGroupDistributionRefreshedSubscription { get; set; }
 
     private bool IsChartDataLoading { get; set; } = false;
 
@@ -39,6 +43,9 @@
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
+            AgeGroupDistributionRefreshedSubscription = EmployeeStateProviderComponent.AgeGroupDistributionRefreshed
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
             await RequeryChartDataAsync();
         }
     }
@@ -53,33 +60,31 @@
 
         var today = SimulatedDateTime.Today;
 
-        var birthDates = await context.Employees
-            .Select(e => e.BirthDate)
-            .ToListAsync();
-
-        var items = birthDates
-            .Select(birthDate => new
+        var items = await context.Employees
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Age Group Distribution"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
+            .Select(e => new
             {
-                Age = (int)((today - birthDate).TotalDays / 365.25)
+                Age = EF.Functions.DateDiffYear(e.BirthDate, today) - (today.Month < e.BirthDate.Month || (today.Month == e.BirthDate.Month && today.Day < e.BirthDate.Day) ? 1 : 0)
             })
-            .GroupBy(x => new
+            .GroupBy(e => new
             {
                 AgeGroup =
-                    x.Age < 30 ? "0-29" :
-                    x.Age < 40 ? "30-39" :
-                    x.Age < 50 ? "40-49" :
-                    x.Age < 60 ? "50-59" :
-                    x.Age < 70 ? "60-69" :
-                    x.Age < 80 ? "70-79" :
+                    e.Age < 30 ? "0-29" :
+                    e.Age < 40 ? "30-39" :
+                    e.Age < 50 ? "40-49" :
+                    e.Age < 60 ? "50-59" :
+                    e.Age < 70 ? "60-69" :
+                    e.Age < 80 ? "70-79" :
                     "80-above"
             })
             .Select(g => new AgeGroupItem
-            {
-                AgeGroup = g.Key.AgeGroup,
-                Count = g.Count()
-            })
+                {
+                    AgeGroup = g.Key.AgeGroup,
+                    Count = g.Count()
+                })
             .OrderBy(item => item.AgeGroup)
-            .ToList();
+            .ToListAsync();
 
         List<ChartSeries> chartSeries = new();
 
@@ -106,5 +111,6 @@
     public void Dispose()
     {
         EmployeeFilterChangedSubscription?.Dispose();
+        AgeGroupDistributionRefreshedSubscription?.Dispose();
     }
 }
