@@ -2,9 +2,11 @@
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="top-5-best-selling-sales-persons-last-year">
@@ -21,6 +23,8 @@
     public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private IDisposable? Top5BestSellingSalesPersonsLastYearRefreshedSubscription { get; set; }
 
     private bool IsChartDataLoading { get; set; } = false;
 
@@ -40,6 +44,9 @@
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
+            Top5BestSellingSalesPersonsLastYearRefreshedSubscription = EmployeeStateProviderComponent.Top5BestSellingSalesPersonsLastYearRefreshed
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
             await RequeryChartDataAsync();
         }
     }
@@ -53,6 +60,8 @@
         using var context = DbFactory.CreateDbContext();
 
         var items = await context.SalesPeople
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Top 5 Best Selling Sales Persons (Last Year)"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .OrderByDescending(sp => sp.SalesLastYear)
             .Take(5)
             .Select(sp => new Top5BestSellingSalesPersonsLastYearItem
@@ -88,5 +97,6 @@
     public void Dispose()
     {
         EmployeeFilterChangedSubscription?.Dispose();
+        Top5BestSellingSalesPersonsLastYearRefreshedSubscription?.Dispose();
     }
 }
