@@ -50,7 +50,9 @@
                 </PageBoxComponent>
             </div>
             <div class="gender-distribution">
-                <PageBoxComponent Title="Gender Distribution">
+                <PageBoxComponent Title="Gender Distribution"
+                                  ShowRefreshButton="true"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.GenderDistributionRefreshed.OnNext(Unit.Default)">
                     <GenderDistributionComponent />
                 </PageBoxComponent>
             </div>

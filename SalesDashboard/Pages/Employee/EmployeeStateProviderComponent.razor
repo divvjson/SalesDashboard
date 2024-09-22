@@ -11,6 +11,8 @@
 
     public Subject<Unit> AgeGroupDistributionRefreshed { get; private set; } = new();
 
+    public Subject<Unit> GenderDistributionRefreshed { get; private set; } = new();
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 }
