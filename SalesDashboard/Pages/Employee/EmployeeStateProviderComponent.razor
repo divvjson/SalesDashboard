@@ -13,6 +13,8 @@
 
     public Subject<Unit> GenderDistributionRefreshed { get; private set; } = new();
 
+    public Subject<Unit> MaritalStatusRefreshed { get; private set; } = new();
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 }

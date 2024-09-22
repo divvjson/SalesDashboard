@@ -57,7 +57,9 @@
                 </PageBoxComponent>
             </div>
             <div class="marital-status">
-                <PageBoxComponent Title="Marital Status">
+                <PageBoxComponent Title="Marital Status"
+                                  ShowRefreshButton="true"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.MaritalStatusRefreshed.OnNext(Unit.Default)">
                     <MaritalStatusComponent />
                 </PageBoxComponent>
             </div>
