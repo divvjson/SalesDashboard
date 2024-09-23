@@ -31,7 +31,7 @@
         <div class="header">
             <div></div>
             <div class="header-title">Regional Analysis</div>
-            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" title="Refresh" />
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="RegionalStateProviderComponent.NotifyRegionalFilterChanged" title="Refresh" />
         </div>
         <FilterSettingsComponent NumberOfFilterSettingsSet="RegionalStateProviderComponent.NumberOfFilterSettingsSet">
             <FilterSettingsItemComponent Key="Period" Value="RegionalStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
@@ -130,11 +130,6 @@
 
             await RequeryFiguresAsync();
         }
-    }
-
-    private void HandleRefreshClicked()
-    {
-        RegionalStateProviderComponent.RegionalFilterChanged.OnNext(Unit.Default);
     }
 
     private async Task HandleSelectPeriodClickedAsync()
