@@ -62,7 +62,8 @@
                 </PageBoxComponent>
             </div>
             <div class="best-selling-bike">
-                <PageBoxComponent Title="Best Selling Bike">
+                <PageBoxComponent Title="Best Selling Bike"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.BestSellingBikeRefreshed.OnNext(Unit.Default)">
                     <BestSellingBikeComponent />
                 </PageBoxComponent>
             </div>
