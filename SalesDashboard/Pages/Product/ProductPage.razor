@@ -80,7 +80,8 @@
                 </PageBoxComponent>
             </div>
             <div class="product-summary-matrix">
-                <PageBoxComponent Title="Summary Matrix">
+                <PageBoxComponent Title="Summary Matrix"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.ProductSummaryMatrixRefreshed.OnNext(Unit.Default)">
                     <ProductSummaryMatrixComponent />
                 </PageBoxComponent>
             </div>

@@ -25,6 +25,8 @@
 
     public Subject<Unit> Top5BestSellingProductsRefreshed { get; private set; } = new ();
 
+    public Subject<Unit> ProductSummaryMatrixRefreshed { get; private set; } = new();
+
     public BehaviorSubject<DateTimeRange?> Period { get; set; } = new(null);
 
     public BehaviorSubject<IEnumerable<string>> CountryRegionNames { get; private set; } = new([]);
