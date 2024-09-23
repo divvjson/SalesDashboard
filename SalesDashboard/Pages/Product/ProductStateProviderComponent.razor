@@ -11,7 +11,13 @@
 </CascadingValue>
 
 @code {
-    public Subject<Unit> ProductFilterChanged { get; private set; } = new();
+    private bool HasInitialized { get; set; }
+
+    private bool IsResetting { get; set; }
+
+    private Subject<Unit> _ProductFilterChanged { get; set; } = new();
+
+    public IObservable<Unit> ProductFilterChanged => _ProductFilterChanged.Where(_ => HasInitialized && !IsResetting);
 
     public Subject<Unit> QuantitySoldRefreshed { get; private set; } = new();
 
@@ -63,7 +69,14 @@
             var productNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(ProductStateProviderComponent)}.{nameof(ProductNames)}");
 
             await SetProductNamesAsync(productNames ?? []);
+
+            HasInitialized = true;
         }
+    }
+
+    public void NotifyProductFilterChanged()
+    {
+        _ProductFilterChanged.OnNext(Unit.Default);
     }
 
     public async Task SetPeriodAsync(DateTimeRange? period)
@@ -83,7 +96,7 @@
 
         Period.OnNext(period);
 
-        ProductFilterChanged.OnNext(Unit.Default);
+        _ProductFilterChanged.OnNext(Unit.Default);
     }
 
     public async Task SetCountryRegionNamesAsync(IEnumerable<string> countryRegionNames)
@@ -92,7 +105,7 @@
 
         CountryRegionNames.OnNext(countryRegionNames);
 
-        ProductFilterChanged.OnNext(Unit.Default);
+        _ProductFilterChanged.OnNext(Unit.Default);
     }
 
     public async Task SetProductCategoryNamesAsync(IEnumerable<string> productCategoryNames)
@@ -103,7 +116,7 @@
 
         ProductCategoryNames.OnNext(productCategoryNames);
 
-        ProductFilterChanged.OnNext(Unit.Default);
+        _ProductFilterChanged.OnNext(Unit.Default);
     }
 
     public async Task SetProductSubcategoryNamesAsync(IEnumerable<string> productSubcategoryNames)
@@ -114,7 +127,7 @@
 
         ProductSubcategoryNames.OnNext(productSubcategoryNames);
 
-        ProductFilterChanged.OnNext(Unit.Default);
+        _ProductFilterChanged.OnNext(Unit.Default);
     }
 
     public async Task SetProductNamesAsync(IEnumerable<string> productNames)
@@ -123,18 +136,24 @@
 
         ProductNames.OnNext(productNames);
 
-        ProductFilterChanged.OnNext(Unit.Default);
+        _ProductFilterChanged.OnNext(Unit.Default);
     }
 
     public async Task ResetAsync()
     {
+        IsResetting = true;
+
         await Task.WhenAll([
-        SetPeriodAsync(null),
+            SetPeriodAsync(null),
         SetCountryRegionNamesAsync([]),
         SetProductCategoryNamesAsync([]),
         SetProductSubcategoryNamesAsync([]),
         SetProductNamesAsync([])
         ]);
+
+        IsResetting = false;
+
+        _ProductFilterChanged.OnNext(Unit.Default);
     }
 
     public int NumberOfFilterSettingsSet

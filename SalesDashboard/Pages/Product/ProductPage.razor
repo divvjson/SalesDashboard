@@ -27,7 +27,7 @@
         <div class="header">
             <div></div>
             <div class="header-title">Product Analysis</div>
-            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" title="Refresh" />
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="ProductStateProviderComponent.NotifyProductFilterChanged" title="Refresh" />
         </div>
         <FilterSettingsComponent NumberOfFilterSettingsSet="ProductStateProviderComponent.NumberOfFilterSettingsSet">
             <FilterSettingsItemComponent Key="Period" Value="ProductStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
@@ -94,11 +94,6 @@
     public ProductStateProviderComponent ProductStateProviderComponent { get; set; } = null!;
 
     private bool IsFiguresLoading { get; set; } = true;
-
-    private void HandleRefreshClicked()
-    {
-        ProductStateProviderComponent.ProductFilterChanged.OnNext(Unit.Default);
-    }
 
     private async Task HandleSelectPeriodClickedAsync()
     {
