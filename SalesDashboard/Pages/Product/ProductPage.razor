@@ -50,7 +50,8 @@
                 </PageBoxComponent>
             </div>
             <div class="distribution-of-sales-by-product-category">
-                <PageBoxComponent Title="Distribution of Sales by Product Category">
+                <PageBoxComponent Title="Distribution of Sales by Product Category"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.DistributionOfSalesByProductCategoryRefreshed.OnNext(Unit.Default)">
                     <DistributionOfSalesByProductCategoryComponent />
                 </PageBoxComponent>
             </div>
