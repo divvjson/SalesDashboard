@@ -23,6 +23,8 @@
 
     public Subject<Unit> TotalCostRefreshed { get; private set; } = new();
 
+    public Subject<Unit> InternetVsResellerRefreshed { get; private set; } = new();
+
     public BehaviorSubject<DateTimeRange?> Period { get; set; } = new(null);
 
     public BehaviorSubject<IEnumerable<string>> CountryRegionNames { get; private set; } = new([]);

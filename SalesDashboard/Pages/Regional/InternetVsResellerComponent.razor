@@ -41,6 +41,8 @@
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
+    private IDisposable? InternetVsResellerRefreshedSubscription { get; set; }
+
     private bool IsFiguresLoading { get; set; } = true;
 
     private decimal TotalSalesIs { get; set; }
@@ -65,6 +67,9 @@
         {
             RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+
+            InternetVsResellerRefreshedSubscription = RegionalStateProviderComponent.InternetVsResellerRefreshed
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
             await RequeryFiguresAsync();
@@ -118,5 +123,6 @@
     public void Dispose()
     {
         RegionalFilterChangedSubscription?.Dispose();
+        InternetVsResellerRefreshedSubscription?.Dispose();
     }
 }

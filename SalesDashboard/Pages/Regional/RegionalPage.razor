@@ -75,7 +75,8 @@
                 </PageBoxComponent>
             </div>
             <div class="internet-vs-reseller">
-                <PageBoxComponent Title="Internet vs Reseller Sales">
+                <PageBoxComponent Title="Internet vs Reseller Sales"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.InternetVsResellerRefreshed.OnNext(Unit.Default)">
                     <InternetVsResellerComponent />
                 </PageBoxComponent>
             </div>
