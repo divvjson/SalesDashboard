@@ -56,7 +56,8 @@
                 </PageBoxComponent>
             </div>
             <div class="bikes-sales-trend">
-                <PageBoxComponent Title="Bikes Sales Trend">
+                <PageBoxComponent Title="Bikes Sales Trend"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.BikesSalesTrendRefreshed.OnNext(Unit.Default)">
                     <BikesSalesTrendComponent />
                 </PageBoxComponent>
             </div>

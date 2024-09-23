@@ -1,9 +1,11 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="bikes-sales-trend">
@@ -33,6 +35,8 @@
 
     private IDisposable? ProductFilterChangedSubscription { get; set; }
 
+    private IDisposable? BikesSalesTrendRefreshedSubscription { get; set; }
+
     private bool IsChartDataLoading { get; set; } = false;
 
     private string[] Years { get; set; } = [];
@@ -41,7 +45,7 @@
 
     private ChartOptions ChartOptions { get; set; } = new()
     {
-        
+
     };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -50,6 +54,9 @@
         {
             ProductFilterChangedSubscription = ProductStateProviderComponent.ProductFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            BikesSalesTrendRefreshedSubscription = ProductStateProviderComponent.BikesSalesTrendRefreshed
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
             await RequeryChartDataAsync();
@@ -106,6 +113,8 @@
         }
 
         var items = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Bikes Sales Trend"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .Where(sod => sod.Product.ProductSubcategory != null && sod.Product.ProductSubcategory.ProductCategory.Name == "Bikes")
             .GroupBy(sod => sod.SalesOrder.OrderDate.Year)
             .Select(g => new BikesSalesTrendItem
