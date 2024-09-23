@@ -34,7 +34,7 @@
 
 @code {
     [CascadingParameter]
-    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+    public RegionalStateProviderComponent RegionalStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
     public RegionalDataProviderComponent RegionalDataProviderComponent { get; set; } = null!;
@@ -63,7 +63,7 @@
     {
         if (firstRender)
         {
-            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+            RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryFiguresAsync());
 

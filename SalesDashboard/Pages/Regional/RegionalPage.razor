@@ -33,18 +33,18 @@
             <div class="header-title">Regional Analysis</div>
             <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" title="Refresh" />
         </div>
-        <FilterSettingsComponent NumberOfFilterSettingsSet="RegionalFilterStateProviderComponent.NumberOfFilterSettingsSet">
-            <FilterSettingsItemComponent Key="Period" Value="RegionalFilterStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
+        <FilterSettingsComponent NumberOfFilterSettingsSet="RegionalStateProviderComponent.NumberOfFilterSettingsSet">
+            <FilterSettingsItemComponent Key="Period" Value="RegionalStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Country" Value="RegionalFilterStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />
+            <FilterSettingsItemComponent Key="Country" Value="RegionalStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Category" Value="RegionalFilterStateProviderComponent.ProductCategoryNames.Value" OnSelect="HandleSelectProductCategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Category" Value="RegionalStateProviderComponent.ProductCategoryNames.Value" OnSelect="HandleSelectProductCategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Subcategory" Value="RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Subcategory" Value="RegionalStateProviderComponent.ProductSubcategoryNames.Value" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product" Value="RegionalFilterStateProviderComponent.ProductNames.Value" OnSelect="HandleSelectProductClickedAsync" />
+            <FilterSettingsItemComponent Key="Product" Value="RegionalStateProviderComponent.ProductNames.Value" OnSelect="HandleSelectProductClickedAsync" />
             <MudDivider />
-            <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
         <div class="grid">
             <div class="total-sales">
@@ -103,7 +103,7 @@
 
 @code {
     [CascadingParameter]
-    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+    public RegionalStateProviderComponent RegionalStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
     public RegionalDataProviderComponent RegionalDataProviderComponent { get; set; } = null!;
@@ -124,7 +124,7 @@
     {
         if (firstRender)
         {
-            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+            RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
@@ -134,7 +134,7 @@
 
     private void HandleRefreshClicked()
     {
-        RegionalFilterStateProviderComponent.RegionalFilterChanged.OnNext(Unit.Default);
+        RegionalStateProviderComponent.RegionalFilterChanged.OnNext(Unit.Default);
     }
 
     private async Task HandleSelectPeriodClickedAsync()
@@ -143,7 +143,7 @@
 
         var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
         var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
-        var period = RegionalFilterStateProviderComponent.Period.Value;
+        var period = RegionalStateProviderComponent.Period.Value;
 
         DialogParameters<SelectPeriodDialog> parameters = new()
         {
@@ -165,7 +165,7 @@
                 End = selectedDates.Through
             };
 
-            await RegionalFilterStateProviderComponent.SetPeriodAsync(selectedPeriod);
+            await RegionalStateProviderComponent.SetPeriodAsync(selectedPeriod);
         }
     }
 
@@ -173,7 +173,7 @@
     {
         DialogParameters<SelectCountryDialog> parameters = new()
         {
-            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionNames, RegionalFilterStateProviderComponent.CountryRegionNames.Value.ToList() }
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionNames, RegionalStateProviderComponent.CountryRegionNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
@@ -182,7 +182,7 @@
 
         if (result?.Data is IEnumerable<string> selectedCountryRegionNames)
         {
-            await RegionalFilterStateProviderComponent.SetCountryRegionNamesAsync(selectedCountryRegionNames);
+            await RegionalStateProviderComponent.SetCountryRegionNamesAsync(selectedCountryRegionNames);
         }
     }
 
@@ -190,7 +190,7 @@
     {
         DialogParameters<SelectProductCategoryDialog> parameters = new()
         {
-            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalFilterStateProviderComponent.ProductCategoryNames.Value.ToList() }
+            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalStateProviderComponent.ProductCategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductCategoryDialog>("Select Product Category", parameters);
@@ -199,7 +199,7 @@
 
         if (result?.Data is IEnumerable<string> selectedProductCategoryNames)
         {
-            await RegionalFilterStateProviderComponent.SetProductCategoryNamesAsync(selectedProductCategoryNames);
+            await RegionalStateProviderComponent.SetProductCategoryNamesAsync(selectedProductCategoryNames);
         }
     }
 
@@ -207,7 +207,7 @@
     {
         DialogParameters<SelectProductSubcategoryDialog> parameters = new()
         {
-            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value.ToList() }
+            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalStateProviderComponent.ProductSubcategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductSubcategoryDialog>("Select Product Subcategory", parameters);
@@ -216,7 +216,7 @@
 
         if (result?.Data is IEnumerable<string> selectedProductSubcategoryNames)
         {
-            await RegionalFilterStateProviderComponent.SetProductSubcategoryNamesAsync(selectedProductSubcategoryNames);
+            await RegionalStateProviderComponent.SetProductSubcategoryNamesAsync(selectedProductSubcategoryNames);
         }
     }
 
@@ -224,7 +224,7 @@
     {
         DialogParameters<SelectProductDialog> parameters = new()
         {
-            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, RegionalFilterStateProviderComponent.ProductNames.Value.ToList() }
+            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, RegionalStateProviderComponent.ProductNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductDialog>("Select Product", parameters);
@@ -233,7 +233,7 @@
 
         if (result?.Data is IEnumerable<string> selectedProductNames)
         {
-            await RegionalFilterStateProviderComponent.SetProductNamesAsync(selectedProductNames);
+            await RegionalStateProviderComponent.SetProductNamesAsync(selectedProductNames);
         }
     }
 

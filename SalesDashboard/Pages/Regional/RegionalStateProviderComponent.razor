@@ -30,23 +30,23 @@
     {
         if (firstRender)
         {
-            var period = await LocalStorageService.GetItemAsync<DateTimeRange?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Period)}");
+            var period = await LocalStorageService.GetItemAsync<DateTimeRange?>($"{nameof(RegionalStateProviderComponent)}.{nameof(Period)}");
 
             await SetPeriodAsync(period);
 
-            var countryRegionNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionNames)}");
+            var countryRegionNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalStateProviderComponent)}.{nameof(CountryRegionNames)}");
 
             await SetCountryRegionNamesAsync(countryRegionNames ?? []);
 
-            var productCategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductCategoryNames)}");
+            var productCategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalStateProviderComponent)}.{nameof(ProductCategoryNames)}");
 
             await SetProductCategoryNamesAsync(productCategoryNames ?? []);
 
-            var productSubcategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductSubcategoryNames)}");
+            var productSubcategoryNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalStateProviderComponent)}.{nameof(ProductSubcategoryNames)}");
 
             await SetProductSubcategoryNamesAsync(productSubcategoryNames ?? []);
 
-            var productNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductNames)}");
+            var productNames = await LocalStorageService.GetItemAsync<List<string>?>($"{nameof(RegionalStateProviderComponent)}.{nameof(ProductNames)}");
 
             await SetProductNamesAsync(productNames ?? []);
         }
@@ -65,7 +65,7 @@
             };
         }
 
-        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(Period)}", period);
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalStateProviderComponent)}.{nameof(Period)}", period);
 
         Period.OnNext(period);
 
@@ -74,7 +74,7 @@
 
     public async Task SetCountryRegionNamesAsync(IEnumerable<string> countryRegionNames)
     {
-        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(CountryRegionNames)}", countryRegionNames);
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalStateProviderComponent)}.{nameof(CountryRegionNames)}", countryRegionNames);
 
         CountryRegionNames.OnNext(countryRegionNames);
 
@@ -85,7 +85,7 @@
     {
         await SetProductSubcategoryNamesAsync([]);
 
-        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductCategoryNames)}", productCategoryNames);
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalStateProviderComponent)}.{nameof(ProductCategoryNames)}", productCategoryNames);
 
         ProductCategoryNames.OnNext(productCategoryNames);
 
@@ -96,7 +96,7 @@
     {
         await SetProductNamesAsync([]);
 
-        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductSubcategoryNames)}", productSubcategoryNames);
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalStateProviderComponent)}.{nameof(ProductSubcategoryNames)}", productSubcategoryNames);
 
         ProductSubcategoryNames.OnNext(productSubcategoryNames);
 
@@ -105,7 +105,7 @@
 
     public async Task SetProductNamesAsync(IEnumerable<string> productNames)
     {
-        await LocalStorageService.SetItemAsync($"{nameof(RegionalFilterStateProviderComponent)}.{nameof(ProductNames)}", productNames);
+        await LocalStorageService.SetItemAsync($"{nameof(RegionalStateProviderComponent)}.{nameof(ProductNames)}", productNames);
 
         ProductNames.OnNext(productNames);
 
