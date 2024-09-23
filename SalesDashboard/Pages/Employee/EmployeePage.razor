@@ -25,7 +25,7 @@
         <div class="header">
             <div></div>
             <div class="header-title">Employee Analysis</div>
-            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" title="Refresh" />
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="EmployeeStateProviderComponent.NotifyEmployeeFilterChanged" title="Refresh" />
         </div>
         <div class="grid">
             <div class="total-number-of-employees">
@@ -111,11 +111,6 @@
 
             await RequeryFiguresAsync();
         }
-    }
-
-    private void HandleRefreshClicked()
-    {
-        EmployeeStateProviderComponent.EmployeeFilterChanged.OnNext(Unit.Default);
     }
 
     private async Task RequeryFiguresAsync()

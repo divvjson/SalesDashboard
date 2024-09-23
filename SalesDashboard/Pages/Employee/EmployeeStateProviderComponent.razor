@@ -3,7 +3,11 @@
 </CascadingValue>
 
 @code {
-    public Subject<Unit> EmployeeFilterChanged { get; private set; } = new();
+    private bool HasInitialized { get; set; }
+
+    private Subject<Unit> _EmployeeFilterChanged { get; set; } = new();
+
+    public IObservable<Unit> EmployeeFilterChanged => _EmployeeFilterChanged.Where(_ => HasInitialized);
 
     public Subject<Unit> TotalNumberOfEmployeesRefreshed { get; private set; } = new();
 
@@ -25,4 +29,17 @@
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            HasInitialized = true;
+        }
+    }
+
+    public void NotifyEmployeeFilterChanged()
+    {
+        _EmployeeFilterChanged.OnNext(Unit.Default);
+    }
 }

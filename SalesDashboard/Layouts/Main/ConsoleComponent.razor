@@ -34,6 +34,8 @@
 
     private IJSObjectReference JSModule { get; set; } = null!;
 
+    private SemaphoreSlim SemaphoreSlim { get; set; } = new(1, 1);
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -53,20 +55,29 @@
 
     private async Task HandleLatestDbCommandItemAsync(DbCommandItem? item)
     {
-        if (item is null)
+        await SemaphoreSlim.WaitAsync();
+
+        try
         {
-            return;
+            if (item is null)
+            {
+                return;
+            }
+
+            var formattedCommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", item.CommandText);
+
+            item.CommandText = formattedCommandText;
+
+            ConsoleLog.Add(item);
+
+            await InvokeAsync(StateHasChanged);
+
+            await JSModule.InvokeVoidAsync("highlightCommandText");
         }
-
-        var formattedCommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", item.CommandText);
-
-        item.CommandText = formattedCommandText;
-
-        ConsoleLog.Add(item);
-
-        await InvokeAsync(StateHasChanged);
-
-        await JSModule.InvokeVoidAsync("highlightCommandText");
+        finally
+        {
+            SemaphoreSlim.Release();
+        }
     }
 
     public void Clear()
