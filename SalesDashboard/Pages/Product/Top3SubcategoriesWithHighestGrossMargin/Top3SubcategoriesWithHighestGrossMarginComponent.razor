@@ -1,9 +1,11 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="top-3-subcategories-with-highest-gross-margin">
@@ -21,6 +23,8 @@
 
     private IDisposable? ProductFilterChangedSubscription { get; set; }
 
+    private IDisposable? Top3SubcategoriesWithHighestGrossMarginRefreshedSubscription { get; set; }
+
     private bool IsChartDataLoading { get; set; } = false;
 
     public List<ChartSeries> ChartSeries { get; set; } = new();
@@ -37,6 +41,9 @@
         {
             ProductFilterChangedSubscription = ProductStateProviderComponent.ProductFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            Top3SubcategoriesWithHighestGrossMarginRefreshedSubscription = ProductStateProviderComponent.Top3SubcategoriesWithHighestGrossMarginRefreshed
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
             await RequeryChartDataAsync();
@@ -93,6 +100,8 @@
         }
 
         var items = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Top 3 Subcategories with Highest Gross Margin"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .GroupBy(sod => sod.Product.ProductSubcategory == null ? "Other" : sod.Product.ProductSubcategory.Name)
             .Select(g => new Top3SubcategoriesWithHighestGrossMarginItem
             {
@@ -128,5 +137,6 @@
     public void Dispose()
     {
         ProductFilterChangedSubscription?.Dispose();
+        Top3SubcategoriesWithHighestGrossMarginRefreshedSubscription?.Dispose();
     }
 }

@@ -68,7 +68,8 @@
                 </PageBoxComponent>
             </div>
             <div class="top-3-subcategories-with-highest-gross-margin">
-                <PageBoxComponent Title="Top 3 Subcategories with Highest Gross Margin">
+                <PageBoxComponent Title="Top 3 Subcategories with Highest Gross Margin"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.Top3SubcategoriesWithHighestGrossMarginRefreshed.OnNext(Unit.Default)">
                     <Top3SubcategoriesWithHighestGrossMarginComponent />
                 </PageBoxComponent>
             </div>
