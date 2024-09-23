@@ -1,9 +1,11 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="top-5-best-selling-products">
@@ -21,6 +23,8 @@
 
     private IDisposable? ProductFilterChangedSubscription { get; set; }
 
+    private IDisposable? Top5BestSellingProductsRefreshedSubscription { get; set; }
+
     private bool IsChartDataLoading { get; set; } = false;
 
     public List<ChartSeries> ChartSeries { get; set; } = new();
@@ -36,6 +40,9 @@
         {
             ProductFilterChangedSubscription = ProductStateProviderComponent.ProductFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            Top5BestSellingProductsRefreshedSubscription = ProductStateProviderComponent.Top5BestSellingProductsRefreshed
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
             await RequeryChartDataAsync();
@@ -92,6 +99,8 @@
         }
 
         var items = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Top 5 Best Selling Products"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .GroupBy(sod => sod.Product.Name)
             .Select(g => new Top5BestSellingProductsItem
             {
@@ -127,5 +136,6 @@
     public void Dispose()
     {
         ProductFilterChangedSubscription?.Dispose();
+        Top5BestSellingProductsRefreshedSubscription?.Dispose();
     }
 }

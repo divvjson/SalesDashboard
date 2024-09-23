@@ -74,7 +74,8 @@
                 </PageBoxComponent>
             </div>
             <div class="top-5-best-selling-products">
-                <PageBoxComponent Title="Top 5 Best Selling Products">
+                <PageBoxComponent Title="Top 5 Best Selling Products"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.Top5BestSellingProductsRefreshed.OnNext(Unit.Default)">
                     <Top5BestSellingProductsComponent />
                 </PageBoxComponent>
             </div>
