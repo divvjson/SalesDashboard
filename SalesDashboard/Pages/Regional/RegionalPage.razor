@@ -48,23 +48,25 @@
         </FilterSettingsComponent>
         <div class="grid">
             <div class="total-sales">
-                <PageBoxComponent Title="Total Sales">
-                    <FigureBoxComponent Value="@TotalSales.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
+                <PageBoxComponent Title="Total Sales"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.TotalSalesRefreshed.OnNext(Unit.Default)">
+                    <FigureBoxComponent Value="@TotalSales.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsTotalSalesLoading" />
                 </PageBoxComponent>
             </div>
             <div class="total-cost">
-                <PageBoxComponent Title="Total Cost">
-                    <FigureBoxComponent Value="@TotalCost.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
+                <PageBoxComponent Title="Total Cost"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.TotalCostRefreshed.OnNext(Unit.Default)">
+                    <FigureBoxComponent Value="@TotalCost.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsTotalCostLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-profit">
                 <PageBoxComponent Title="Gross Profit">
-                    <FigureBoxComponent Value="@GrossProfit.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@GrossProfit.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsTotalSalesLoading || IsTotalCostLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-margin">
                 <PageBoxComponent Title="Gross Margin">
-                    <FigureBoxComponent Value="@GrossMargin.ToPercentageWithTwoDecimals()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@GrossMargin.ToPercentageWithTwoDecimals()" IsLoading="IsTotalSalesLoading || IsTotalCostLoading" />
                 </PageBoxComponent>
             </div>
             <div class="sales-trend-top-3-countries">
@@ -110,7 +112,13 @@
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
-    private bool IsFiguresLoading { get; set; } = true;
+    private IDisposable? TotalSalesRefreshedSubscription { get; set; }
+
+    private IDisposable? TotalCostRefreshedSubscription { get; set; }
+
+    private bool IsTotalSalesLoading { get; set; } = true;
+
+    private bool IsTotalCostLoading { get; set; } = true;
 
     private decimal TotalSales { get; set; }
 
@@ -127,6 +135,12 @@
             RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryFiguresAsync());
+
+            TotalSalesRefreshedSubscription = RegionalStateProviderComponent.TotalSalesRefreshed
+                .Subscribe(async _ => await RequeryTotalSalesAsync());
+
+            TotalCostRefreshedSubscription = RegionalStateProviderComponent.TotalCostRefreshed
+                .Subscribe(async _ => await RequeryTotalCostAsync());
 
             await RequeryFiguresAsync();
         }
@@ -234,19 +248,51 @@
 
     private async Task RequeryFiguresAsync()
     {
-        IsFiguresLoading = true;
+        await Task.WhenAll([
+        RequeryTotalSalesAsync(),
+        RequeryTotalCostAsync()
+        ]);
+    }
+
+    private async Task RequeryTotalSalesAsync()
+    {
+        IsTotalSalesLoading = true;
 
         await InvokeAsync(StateHasChanged);
 
-        var getTotalSalesAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync();
-        var getTotalCostAsyncTask = RegionalDataProviderComponent.GetTotalCostAsync();
+        TotalSales = await RegionalDataProviderComponent.GetTotalSalesAsync();
 
-        var result = await Task.WhenAll([getTotalSalesAsyncTask, getTotalCostAsyncTask]);
+        SetGrossProfit();
+        SetGrossMargin();
 
-        TotalSales = result[0];
-        TotalCost = result[1];
+        IsTotalSalesLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RequeryTotalCostAsync()
+    {
+        IsTotalCostLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        TotalCost = await RegionalDataProviderComponent.GetTotalCostAsync();
+
+        SetGrossProfit();
+        SetGrossMargin();
+
+        IsTotalCostLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void SetGrossProfit()
+    {
         GrossProfit = TotalSales - TotalCost;
+    }
 
+    private void SetGrossMargin()
+    {
         if (TotalSales != 0)
         {
             GrossMargin = GrossProfit / TotalSales;
@@ -255,14 +301,12 @@
         {
             GrossMargin = 0;
         }
-
-        IsFiguresLoading = false;
-
-        await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
         RegionalFilterChangedSubscription?.Dispose();
+        TotalSalesRefreshedSubscription?.Dispose();
+        TotalCostRefreshedSubscription?.Dispose();
     }
 }

@@ -2,8 +2,10 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Enums
 @using SalesDashboard.Helpers
+@using SalesDashboard.Services
 
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <CascadingValue Value="this">
     @ChildContent
@@ -73,7 +75,21 @@
             }
         }
 
-        var totalSales = await query.SumAsync(sod => sod.LineTotal);
+        var commandName = "Total Sales";
+
+        if (salesChannel is EnumSalesChannel.Internet)
+        {
+            commandName += " Internet";
+        }
+        else if (salesChannel is EnumSalesChannel.Reseller)
+        {
+            commandName += " Reseller";
+        }
+
+        var totalSales = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, commandName))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
+            .SumAsync(sod => sod.LineTotal);
 
         return totalSales;
     }
@@ -135,7 +151,21 @@
             }
         }
 
-        var totalCost = await query.SumAsync(sod => sod.UnitCost * sod.OrderQty);
+        var commandName = "Total Cost";
+
+        if (salesChannel is EnumSalesChannel.Internet)
+        {
+            commandName += " Internet";
+        }
+        else if (salesChannel is EnumSalesChannel.Reseller)
+        {
+            commandName += " Reseller";
+        }
+
+        var totalCost = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, commandName))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
+            .SumAsync(sod => sod.UnitCost * sod.OrderQty);
 
         return totalCost;
     }

@@ -19,6 +19,10 @@
 
     public IObservable<Unit> RegionalFilterChanged => _RegionalFilterChanged.Where(_ => HasInitialized && !IsResetting);
 
+    public Subject<Unit> TotalSalesRefreshed { get; private set; } = new();
+
+    public Subject<Unit> TotalCostRefreshed { get; private set; } = new();
+
     public BehaviorSubject<DateTimeRange?> Period { get; set; } = new(null);
 
     public BehaviorSubject<IEnumerable<string>> CountryRegionNames { get; private set; } = new([]);
