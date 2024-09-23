@@ -70,7 +70,8 @@
                 </PageBoxComponent>
             </div>
             <div class="sales-trend-top-3-countries">
-                <PageBoxComponent Title="Sales Trend Top 3 Countries">
+                <PageBoxComponent Title="Sales Trend Top 3 Countries"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.SalesTrendTop3CountriesRefreshed.OnNext(Unit.Default)">
                     <SalesTrendTop3CountriesComponent />
                 </PageBoxComponent>
             </div>

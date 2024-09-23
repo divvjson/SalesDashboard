@@ -23,6 +23,8 @@
 
     public Subject<Unit> TotalCostRefreshed { get; private set; } = new();
 
+    public Subject<Unit> SalesTrendTop3CountriesRefreshed { get; private set; } = new();
+
     public Subject<Unit> InternetVsResellerRefreshed { get; private set; } = new();
 
     public BehaviorSubject<DateTimeRange?> Period { get; set; } = new(null);
