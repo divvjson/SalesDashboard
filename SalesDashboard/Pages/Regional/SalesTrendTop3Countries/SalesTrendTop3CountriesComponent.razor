@@ -1,9 +1,11 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="sales-trend-top-3-countries">
@@ -29,9 +31,11 @@
 
 @code {
     [CascadingParameter]
-    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+    public RegionalStateProviderComponent RegionalStateProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private IDisposable? SalesTrendTop3CountriesRefreshedSubscription { get; set; }
 
     private bool IsChartDataLoading { get; set; } = false;
 
@@ -49,8 +53,11 @@
     {
         if (firstRender)
         {
-            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+            RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            SalesTrendTop3CountriesRefreshedSubscription = RegionalStateProviderComponent.SalesTrendTop3CountriesRefreshed
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
             await RequeryChartDataAsync();
@@ -63,11 +70,11 @@
 
         await InvokeAsync(StateHasChanged);
 
-        var period = RegionalFilterStateProviderComponent.Period.Value;
-        var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
-        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
-        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
-        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+        var period = RegionalStateProviderComponent.Period.Value;
+        var countryRegionNames = RegionalStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = RegionalStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalStateProviderComponent.ProductNames.Value;
 
         using var context = DbFactory.CreateDbContext();
 
@@ -107,54 +114,53 @@
         }
 
         var items = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Sales Trend Top 3 Countries"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .GroupBy(sod => new
-                { 
-                    sod.SalesOrder.OrderDate.Year,
-                    sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name
-                })
-            .Select(g => new SalesTrendTop3CountriesItem
-                {
-                    Year = g.Key.Year,
-                    CountryName = g.Key.Name,
-                    TotalSales = g.Sum(sod => sod.LineTotal)
-                })
-            .ToListAsync();
-
-        var years = items
-            .Select(item => item.Year)
-            .Distinct()
-            .OrderBy(year => year)
-            .ToArray();
-
-        var top3Countries = items
-            .GroupBy(item => item.CountryName)
+            {
+                CountryName = sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name,
+                Year = sod.SalesOrder.OrderDate.Year,
+            })
+            .Select(g => new
+            {
+                g.Key.CountryName,
+                g.Key.Year,
+                TotalSales = g.Sum(sod => sod.LineTotal)
+            })
+            .GroupBy(x => x.CountryName)
             .Select(g => new
             {
                 CountryName = g.Key,
-                TotalSales = g.Sum(item => item.TotalSales)
-            })
-            .OrderByDescending(x => x.TotalSales)
-            .Take(3)
-            .Select(x => x.CountryName)
-            .ToList();
-
-        var filteredItems = items
-            .Where(item => top3Countries.Contains(item.CountryName))
-            .ToList();
-
-        var chartSeries = filteredItems
-            .GroupBy(filteredItem => filteredItem.CountryName)
-            .Select(g => new ChartSeries
+                TotalSales = g.Sum(s => s.TotalSales),
+                SalesYears = g.Select(s => new SalesYear
                 {
-                    Name = g.Key,
-                    Data = years.Select(year => Convert.ToDouble(g.FirstOrDefault(x => x.Year == year)?.TotalSales / 1000000 ?? 0)).ToArray()
+                    Year = s.Year,
+                    TotalSales = s.TotalSales
                 })
-            .ToList();
+            })
+            .OrderByDescending(g => g.TotalSales)
+            .Take(3)
+            .Select(x => new SalesTrendTop3CountriesItem
+            {
+                CountryName = x.CountryName,
+                SalesYears = x.SalesYears
+            })
+            .ToListAsync();
 
-        Years = years
-            .Select(year => year.ToString())
+        var years = items
+            .SelectMany(item => item.SalesYears.Select(salesYear => salesYear.Year.ToString()))
+            .Distinct()
             .ToArray();
 
+        var chartSeries = items
+            .Select(item => new ChartSeries
+            {
+                Name = item.CountryName,
+                Data = item.SalesYears.Select(salesYear => Convert.ToDouble(salesYear.TotalSales / 1000000)).ToArray()
+            })
+            .ToList();
+
+        Years = years;
         ChartSeries = chartSeries;
 
         IsChartDataLoading = false;
@@ -165,5 +171,6 @@
     public void Dispose()
     {
         RegionalFilterChangedSubscription?.Dispose();
+        SalesTrendTop3CountriesRefreshedSubscription?.Dispose();
     }
 }

@@ -2,8 +2,10 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Enums
 @using SalesDashboard.Helpers
+@using SalesDashboard.Services
 
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <CascadingValue Value="this">
     @ChildContent
@@ -14,15 +16,15 @@
     public RenderFragment? ChildContent { get; set; }
 
     [CascadingParameter]
-    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+    public RegionalStateProviderComponent RegionalStateProviderComponent { get; set; } = null!;
 
     public async Task<decimal> GetTotalSalesAsync(EnumSalesChannel? salesChannel = null)
     {
-        var period = RegionalFilterStateProviderComponent.Period.Value;
-        var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
-        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
-        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
-        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+        var period = RegionalStateProviderComponent.Period.Value;
+        var countryRegionNames = RegionalStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = RegionalStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalStateProviderComponent.ProductNames.Value;
 
         using var context = DbFactory.CreateDbContext();
 
@@ -73,18 +75,32 @@
             }
         }
 
-        var totalSales = await query.SumAsync(sod => sod.LineTotal);
+        var commandName = "Total Sales";
+
+        if (salesChannel is EnumSalesChannel.Internet)
+        {
+            commandName += " Internet";
+        }
+        else if (salesChannel is EnumSalesChannel.Reseller)
+        {
+            commandName += " Reseller";
+        }
+
+        var totalSales = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, commandName))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
+            .SumAsync(sod => sod.LineTotal);
 
         return totalSales;
     }
 
     public async Task<decimal> GetTotalCostAsync(EnumSalesChannel? salesChannel = null)
     {
-        var period = RegionalFilterStateProviderComponent.Period.Value;
-        var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
-        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
-        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
-        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+        var period = RegionalStateProviderComponent.Period.Value;
+        var countryRegionNames = RegionalStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = RegionalStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalStateProviderComponent.ProductNames.Value;
 
         using var context = DbFactory.CreateDbContext();
 
@@ -135,7 +151,21 @@
             }
         }
 
-        var totalCost = await query.SumAsync(sod => sod.UnitCost * sod.OrderQty);
+        var commandName = "Total Cost";
+
+        if (salesChannel is EnumSalesChannel.Internet)
+        {
+            commandName += " Internet";
+        }
+        else if (salesChannel is EnumSalesChannel.Reseller)
+        {
+            commandName += " Reseller";
+        }
+
+        var totalCost = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, commandName))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
+            .SumAsync(sod => sod.UnitCost * sod.OrderQty);
 
         return totalCost;
     }

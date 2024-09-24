@@ -1,0 +1,45 @@
+﻿<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    private bool HasInitialized { get; set; }
+
+    private Subject<Unit> _EmployeeFilterChanged { get; set; } = new();
+
+    public IObservable<Unit> EmployeeFilterChanged => _EmployeeFilterChanged.Where(_ => HasInitialized);
+
+    public Subject<Unit> TotalNumberOfEmployeesRefreshed { get; private set; } = new();
+
+    public Subject<Unit> NumberOfEmployeesByDepartmentRefreshed { get; private set; } = new();
+
+    public Subject<Unit> AgeGroupDistributionRefreshed { get; private set; } = new();
+
+    public Subject<Unit> GenderDistributionRefreshed { get; private set; } = new();
+
+    public Subject<Unit> MaritalStatusRefreshed { get; private set; } = new();
+
+    public Subject<Unit> EmployeeLocationRefreshed { get; private set; } = new();
+
+    public Subject<Unit> Top5BestSellingSalesPersonsYtdRefreshed { get; private set; } = new ();
+
+    public Subject<Unit> Top5BestSellingSalesPersonsLastYearRefreshed { get; private set; } = new();
+
+    public Subject<Unit> EmployeeSummaryMatrixRefreshed { get; private set; } = new();
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            HasInitialized = true;
+        }
+    }
+
+    public void NotifyEmployeeFilterChanged()
+    {
+        _EmployeeFilterChanged.OnNext(Unit.Default);
+    }
+}

@@ -2,10 +2,12 @@
 @using SalesDashboard.Components.Shared.ClickToUnlockOverlay
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IJSRuntime JSRuntime
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsMapDataLoading">
     <ClickToUnlockOverlayComponent IsVisible="IsClickToUnlockVisible" OnUnlockClicked="HandleUnlockClicked" OnLockClicked="HandleLockClicked">
@@ -23,9 +25,11 @@
 
 @code {
     [CascadingParameter]
-    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+    public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private IDisposable? EmployeeLocationRefreshedSubscription { get; set; }
 
     private bool IsMapDataLoading { get; set; } = false;
 
@@ -43,8 +47,11 @@
 
             await JSModule.InvokeVoidAsync("initializeMap");
 
-            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+            EmployeeFilterChangedSubscription = EmployeeStateProviderComponent.EmployeeFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryMapDataAsync());
+
+            EmployeeLocationRefreshedSubscription = EmployeeStateProviderComponent.EmployeeLocationRefreshed
                 .Subscribe(async _ => await RequeryMapDataAsync());
 
             await RequeryMapDataAsync();
@@ -78,6 +85,8 @@
         using var context = DbFactory.CreateDbContext();
 
         var query = context.EmployeeDepartmentHistories
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Employee Location"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .Where(edh => edh.EndDate == null)
             .Select(edh => new
             {
@@ -148,5 +157,6 @@
     public void Dispose()
     {
         EmployeeFilterChangedSubscription?.Dispose();
+        EmployeeLocationRefreshedSubscription?.Dispose();
     }
 }

@@ -1,15 +1,20 @@
+using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using MudBlazor.Services;
 using SalesDashboard;
 using SalesDashboard.Entities;
 using SalesDashboard.Helpers;
-using SalesDashboard.Services.Scoped.LocalStorage;
+using SalesDashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
+builder.Services.AddDbContextFactory<AdventureWorksContext>((serviceProvider, options) =>
 {
+    var dbCommandService = serviceProvider.GetRequiredService<DbCommandService>();
+
     options
+        .AddInterceptors(new DbCommandInterceptorImpl(dbCommandService))
         .UseLazyLoadingProxies()
         .UseSqlServer(SecretsHelper.GetConnectionString(builder.Configuration), options => options.UseNetTopologySuite());
 });
@@ -18,7 +23,11 @@ builder.Services.AddDbContextFactory<AdventureWorksContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddMudServices();
+builder.Services.AddScoped<CircuitAccessor>();
+builder.Services.AddScoped<CircuitHandler, CircuitService>();
 builder.Services.AddScoped<LocalStorageService>();
+builder.Services.AddSingleton<DbCommandService>();
+builder.Services.AddSingleton<DbCommandInterceptor, DbCommandInterceptorImpl>();
 
 var app = builder.Build();
 

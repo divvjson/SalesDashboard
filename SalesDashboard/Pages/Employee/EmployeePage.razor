@@ -12,9 +12,11 @@
 @using SalesDashboard.Pages.Employee.NumberOfEmployeesByDepartment
 @using SalesDashboard.Pages.Employee.Top5BestSellingSalesPersonsLastYear
 @using SalesDashboard.Pages.Employee.Top5BestSellingSalesPersonsYTD
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <PageTitle>Employee Analysis</PageTitle>
 
@@ -23,53 +25,60 @@
         <div class="header">
             <div></div>
             <div class="header-title">Employee Analysis</div>
-            <MudTooltip Text="Refresh">
-                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
-            </MudTooltip>
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="EmployeeStateProviderComponent.NotifyEmployeeFilterChanged" title="Refresh" />
         </div>
         <div class="grid">
             <div class="total-number-of-employees">
-                <PageBoxComponent Title="Total Number of Employees">
+                <PageBoxComponent Title="Total Number of Employees"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.TotalNumberOfEmployeesRefreshed.OnNext(Unit.Default)">
                     <FigureBoxComponent Value="@TotalNumberOfEmployees.ToString()" IsLoading="IsFiguresLoading" />
                 </PageBoxComponent>
             </div>
             <div class="number-of-employees-by-department">
-                <PageBoxComponent Title="Number of Employees by Department">
+                <PageBoxComponent Title="Number of Employees by Department"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.NumberOfEmployeesByDepartmentRefreshed.OnNext(Unit.Default)">
                     <NumberOfEmployeesByDepartmentComponent />
                 </PageBoxComponent>
             </div>
             <div class="age-group">
-                <PageBoxComponent Title="Age Group Distribution">
+                <PageBoxComponent Title="Age Group Distribution"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.AgeGroupDistributionRefreshed.OnNext(Unit.Default)">
                     <AgeGroupComponent />
                 </PageBoxComponent>
             </div>
             <div class="gender-distribution">
-                <PageBoxComponent Title="Gender Distribution">
+                <PageBoxComponent Title="Gender Distribution"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.GenderDistributionRefreshed.OnNext(Unit.Default)">
                     <GenderDistributionComponent />
                 </PageBoxComponent>
             </div>
             <div class="marital-status">
-                <PageBoxComponent Title="Marital Status">
+                <PageBoxComponent Title="Marital Status"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.MaritalStatusRefreshed.OnNext(Unit.Default)">
                     <MaritalStatusComponent />
                 </PageBoxComponent>
             </div>
             <div class="employee-location">
-                <PageBoxComponent Title="Employee Location">
+                <PageBoxComponent Title="Employee Location"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.EmployeeLocationRefreshed.OnNext(Unit.Default)">
                     <EmployeeLocationComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-5-best-selling-sales-persons-ytd">
-                <PageBoxComponent Title="Top 5 Best Selling Sales Persons (YTD)">
+                <PageBoxComponent Title="Top 5 Best Selling Sales Persons (YTD)"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.Top5BestSellingSalesPersonsYtdRefreshed.OnNext(Unit.Default)">
                     <Top5BestSellingSalesPersonsYTDComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-5-best-selling-sales-persons-last-year">
-                <PageBoxComponent Title="Top 5 Best Selling Sales Persons (Last Year)">
+                <PageBoxComponent Title="Top 5 Best Selling Sales Persons (Last Year)"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.Top5BestSellingSalesPersonsLastYearRefreshed.OnNext(Unit.Default)">
                     <Top5BestSellingSalesPersonsLastYearComponent />
                 </PageBoxComponent>
             </div>
             <div class="employee-summary-matrix">
-                <PageBoxComponent Title="Summary Matrix">
+                <PageBoxComponent Title="Summary Matrix"
+                                  OnRefreshClicked="() => EmployeeStateProviderComponent.EmployeeSummaryMatrixRefreshed.OnNext(Unit.Default)">
                     <EmployeeSummaryMatrixComponent />
                 </PageBoxComponent>
             </div>
@@ -79,9 +88,11 @@
 
 @code {
     [CascadingParameter]
-    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+    public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private IDisposable? TotalNumberOfEmployeesRefreshedSubscription { get; set; }
 
     private bool IsFiguresLoading { get; set; } = true;
 
@@ -91,17 +102,15 @@
     {
         if (firstRender)
         {
-            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+            EmployeeFilterChangedSubscription = EmployeeStateProviderComponent.EmployeeFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+
+            TotalNumberOfEmployeesRefreshedSubscription = EmployeeStateProviderComponent.TotalNumberOfEmployeesRefreshed
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
             await RequeryFiguresAsync();
         }
-    }
-
-    private void HandleRefreshClicked()
-    {
-        EmployeeFilterStateProviderComponent.EmployeeFilterChanged.OnNext(Unit.Default);
     }
 
     private async Task RequeryFiguresAsync()
@@ -112,7 +121,10 @@
 
         using var context = DbFactory.CreateDbContext();
 
-        TotalNumberOfEmployees = await context.Employees.CountAsync();
+        TotalNumberOfEmployees = await context.Employees
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Total Number of Employees"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
+            .CountAsync();
 
         IsFiguresLoading = false;
 
@@ -122,5 +134,6 @@
     public void Dispose()
     {
         EmployeeFilterChangedSubscription?.Dispose();
+        TotalNumberOfEmployeesRefreshedSubscription?.Dispose();
     }
 }

@@ -54,6 +54,17 @@
     overflow-y: auto;
 }
 
+.console-container {
+    display: flex;
+    position: absolute;
+    bottom: 0;
+    z-index: 2000;
+    width: 100%;
+    height: var(--console-height);
+    opacity: 95%;
+    transition: bottom var(--console-animation-duration) var(--console-animation-easing);
+}
+
 @media (min-width: 0px) {
 }
 

@@ -27,56 +27,61 @@
         <div class="header">
             <div></div>
             <div class="header-title">Product Analysis</div>
-            <MudTooltip Text="Refresh">
-                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
-            </MudTooltip>
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="ProductStateProviderComponent.NotifyProductFilterChanged" title="Refresh" />
         </div>
-        <FilterSettingsComponent NumberOfFilterSettingsSet="ProductFilterStateProviderComponent.NumberOfFilterSettingsSet">
-            <FilterSettingsItemComponent Key="Period" Value="ProductFilterStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
+        <FilterSettingsComponent NumberOfFilterSettingsSet="ProductStateProviderComponent.NumberOfFilterSettingsSet">
+            <FilterSettingsItemComponent Key="Period" Value="ProductStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Country" Value="ProductFilterStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />
+            <FilterSettingsItemComponent Key="Country" Value="ProductStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Category" Value="ProductFilterStateProviderComponent.ProductCategoryNames.Value" OnSelect="HandleSelectProductCategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Category" Value="ProductStateProviderComponent.ProductCategoryNames.Value" OnSelect="HandleSelectProductCategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Subcategory" Value="ProductFilterStateProviderComponent.ProductSubcategoryNames.Value" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Subcategory" Value="ProductStateProviderComponent.ProductSubcategoryNames.Value" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product" Value="ProductFilterStateProviderComponent.ProductNames.Value" OnSelect="HandleSelectProductClickedAsync" />
+            <FilterSettingsItemComponent Key="Product" Value="ProductStateProviderComponent.ProductNames.Value" OnSelect="HandleSelectProductClickedAsync" />
             <MudDivider />
-            <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="ProductFilterStateProviderComponent.ResetAsync">Reset</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="ProductStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
         <div class="grid">
             <div class="quantity-sold">
-                <PageBoxComponent Title="Quantity Sold">
+                <PageBoxComponent Title="Quantity Sold"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.QuantitySoldRefreshed.OnNext(Unit.Default)">
                     <QuantitySoldComponent />
                 </PageBoxComponent>
             </div>
             <div class="distribution-of-sales-by-product-category">
-                <PageBoxComponent Title="Distribution of Sales by Product Category">
+                <PageBoxComponent Title="Distribution of Sales by Product Category"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.DistributionOfSalesByProductCategoryRefreshed.OnNext(Unit.Default)">
                     <DistributionOfSalesByProductCategoryComponent />
                 </PageBoxComponent>
             </div>
             <div class="bikes-sales-trend">
-                <PageBoxComponent Title="Bikes Sales Trend">
+                <PageBoxComponent Title="Bikes Sales Trend"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.BikesSalesTrendRefreshed.OnNext(Unit.Default)">
                     <BikesSalesTrendComponent />
                 </PageBoxComponent>
             </div>
             <div class="best-selling-bike">
-                <PageBoxComponent Title="Best Selling Bike">
+                <PageBoxComponent Title="Best Selling Bike"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.BestSellingBikeRefreshed.OnNext(Unit.Default)">
                     <BestSellingBikeComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-3-subcategories-with-highest-gross-margin">
-                <PageBoxComponent Title="Top 3 Subcategories with Highest Gross Margin">
+                <PageBoxComponent Title="Top 3 Subcategories with Highest Gross Margin"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.Top3SubcategoriesWithHighestGrossMarginRefreshed.OnNext(Unit.Default)">
                     <Top3SubcategoriesWithHighestGrossMarginComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-5-best-selling-products">
-                <PageBoxComponent Title="Top 5 Best Selling Products">
+                <PageBoxComponent Title="Top 5 Best Selling Products"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.Top5BestSellingProductsRefreshed.OnNext(Unit.Default)">
                     <Top5BestSellingProductsComponent />
                 </PageBoxComponent>
             </div>
             <div class="product-summary-matrix">
-                <PageBoxComponent Title="Summary Matrix">
+                <PageBoxComponent Title="Summary Matrix"
+                                  OnRefreshClicked="() => ProductStateProviderComponent.ProductSummaryMatrixRefreshed.OnNext(Unit.Default)">
                     <ProductSummaryMatrixComponent />
                 </PageBoxComponent>
             </div>
@@ -86,14 +91,9 @@
 
 @code {
     [CascadingParameter]
-    public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
+    public ProductStateProviderComponent ProductStateProviderComponent { get; set; } = null!;
 
     private bool IsFiguresLoading { get; set; } = true;
-
-    private void HandleRefreshClicked()
-    {
-        ProductFilterStateProviderComponent.ProductFilterChanged.OnNext(Unit.Default);
-    }
 
     private async Task HandleSelectPeriodClickedAsync()
     {
@@ -101,7 +101,7 @@
 
         var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
         var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
-        var period = ProductFilterStateProviderComponent.Period.Value;
+        var period = ProductStateProviderComponent.Period.Value;
 
         DialogParameters<SelectPeriodDialog> parameters = new()
         {
@@ -123,7 +123,7 @@
                     End = selectedDates.Through
                 };
 
-            await ProductFilterStateProviderComponent.SetPeriodAsync(selectedPeriod);
+            await ProductStateProviderComponent.SetPeriodAsync(selectedPeriod);
         }
     }
 
@@ -131,7 +131,7 @@
     {
         DialogParameters<SelectCountryDialog> parameters = new()
         {
-            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionNames, ProductFilterStateProviderComponent.CountryRegionNames.Value.ToList() }
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionNames, ProductStateProviderComponent.CountryRegionNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
@@ -140,7 +140,7 @@
 
         if (result?.Data is IEnumerable<string> selectedCountryRegionNames)
         {
-            await ProductFilterStateProviderComponent.SetCountryRegionNamesAsync(selectedCountryRegionNames);
+            await ProductStateProviderComponent.SetCountryRegionNamesAsync(selectedCountryRegionNames);
         }
     }
 
@@ -148,7 +148,7 @@
     {
         DialogParameters<SelectProductCategoryDialog> parameters = new()
         {
-            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, ProductFilterStateProviderComponent.ProductCategoryNames.Value.ToList() }
+            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, ProductStateProviderComponent.ProductCategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductCategoryDialog>("Select Product Category", parameters);
@@ -157,7 +157,7 @@
 
         if (result?.Data is IEnumerable<string> selectedProductCategoryNames)
         {
-            await ProductFilterStateProviderComponent.SetProductCategoryNamesAsync(selectedProductCategoryNames);
+            await ProductStateProviderComponent.SetProductCategoryNamesAsync(selectedProductCategoryNames);
         }
     }
 
@@ -165,7 +165,7 @@
     {
         DialogParameters<SelectProductSubcategoryDialog> parameters = new()
         {
-            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, ProductFilterStateProviderComponent.ProductSubcategoryNames.Value.ToList() }
+            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, ProductStateProviderComponent.ProductSubcategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductSubcategoryDialog>("Select Product Subcategory", parameters);
@@ -174,7 +174,7 @@
 
         if (result?.Data is IEnumerable<string> selectedProductSubcategoryNames)
         {
-            await ProductFilterStateProviderComponent.SetProductSubcategoryNamesAsync(selectedProductSubcategoryNames);
+            await ProductStateProviderComponent.SetProductSubcategoryNamesAsync(selectedProductSubcategoryNames);
         }
     }
 
@@ -182,7 +182,7 @@
     {
         DialogParameters<SelectProductDialog> parameters = new()
         {
-            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, ProductFilterStateProviderComponent.ProductNames.Value.ToList() }
+            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, ProductStateProviderComponent.ProductNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductDialog>("Select Product", parameters);
@@ -191,7 +191,7 @@
 
         if (result?.Data is IEnumerable<string> selectedProductNames)
         {
-            await ProductFilterStateProviderComponent.SetProductNamesAsync(selectedProductNames);
+            await ProductStateProviderComponent.SetProductNamesAsync(selectedProductNames);
         }
     }
 }

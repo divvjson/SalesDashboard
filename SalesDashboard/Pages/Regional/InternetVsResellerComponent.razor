@@ -34,12 +34,14 @@
 
 @code {
     [CascadingParameter]
-    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+    public RegionalStateProviderComponent RegionalStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
     public RegionalDataProviderComponent RegionalDataProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private IDisposable? InternetVsResellerRefreshedSubscription { get; set; }
 
     private bool IsFiguresLoading { get; set; } = true;
 
@@ -63,8 +65,11 @@
     {
         if (firstRender)
         {
-            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+            RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+
+            InternetVsResellerRefreshedSubscription = RegionalStateProviderComponent.InternetVsResellerRefreshed
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
             await RequeryFiguresAsync();
@@ -118,5 +123,6 @@
     public void Dispose()
     {
         RegionalFilterChangedSubscription?.Dispose();
+        InternetVsResellerRefreshedSubscription?.Dispose();
     }
 }

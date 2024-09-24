@@ -1,0 +1,98 @@
+﻿@using SalesDashboard.Services
+
+@implements IDisposable
+@inject DbCommandService DbCommandService
+@inject CircuitAccessor CircuitAccessor
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    public BehaviorSubject<EnumConsoleState> ConsoleStateSubject = new(EnumConsoleState.Closed);
+
+    public BehaviorSubject<DbCommandItem?> LatestDbCommandItemSubject = new(null);
+
+    public BehaviorSubject<int> NumberOfNewDbCommandItemsSubject = new(0);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private IDisposable? LatestDbCommandInfoSubcription { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            LatestDbCommandInfoSubcription = DbCommandService.DbCommandItems
+                .Subscribe(item => HandleLatestDbCommandItem(item));
+
+            NumberOfNewDbCommandItemsSubject.OnNext(GetDbCommandItemsForThisCircuit().Count);
+        }
+    }
+
+    public IReadOnlyList<DbCommandItem> GetDbCommandItemsForThisCircuit()
+    {
+        return DbCommandService.DbCommandItemsReadOnly
+            .Where(item => item.CircuitId == CircuitAccessor.CircuitId)
+            .ToList();
+    }
+
+    private void HandleLatestDbCommandItem(DbCommandItem item)
+    {
+        if (item.CircuitId != CircuitAccessor.CircuitId)
+        {
+            return;
+        }
+
+        var latestCommandInfoForThisCircuit = item;
+
+        LatestDbCommandItemSubject.OnNext(latestCommandInfoForThisCircuit);
+
+        // Only emit the number of new console log entries if the console is closed.
+        if (ConsoleStateSubject.Value is EnumConsoleState.Closed)
+        {
+            NumberOfNewDbCommandItemsSubject.OnNext(NumberOfNewDbCommandItemsSubject.Value + 1);
+        }
+    }
+
+    public void Toggle()
+    {
+        if (ConsoleStateSubject.Value is EnumConsoleState.Open)
+        {
+            Close();
+        }
+        else if (ConsoleStateSubject.Value is EnumConsoleState.Closed)
+        {
+            Open();
+        }
+    }
+
+    public void Open()
+    {
+        if (ConsoleStateSubject.Value is EnumConsoleState.Closed)
+        {
+            ConsoleStateSubject.OnNext(EnumConsoleState.Open);
+            NumberOfNewDbCommandItemsSubject.OnNext(0);
+        }
+    }
+
+    public void Close()
+    {
+        if (ConsoleStateSubject.Value is EnumConsoleState.Open)
+        {
+            ConsoleStateSubject.OnNext(EnumConsoleState.Closed);
+        }
+    }
+
+    public void Clear()
+    {
+        DbCommandService.RemoveDbCommandItemsForCircuit(CircuitAccessor.CircuitId);
+        NumberOfNewDbCommandItemsSubject.OnNext(0);
+    }
+
+    public void Dispose()
+    {
+        LatestDbCommandInfoSubcription?.Dispose();
+    }
+}

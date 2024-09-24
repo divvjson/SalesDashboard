@@ -2,18 +2,16 @@
     <div class="title">@Title</div>
     @if (AggregationMethod is not null)
     {
-        <MudTooltip Text="Aggregation used when grouping" Placement="Placement.Top" Delay="500">
-            <div class="aggregation-method">
-                @if (AggregationMethod is EnumAggregationMethod.Average)
-                {
-                    <div>(avg.)</div>
-                }
-                else if (AggregationMethod is EnumAggregationMethod.Sum)
-                {
-                    <div>(sum)</div>
-                }
-            </div>
-        </MudTooltip>
+        <div class="aggregation-method" title="Aggregation: @AggregationMethod.ToString()">
+            @if (AggregationMethod is EnumAggregationMethod.Average)
+            {
+                <div>(avg.)</div>
+            }
+            else if (AggregationMethod is EnumAggregationMethod.Sum)
+            {
+                <div>(sum)</div>
+            }
+        </div>
     }
 </div>
 

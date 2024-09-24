@@ -1,6 +1,20 @@
 ﻿<div class="page-box">
     <div class="@GetPageBoxHeaderClass()">
-        @Title
+        @if (OnRefreshClicked.HasDelegate)
+        {
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh"
+                           Variant="Variant.Filled"
+                           Size="MudBlazor.Size.Small"
+                           Class="refresh-button"
+                           title="Refresh"
+                           OnClick="HandleRefreshClickedAsync" />
+        }
+        else
+        {
+            <div></div>
+        }
+        <div>@Title</div>
+        <div></div>
     </div>
     @ChildContent
 </div>
@@ -15,6 +29,14 @@
 
     [Parameter]
     public required RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnRefreshClicked { get; set; }
+
+    private async Task HandleRefreshClickedAsync()
+    {
+        await OnRefreshClicked.InvokeAsync();
+    }
 
     public string GetPageBoxHeaderClass()
     {

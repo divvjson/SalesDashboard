@@ -1,0 +1,98 @@
+﻿@using SalesDashboard.Components.StateProviders.ConsoleStateProvider
+@using SalesDashboard.Services
+
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+
+<div class="console">
+    <div class="console-area">
+        @foreach (var item in ConsoleLog)
+        {
+            @if (ConsoleLog.IndexOf(item) != 0)
+            {
+                <MudDivider />
+            }
+            <div class="console-log">
+                <pre><code>@item.CommandName</code></pre>
+                <pre><code class="command-text language-sql">@item.CommandText</code></pre>
+            </div>
+        }
+    </div>
+    <div class="console-actions">
+        <MudIconButton Icon="@Icons.Material.Outlined.Close" OnClick="ConsoleStateProviderComponent.Close" Color="Color.Inherit" title="Close" />
+        <MudIconButton Icon="@Icons.Material.Outlined.DeleteForever" OnClick="Clear" Color="Color.Inherit" title="Clear" />
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ConsoleStateProviderComponent ConsoleStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? LatestDbCommandItemSubscription { get; set; }
+
+    private List<DbCommandItem> ConsoleLog { get; set; } = [];
+
+    private IJSObjectReference JSModule { get; set; } = null!;
+
+    private SemaphoreSlim SemaphoreSlim { get; set; } = new(1, 1);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Layouts/Main/{nameof(ConsoleComponent)}.razor.js");
+
+            var items = ConsoleStateProviderComponent
+                .GetDbCommandItemsForThisCircuit()
+                .ToList();
+
+            foreach (var item in items)
+            {
+                item.CommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", item.CommandText);
+            }
+
+            ConsoleLog = items.ToList();
+
+            await JSModule.InvokeVoidAsync("highlightCommandText");
+
+            LatestDbCommandItemSubscription = ConsoleStateProviderComponent.LatestDbCommandItemSubject
+                .Subscribe(async item => await HandleLatestDbCommandItemAsync(item));
+        }
+    }
+
+    private async Task HandleLatestDbCommandItemAsync(DbCommandItem? item)
+    {
+        await SemaphoreSlim.WaitAsync();
+
+        try
+        {
+            if (item is null)
+            {
+                return;
+            }
+
+            item.CommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", item.CommandText);
+
+            ConsoleLog.Add(item);
+
+            await InvokeAsync(StateHasChanged);
+
+            await JSModule.InvokeVoidAsync("highlightCommandText");
+        }
+        finally
+        {
+            SemaphoreSlim.Release();
+        }
+    }
+
+    public void Clear()
+    {
+        ConsoleLog.Clear();
+        ConsoleStateProviderComponent.Clear();
+    }
+
+    public void Dispose()
+    {
+        LatestDbCommandItemSubscription?.Dispose();
+    }
+}

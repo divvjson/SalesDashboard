@@ -3,9 +3,11 @@
 @using SalesDashboard.Components.Shared.PageBox
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <div class="quantity-sold">
     <div class="total">
@@ -27,9 +29,11 @@
 
 @code {
     [CascadingParameter]
-    public ProductFilterStateProviderComponent ProductFilterStateProviderComponent { get; set; } = null!;
+    public ProductStateProviderComponent ProductStateProviderComponent { get; set; } = null!;
 
     private IDisposable? ProductFilterChangedSubscription { get; set; }
+
+    private IDisposable? QuantitySoldRefreshedSubscription { get; set; }
 
     private bool IsFiguresLoading { get; set; } = true;
 
@@ -43,8 +47,11 @@
     {
         if (firstRender)
         {
-            ProductFilterChangedSubscription = ProductFilterStateProviderComponent.ProductFilterChanged
+            ProductFilterChangedSubscription = ProductStateProviderComponent.ProductFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryFiguresAsync());
+
+            QuantitySoldRefreshedSubscription = ProductStateProviderComponent.QuantitySoldRefreshed
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
             await RequeryFiguresAsync();
@@ -57,11 +64,11 @@
 
         await InvokeAsync(StateHasChanged);
 
-        var period = ProductFilterStateProviderComponent.Period.Value;
-        var countryRegionNames = ProductFilterStateProviderComponent.CountryRegionNames.Value;
-        var productCategoryNames = ProductFilterStateProviderComponent.ProductCategoryNames.Value;
-        var productSubcategoryNames = ProductFilterStateProviderComponent.ProductSubcategoryNames.Value;
-        var productNames = ProductFilterStateProviderComponent.ProductNames.Value;
+        var period = ProductStateProviderComponent.Period.Value;
+        var countryRegionNames = ProductStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = ProductStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = ProductStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = ProductStateProviderComponent.ProductNames.Value;
 
         using var context = DbFactory.CreateDbContext();
 
@@ -100,8 +107,17 @@
             query = query.Where(sod => productNames.Contains(sod.Product.Name));
         }
 
-        InternetQty = await query.Where(sod => sod.SalesOrder.OnlineOrderFlag == true).SumAsync(sod => sod.OrderQty);
-        ResellerQty = await query.Where(sod => sod.SalesOrder.OnlineOrderFlag == false).SumAsync(sod => sod.OrderQty);
+        InternetQty = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Quantity Sold - Internet"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
+            .Where(sod => sod.SalesOrder.OnlineOrderFlag == true)
+            .SumAsync(sod => sod.OrderQty);
+
+        ResellerQty = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Quantity Sold - Reseller"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
+            .Where(sod => sod.SalesOrder.OnlineOrderFlag == false)
+            .SumAsync(sod => sod.OrderQty);
 
         IsFiguresLoading = false;
 
@@ -111,5 +127,6 @@
     public void Dispose()
     {
         ProductFilterChangedSubscription?.Dispose();
+        QuantitySoldRefreshedSubscription?.Dispose();
     }
 }

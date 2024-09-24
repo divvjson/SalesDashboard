@@ -31,71 +31,77 @@
         <div class="header">
             <div></div>
             <div class="header-title">Regional Analysis</div>
-            <MudTooltip Text="Refresh">
-                <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="HandleRefreshClicked" />
-            </MudTooltip>
+            <MudIconButton Icon="@Icons.Material.Outlined.Refresh" Variant="Variant.Filled" OnClick="RegionalStateProviderComponent.NotifyRegionalFilterChanged" title="Refresh" />
         </div>
-        <FilterSettingsComponent NumberOfFilterSettingsSet="RegionalFilterStateProviderComponent.NumberOfFilterSettingsSet">
-            <FilterSettingsItemComponent Key="Period" Value="RegionalFilterStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
+        <FilterSettingsComponent NumberOfFilterSettingsSet="RegionalStateProviderComponent.NumberOfFilterSettingsSet">
+            <FilterSettingsItemComponent Key="Period" Value="RegionalStateProviderComponent.Period.Value" OnSelect="HandleSelectPeriodClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Country" Value="RegionalFilterStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />
+            <FilterSettingsItemComponent Key="Country" Value="RegionalStateProviderComponent.CountryRegionNames.Value" OnSelect="HandleSelectCountryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Category" Value="RegionalFilterStateProviderComponent.ProductCategoryNames.Value" OnSelect="HandleSelectProductCategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Category" Value="RegionalStateProviderComponent.ProductCategoryNames.Value" OnSelect="HandleSelectProductCategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product Subcategory" Value="RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
+            <FilterSettingsItemComponent Key="Product Subcategory" Value="RegionalStateProviderComponent.ProductSubcategoryNames.Value" OnSelect="HandleSelectProductSubcategoryClickedAsync" />
             <MudDivider />
-            <FilterSettingsItemComponent Key="Product" Value="RegionalFilterStateProviderComponent.ProductNames.Value" OnSelect="HandleSelectProductClickedAsync" />
+            <FilterSettingsItemComponent Key="Product" Value="RegionalStateProviderComponent.ProductNames.Value" OnSelect="HandleSelectProductClickedAsync" />
             <MudDivider />
-            <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalFilterStateProviderComponent.ResetAsync">Reset</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" style="align-self: flex-start;" OnClick="RegionalStateProviderComponent.ResetAsync">Reset</MudButton>
         </FilterSettingsComponent>
         <div class="grid">
             <div class="total-sales">
-                <PageBoxComponent Title="Total Sales">
-                    <FigureBoxComponent Value="@TotalSales.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
+                <PageBoxComponent Title="Total Sales"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.TotalSalesRefreshed.OnNext(Unit.Default)">
+                    <FigureBoxComponent Value="@TotalSales.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsTotalSalesLoading" />
                 </PageBoxComponent>
             </div>
             <div class="total-cost">
-                <PageBoxComponent Title="Total Cost">
-                    <FigureBoxComponent Value="@TotalCost.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
+                <PageBoxComponent Title="Total Cost"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.TotalCostRefreshed.OnNext(Unit.Default)">
+                    <FigureBoxComponent Value="@TotalCost.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsTotalCostLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-profit">
                 <PageBoxComponent Title="Gross Profit">
-                    <FigureBoxComponent Value="@GrossProfit.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@GrossProfit.ToCurrencyWithTwoDecimalsInMillions()" IsLoading="IsTotalSalesLoading || IsTotalCostLoading" />
                 </PageBoxComponent>
             </div>
             <div class="gross-margin">
                 <PageBoxComponent Title="Gross Margin">
-                    <FigureBoxComponent Value="@GrossMargin.ToPercentageWithTwoDecimals()" IsLoading="IsFiguresLoading" />
+                    <FigureBoxComponent Value="@GrossMargin.ToPercentageWithTwoDecimals()" IsLoading="IsTotalSalesLoading || IsTotalCostLoading" />
                 </PageBoxComponent>
             </div>
             <div class="sales-trend-top-3-countries">
-                <PageBoxComponent Title="Sales Trend Top 3 Countries">
+                <PageBoxComponent Title="Sales Trend Top 3 Countries"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.SalesTrendTop3CountriesRefreshed.OnNext(Unit.Default)">
                     <SalesTrendTop3CountriesComponent />
                 </PageBoxComponent>
             </div>
             <div class="internet-vs-reseller">
-                <PageBoxComponent Title="Internet vs Reseller Sales">
+                <PageBoxComponent Title="Internet vs Reseller Sales"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.InternetVsResellerRefreshed.OnNext(Unit.Default)">
                     <InternetVsResellerComponent />
                 </PageBoxComponent>
             </div>
             <div class="distribution-of-sales">
-                <PageBoxComponent Title="Distribution of Sales by State">
+                <PageBoxComponent Title="Distribution of Sales by State"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.DistributionOfSalesRefreshed.OnNext(Unit.Default)">
                     <DistributionOfSalesComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-3-states">
-                <PageBoxComponent Title="Top 3 States (Sales)">
+                <PageBoxComponent Title="Top 3 States (Sales)"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.Top3StatesRefreshed.OnNext(Unit.Default)">
                     <Top3StatesComponent />
                 </PageBoxComponent>
             </div>
             <div class="top-3-cities">
-                <PageBoxComponent Title="Top 3 Cities (Sales)">
+                <PageBoxComponent Title="Top 3 Cities (Sales)"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.Top3CitiesRefreshed.OnNext(Unit.Default)">
                     <Top3CitiesComponent />
                 </PageBoxComponent>
             </div>
             <div class="summary-matrix">
-                <PageBoxComponent Title="Summary Matrix">
+                <PageBoxComponent Title="Summary Matrix"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.RegionalSummaryMatrixRefreshed.OnNext(Unit.Default)">
                     <RegionalSummaryMatrixComponent />
                 </PageBoxComponent>
             </div>
@@ -105,14 +111,20 @@
 
 @code {
     [CascadingParameter]
-    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+    public RegionalStateProviderComponent RegionalStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
     public RegionalDataProviderComponent RegionalDataProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
-    private bool IsFiguresLoading { get; set; } = true;
+    private IDisposable? TotalSalesRefreshedSubscription { get; set; }
+
+    private IDisposable? TotalCostRefreshedSubscription { get; set; }
+
+    private bool IsTotalSalesLoading { get; set; } = true;
+
+    private bool IsTotalCostLoading { get; set; } = true;
 
     private decimal TotalSales { get; set; }
 
@@ -126,17 +138,18 @@
     {
         if (firstRender)
         {
-            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+            RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
                 .Subscribe(async _ => await RequeryFiguresAsync());
 
+            TotalSalesRefreshedSubscription = RegionalStateProviderComponent.TotalSalesRefreshed
+                .Subscribe(async _ => await RequeryTotalSalesAsync());
+
+            TotalCostRefreshedSubscription = RegionalStateProviderComponent.TotalCostRefreshed
+                .Subscribe(async _ => await RequeryTotalCostAsync());
+
             await RequeryFiguresAsync();
         }
-    }
-
-    private void HandleRefreshClicked()
-    {
-        RegionalFilterStateProviderComponent.RegionalFilterChanged.OnNext(Unit.Default);
     }
 
     private async Task HandleSelectPeriodClickedAsync()
@@ -145,7 +158,7 @@
 
         var firstOrderDate = await context.SalesOrderHeaders.MinAsync(soh => soh.OrderDate);
         var lastOrderDate = await context.SalesOrderHeaders.MaxAsync(soh => soh.OrderDate);
-        var period = RegionalFilterStateProviderComponent.Period.Value;
+        var period = RegionalStateProviderComponent.Period.Value;
 
         DialogParameters<SelectPeriodDialog> parameters = new()
         {
@@ -167,7 +180,7 @@
                 End = selectedDates.Through
             };
 
-            await RegionalFilterStateProviderComponent.SetPeriodAsync(selectedPeriod);
+            await RegionalStateProviderComponent.SetPeriodAsync(selectedPeriod);
         }
     }
 
@@ -175,7 +188,7 @@
     {
         DialogParameters<SelectCountryDialog> parameters = new()
         {
-            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionNames, RegionalFilterStateProviderComponent.CountryRegionNames.Value.ToList() }
+            { selectCountryDialog => selectCountryDialog.InitiallySelectedCountryRegionNames, RegionalStateProviderComponent.CountryRegionNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectCountryDialog>("Select Country", parameters);
@@ -184,7 +197,7 @@
 
         if (result?.Data is IEnumerable<string> selectedCountryRegionNames)
         {
-            await RegionalFilterStateProviderComponent.SetCountryRegionNamesAsync(selectedCountryRegionNames);
+            await RegionalStateProviderComponent.SetCountryRegionNamesAsync(selectedCountryRegionNames);
         }
     }
 
@@ -192,7 +205,7 @@
     {
         DialogParameters<SelectProductCategoryDialog> parameters = new()
         {
-            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalFilterStateProviderComponent.ProductCategoryNames.Value.ToList() }
+            { selectProductCategoryDialog => selectProductCategoryDialog.InitiallySelectedProductCategoryNames, RegionalStateProviderComponent.ProductCategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductCategoryDialog>("Select Product Category", parameters);
@@ -201,7 +214,7 @@
 
         if (result?.Data is IEnumerable<string> selectedProductCategoryNames)
         {
-            await RegionalFilterStateProviderComponent.SetProductCategoryNamesAsync(selectedProductCategoryNames);
+            await RegionalStateProviderComponent.SetProductCategoryNamesAsync(selectedProductCategoryNames);
         }
     }
 
@@ -209,7 +222,7 @@
     {
         DialogParameters<SelectProductSubcategoryDialog> parameters = new()
         {
-            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value.ToList() }
+            { selectProductSubcategoryDialog => selectProductSubcategoryDialog.InitiallySelectedProductSubcategoryNames, RegionalStateProviderComponent.ProductSubcategoryNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductSubcategoryDialog>("Select Product Subcategory", parameters);
@@ -218,7 +231,7 @@
 
         if (result?.Data is IEnumerable<string> selectedProductSubcategoryNames)
         {
-            await RegionalFilterStateProviderComponent.SetProductSubcategoryNamesAsync(selectedProductSubcategoryNames);
+            await RegionalStateProviderComponent.SetProductSubcategoryNamesAsync(selectedProductSubcategoryNames);
         }
     }
 
@@ -226,7 +239,7 @@
     {
         DialogParameters<SelectProductDialog> parameters = new()
         {
-            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, RegionalFilterStateProviderComponent.ProductNames.Value.ToList() }
+            { selectProductDialog => selectProductDialog.InitiallySelectedProductNames, RegionalStateProviderComponent.ProductNames.Value.ToList() }
         };
 
         var dialog = await DialogService.ShowAsync<SelectProductDialog>("Select Product", parameters);
@@ -235,25 +248,57 @@
 
         if (result?.Data is IEnumerable<string> selectedProductNames)
         {
-            await RegionalFilterStateProviderComponent.SetProductNamesAsync(selectedProductNames);
+            await RegionalStateProviderComponent.SetProductNamesAsync(selectedProductNames);
         }
     }
 
     private async Task RequeryFiguresAsync()
     {
-        IsFiguresLoading = true;
+        await Task.WhenAll([
+        RequeryTotalSalesAsync(),
+        RequeryTotalCostAsync()
+        ]);
+    }
+
+    private async Task RequeryTotalSalesAsync()
+    {
+        IsTotalSalesLoading = true;
 
         await InvokeAsync(StateHasChanged);
 
-        var getTotalSalesAsyncTask = RegionalDataProviderComponent.GetTotalSalesAsync();
-        var getTotalCostAsyncTask = RegionalDataProviderComponent.GetTotalCostAsync();
+        TotalSales = await RegionalDataProviderComponent.GetTotalSalesAsync();
 
-        var result = await Task.WhenAll([getTotalSalesAsyncTask, getTotalCostAsyncTask]);
+        SetGrossProfit();
+        SetGrossMargin();
 
-        TotalSales = result[0];
-        TotalCost = result[1];
+        IsTotalSalesLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RequeryTotalCostAsync()
+    {
+        IsTotalCostLoading = true;
+
+        await InvokeAsync(StateHasChanged);
+
+        TotalCost = await RegionalDataProviderComponent.GetTotalCostAsync();
+
+        SetGrossProfit();
+        SetGrossMargin();
+
+        IsTotalCostLoading = false;
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void SetGrossProfit()
+    {
         GrossProfit = TotalSales - TotalCost;
+    }
 
+    private void SetGrossMargin()
+    {
         if (TotalSales != 0)
         {
             GrossMargin = GrossProfit / TotalSales;
@@ -262,14 +307,12 @@
         {
             GrossMargin = 0;
         }
-
-        IsFiguresLoading = false;
-
-        await InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
         RegionalFilterChangedSubscription?.Dispose();
+        TotalSalesRefreshedSubscription?.Dispose();
+        TotalCostRefreshedSubscription?.Dispose();
     }
 }

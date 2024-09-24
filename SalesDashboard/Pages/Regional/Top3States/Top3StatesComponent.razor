@@ -2,9 +2,11 @@
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="top-3-states">
@@ -24,9 +26,11 @@
 
 @code {
     [CascadingParameter]
-    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+    public RegionalStateProviderComponent RegionalStateProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private IDisposable? Top3StatesRefreshedSubscription { get; set; }
 
     private bool IsChartDataLoading { get; set; } = false;
 
@@ -40,8 +44,11 @@
     {
         if (firstRender)
         {
-            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+            RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            Top3StatesRefreshedSubscription = RegionalStateProviderComponent.Top3StatesRefreshed
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
             await RequeryChartDataAsync();
@@ -54,11 +61,11 @@
 
         await InvokeAsync(StateHasChanged);
 
-        var period = RegionalFilterStateProviderComponent.Period.Value;
-        var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
-        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
-        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
-        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+        var period = RegionalStateProviderComponent.Period.Value;
+        var countryRegionNames = RegionalStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = RegionalStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalStateProviderComponent.ProductNames.Value;
 
         using var context = DbFactory.CreateDbContext();
 
@@ -98,6 +105,8 @@
         }
 
         var items = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Top 3 States"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .GroupBy(sod => new
             {
                 StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name
@@ -135,5 +144,6 @@
     public void Dispose()
     {
         RegionalFilterChangedSubscription?.Dispose();
+        Top3StatesRefreshedSubscription?.Dispose();
     }
 }

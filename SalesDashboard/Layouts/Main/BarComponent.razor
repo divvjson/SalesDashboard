@@ -1,17 +1,26 @@
-﻿@using SalesDashboard.Components.StateProviders.DeviceStateProvider
+﻿@using SalesDashboard.Components.StateProviders.ConsoleStateProvider
+@using SalesDashboard.Components.StateProviders.DeviceStateProvider
 @using SalesDashboard.Components.StateProviders.DrawerStateProvider
 
+@implements IDisposable
 @inject IDialogService DialogService
 
 <div class="bar">
-    <div class="bar-button mud-ripple" @onclick="DrawerStateProviderComponent.Toggle">
-        <MudIcon Icon="@Icons.Material.Outlined.Menu" Title="Menu" />
+    <div class="bar-button mud-ripple" @onclick="DrawerStateProviderComponent.Toggle" title="Menu">
+        <MudIcon Icon="@Icons.Material.Outlined.Menu" />
     </div>
     <div class="title-container">
         <div class="title">Adventure Works</div>
         <div class="sub-title">Sales Dashboard</div>
     </div>
-    <div class="bar-button"></div>
+    <div class="bar-button mud-ripple" @onclick="ConsoleStateProviderComponent.Toggle" title="Console">
+        <MudBadge Content="NumberOfNewDbCommandItems"
+                  Visible="NumberOfNewDbCommandItems > 0"
+                  Overlap="true"
+                  Color="Color.Error">
+            <MudIcon Icon="@Icons.Material.Outlined.WebAsset" />
+        </MudBadge>
+    </div>
 </div>
 
 @code {
@@ -19,5 +28,30 @@
     public DrawerStateProviderComponent DrawerStateProviderComponent { get; set; } = null!;
 
     [CascadingParameter]
+    public ConsoleStateProviderComponent ConsoleStateProviderComponent { get; set; } = null!;
+
+    [CascadingParameter]
     public DeviceStateProviderComponent DeviceStateProviderComponent { get; set; } = null!;
+
+    private IDisposable? NumberOfNewDbCommandItemsSubcription { get; set; }
+
+    public int NumberOfNewDbCommandItems { get; set; } = 0;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            NumberOfNewDbCommandItemsSubcription = ConsoleStateProviderComponent.NumberOfNewDbCommandItemsSubject
+                .Subscribe(async value =>
+                {
+                    NumberOfNewDbCommandItems = value;
+                    await InvokeAsync(StateHasChanged);
+                });
+        }
+    }
+
+    public void Dispose()
+    {
+        NumberOfNewDbCommandItemsSubcription?.Dispose();
+    }
 }

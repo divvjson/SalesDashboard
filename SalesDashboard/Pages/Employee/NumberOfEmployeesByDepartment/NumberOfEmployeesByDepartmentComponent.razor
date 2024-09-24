@@ -1,9 +1,11 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="number-of-employees-by-department">
@@ -17,9 +19,11 @@
 
 @code {
     [CascadingParameter]
-    public EmployeeFilterStateProviderComponent EmployeeFilterStateProviderComponent { get; set; } = null!;
+    public EmployeeStateProviderComponent EmployeeStateProviderComponent { get; set; } = null!;
 
     private IDisposable? EmployeeFilterChangedSubscription { get; set; }
+
+    private IDisposable? NumberOfEmployeesByDepartmentRefreshedSubscription { get; set; }
 
     private bool IsChartDataLoading { get; set; } = false;
 
@@ -34,8 +38,11 @@
     {
         if (firstRender)
         {
-            EmployeeFilterChangedSubscription = EmployeeFilterStateProviderComponent.EmployeeFilterChanged
+            EmployeeFilterChangedSubscription = EmployeeStateProviderComponent.EmployeeFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            NumberOfEmployeesByDepartmentRefreshedSubscription = EmployeeStateProviderComponent.NumberOfEmployeesByDepartmentRefreshed
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
             await RequeryChartDataAsync();
@@ -51,6 +58,8 @@
         using var context = DbFactory.CreateDbContext();
 
         var items = await context.Employees
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Number of Employees by Department"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .SelectMany(e => e.EmployeeDepartmentHistories.Where(edh => edh.EndDate == null).Select(edh => edh.Department))
             .GroupBy(d => d.Name)
             .Select(g => new NumberOfEmployeesByDepartmentItem
@@ -86,5 +95,6 @@
     public void Dispose()
     {
         EmployeeFilterChangedSubscription?.Dispose();
+        NumberOfEmployeesByDepartmentRefreshedSubscription?.Dispose();
     }
 }

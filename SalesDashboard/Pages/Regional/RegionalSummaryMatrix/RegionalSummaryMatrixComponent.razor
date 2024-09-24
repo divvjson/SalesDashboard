@@ -4,9 +4,11 @@
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
 @using SalesDashboard.Helpers
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsLoading">
     <MudTable ContainerClass="summary-matrix"
@@ -105,9 +107,11 @@
 
 @code {
     [CascadingParameter]
-    public RegionalFilterStateProviderComponent RegionalFilterStateProviderComponent { get; set; } = null!;
+    public RegionalStateProviderComponent RegionalStateProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private IDisposable? RegionalSummaryMatrixRefreshedSubscription { get; set; }
 
     private bool IsLoading { get; set; } = false;
 
@@ -145,14 +149,14 @@
         switch (context.GroupName)
         {
             case nameof(RegionalSummaryMatrixItem.CountryRegionName):
-            styleString += " font-weight: 500;";
-            break;
+                styleString += " font-weight: 500;";
+                break;
             case nameof(RegionalSummaryMatrixItem.StateProvinceName):
-            styleString += " font-weight: 400;";
-            break;
+                styleString += " font-weight: 400;";
+                break;
             case nameof(RegionalSummaryMatrixItem.City):
-            styleString += " font-weight: 300;";
-            break;
+                styleString += " font-weight: 300;";
+                break;
         }
 
         return styleString;
@@ -162,8 +166,11 @@
     {
         if (firstRender)
         {
-            RegionalFilterChangedSubscription = RegionalFilterStateProviderComponent.RegionalFilterChanged
+            RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryAsync());
+
+            RegionalSummaryMatrixRefreshedSubscription = RegionalStateProviderComponent.RegionalSummaryMatrixRefreshed
                 .Subscribe(async _ => await RequeryAsync());
 
             await RequeryAsync();
@@ -176,11 +183,11 @@
 
         await InvokeAsync(StateHasChanged);
 
-        var period = RegionalFilterStateProviderComponent.Period.Value;
-        var countryRegionNames = RegionalFilterStateProviderComponent.CountryRegionNames.Value;
-        var productCategoryNames = RegionalFilterStateProviderComponent.ProductCategoryNames.Value;
-        var productSubcategoryNames = RegionalFilterStateProviderComponent.ProductSubcategoryNames.Value;
-        var productNames = RegionalFilterStateProviderComponent.ProductNames.Value;
+        var period = RegionalStateProviderComponent.Period.Value;
+        var countryRegionNames = RegionalStateProviderComponent.CountryRegionNames.Value;
+        var productCategoryNames = RegionalStateProviderComponent.ProductCategoryNames.Value;
+        var productSubcategoryNames = RegionalStateProviderComponent.ProductSubcategoryNames.Value;
+        var productNames = RegionalStateProviderComponent.ProductNames.Value;
 
         using var context = DbFactory.CreateDbContext();
 
@@ -220,6 +227,8 @@
         }
 
         var items = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Regional Summary Matrix"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .GroupBy(sod => new
             {
                 CountryRegionName = sod.SalesOrder.BillToAddress.StateProvince.CountryRegionCodeNavigation.Name,
@@ -281,5 +290,6 @@
     public void Dispose()
     {
         RegionalFilterChangedSubscription?.Dispose();
+        RegionalSummaryMatrixRefreshedSubscription?.Dispose();
     }
 }

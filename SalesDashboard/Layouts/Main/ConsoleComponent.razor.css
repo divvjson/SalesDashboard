@@ -1,0 +1,23 @@
+﻿.console {
+    flex-grow: 1;
+    background-color: #282C34;
+    color: white;
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    align-items: start;
+}
+
+.console-area {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.console-log {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.command-text {
+    padding: 0;
+}
