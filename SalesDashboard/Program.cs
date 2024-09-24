@@ -50,5 +50,9 @@ if (app.Environment.IsDevelopment())
     app.Urls.Add("https://localhost:4200");
     app.Urls.Add("https://0.0.0.0:4200");
 }
+else if (app.Environment.IsProduction())
+{
+    app.Urls.Add("http://0.0.0.0:5000");
+}
 
 app.Run();
