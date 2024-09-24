@@ -42,9 +42,16 @@
         {
             JSModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", $"./Layouts/Main/{nameof(ConsoleComponent)}.razor.js");
 
-            ConsoleLog = ConsoleStateProviderComponent
+            var items = ConsoleStateProviderComponent
                 .GetDbCommandItemsForThisCircuit()
                 .ToList();
+
+            foreach (var item in items)
+            {
+                item.CommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", item.CommandText);
+            }
+
+            ConsoleLog = items.ToList();
 
             await JSModule.InvokeVoidAsync("highlightCommandText");
 
@@ -64,9 +71,7 @@
                 return;
             }
 
-            var formattedCommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", item.CommandText);
-
-            item.CommandText = formattedCommandText;
+            item.CommandText = await JSModule.InvokeAsync<string>("getFormattedCommandText", item.CommandText);
 
             ConsoleLog.Add(item);
 
