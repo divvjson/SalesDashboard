@@ -2,9 +2,11 @@
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
 @using SalesDashboard.Extensions
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsChartDataLoading">
     <div class="top-3-states">
@@ -28,6 +30,8 @@
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
 
+    private IDisposable? Top3StatesRefreshedSubscription { get; set; }
+
     private bool IsChartDataLoading { get; set; } = false;
 
     private int DataSize { get; set; } = 3;
@@ -42,6 +46,9 @@
         {
             RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryChartDataAsync());
+
+            Top3StatesRefreshedSubscription = RegionalStateProviderComponent.Top3StatesRefreshed
                 .Subscribe(async _ => await RequeryChartDataAsync());
 
             await RequeryChartDataAsync();
@@ -98,6 +105,8 @@
         }
 
         var items = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Top 3 States"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .GroupBy(sod => new
             {
                 StateProvinceName = sod.SalesOrder.BillToAddress.StateProvince.Name
@@ -135,5 +144,6 @@
     public void Dispose()
     {
         RegionalFilterChangedSubscription?.Dispose();
+        Top3StatesRefreshedSubscription?.Dispose();
     }
 }
