@@ -52,7 +52,7 @@ if (app.Environment.IsDevelopment())
 }
 else if (app.Environment.IsProduction())
 {
-    app.Urls.Add("http://0.0.0.0:5000");
+    app.Urls.Add("http://0.0.0.0:6000");
 }
 
 app.Run();
