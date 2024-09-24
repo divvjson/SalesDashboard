@@ -31,6 +31,8 @@
 
     public Subject<Unit> Top3StatesRefreshed { get; private set; } = new();
 
+    public Subject<Unit> Top3CitiesRefreshed { get; private set; } = new();
+
     public BehaviorSubject<DateTimeRange?> Period { get; set; } = new(null);
 
     public BehaviorSubject<IEnumerable<string>> CountryRegionNames { get; private set; } = new([]);

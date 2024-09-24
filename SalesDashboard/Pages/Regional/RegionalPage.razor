@@ -94,7 +94,8 @@
                 </PageBoxComponent>
             </div>
             <div class="top-3-cities">
-                <PageBoxComponent Title="Top 3 Cities (Sales)">
+                <PageBoxComponent Title="Top 3 Cities (Sales)"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.Top3CitiesRefreshed.OnNext(Unit.Default)">
                     <Top3CitiesComponent />
                 </PageBoxComponent>
             </div>
