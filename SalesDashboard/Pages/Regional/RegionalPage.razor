@@ -100,7 +100,8 @@
                 </PageBoxComponent>
             </div>
             <div class="summary-matrix">
-                <PageBoxComponent Title="Summary Matrix">
+                <PageBoxComponent Title="Summary Matrix"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.RegionalSummaryMatrixRefreshed.OnNext(Unit.Default)">
                     <RegionalSummaryMatrixComponent />
                 </PageBoxComponent>
             </div>
