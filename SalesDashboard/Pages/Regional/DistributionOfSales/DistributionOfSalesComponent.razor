@@ -2,10 +2,12 @@
 @using SalesDashboard.Components.Shared.ClickToUnlockOverlay
 @using SalesDashboard.Components.Shared.SpinnerOverlay
 @using SalesDashboard.Entities
+@using SalesDashboard.Services
 
 @implements IDisposable
 @inject IJSRuntime JSRuntime
 @inject IDbContextFactory<AdventureWorksContext> DbFactory
+@inject CircuitAccessor CircuitAccessor
 
 <SpinnerOverlayComponent IsVisible="IsMapDataLoading">
     <ClickToUnlockOverlayComponent IsVisible="IsClickToUnlockVisible" OnUnlockClicked="HandleUnlockClicked" OnLockClicked="HandleLockClicked">
@@ -18,6 +20,8 @@
     public RegionalStateProviderComponent RegionalStateProviderComponent { get; set; } = null!;
 
     private IDisposable? RegionalFilterChangedSubscription { get; set; }
+
+    private IDisposable? DistributionOfSalesRefreshedSubscription { get; set; }
 
     private bool IsMapDataLoading { get; set; } = false;
 
@@ -35,6 +39,9 @@
 
             RegionalFilterChangedSubscription = RegionalStateProviderComponent.RegionalFilterChanged
                 .Throttle(TimeSpan.FromMilliseconds(25))
+                .Subscribe(async _ => await RequeryMapDataAsync());
+
+            DistributionOfSalesRefreshedSubscription = RegionalStateProviderComponent.DistributionOfSalesRefreshed
                 .Subscribe(async _ => await RequeryMapDataAsync());
 
             await RequeryMapDataAsync();
@@ -101,6 +108,8 @@
         }
 
         var stateProvinceSales = await query
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.COMMAND_NAME, "Distribution of Sales by State"))
+            .TagWith(DbCommandService.GetDbCommandTag(EnumDbCommandTag.CIRCUIT_ID, CircuitAccessor.CircuitId))
             .GroupBy(sod => new
             {
                 sod.SalesOrder.BillToAddress.StateProvince.StateProvinceId,
@@ -130,5 +139,6 @@
     public void Dispose()
     {
         RegionalFilterChangedSubscription?.Dispose();
+        DistributionOfSalesRefreshedSubscription?.Dispose();
     }
 }

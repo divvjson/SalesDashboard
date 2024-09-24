@@ -82,7 +82,8 @@
                 </PageBoxComponent>
             </div>
             <div class="distribution-of-sales">
-                <PageBoxComponent Title="Distribution of Sales by State">
+                <PageBoxComponent Title="Distribution of Sales by State"
+                                  OnRefreshClicked="() => RegionalStateProviderComponent.DistributionOfSalesRefreshed.OnNext(Unit.Default)">
                     <DistributionOfSalesComponent />
                 </PageBoxComponent>
             </div>
